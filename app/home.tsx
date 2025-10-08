@@ -1,73 +1,64 @@
-// app/home.tsx
-import React from 'react';
-import {
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-
 import { useRouter } from 'expo-router';
+import React from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemedText } from '../components/themed-text';
+import ScreenLayout from '../components/ui/ScreenLayout';
+import { Colors } from '../constants/colors'; // Importar cores
+import { theme } from '../constants/theme';
+
+const colors = Colors.light; // Selecionar tema claro ou escuro conforme necessário
 
 const Home: React.FC = () => {
   const router = useRouter();
-  const userName = 'Usuário'; // Use o contexto do usuário no futuro
+  const userName = 'Usuário';
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.welcome}>Olá, {userName}! Bem-vindo ao TrackCar</Text>
+    <ScreenLayout title="Início">
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <ThemedText style={styles.welcome}>
+          Olá, {userName}! Bem-vindo ao TrackCar
+        </ThemedText>
 
         <View style={styles.blocksContainer}>
           <TouchableOpacity
             style={styles.block}
             onPress={() => router.push('/perfil')}
           >
-            <Text style={styles.blockText}>Usuário</Text>
+            <ThemedText style={styles.blockText}>Usuário</ThemedText>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.block}
             onPress={() => router.push('/carros')}
           >
-            <Text style={styles.blockText}>Carros</Text>
+            <ThemedText style={styles.blockText}>Carros</ThemedText>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.block}
             onPress={() => router.push('/veiculosroubados')}
           >
-            <Text style={styles.blockText}>Veículos Roubados</Text>
+            <ThemedText style={styles.blockText}>Veículos Roubados</ThemedText>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.block}
             onPress={() => router.push('/localizacao')}
           >
-            <Text style={styles.blockText}>Localização</Text>
+            <ThemedText style={styles.blockText}>Localização</ThemedText>
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenLayout>
   );
 };
 
-export default Home;
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f2f2f2',
-  },
-  content: {
-    padding: 20,
-  },
   welcome: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontSize: theme.fontSize.lg,
+    fontWeight: theme.fontWeight.bold,
+    marginBottom: theme.spacing.xl,
+    color: colors.text, // Usar colors
   },
   blocksContainer: {
     flexDirection: 'row',
@@ -76,14 +67,18 @@ const styles = StyleSheet.create({
   },
   block: {
     width: '48%',
-    backgroundColor: '#007bff',
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 15,
+    backgroundColor: colors.primary, // Usar colors
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.md,
+    alignItems: 'center',
   },
   blockText: {
-    color: '#fff',
-    fontSize: 18,
+    color: colors.background, // Usar colors
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
     textAlign: 'center',
   },
 });
+
+export default Home;

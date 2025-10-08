@@ -3,73 +3,56 @@ import { router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert, Image, KeyboardAvoidingView, Platform, ScrollView,
+  Text, TextInput, TouchableOpacity, View
 } from 'react-native';
-import { theme } from '../constants/theme';
 import { auth } from '../services/firebase';
-
-interface LoginForm {
-  email: string;
-  password: string;
-}
+import styles from '../styles/authScreenStyles';
 
 export default function LoginScreen() {
-  const [form, setForm] = useState<LoginForm>({ email: '', password: '' });
-  const [loading, setLoading] = useState<boolean>(false);
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (field: keyof LoginForm, value: string) => {
-    setForm(prev => ({ ...prev, [field]: value }));
-  };
+  const handleInputChange = (field: string, value: string) => {
+  setForm(prev => ({ ...prev, [field]: value }));
+};
+
 
   const handleLogin = async () => {
     if (!form.email || !form.password) {
       Alert.alert('Erro', 'Preencha todos os campos');
       return;
     }
-
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, form.email, form.password);
       Alert.alert('Sucesso', 'Login realizado com sucesso!');
       router.replace('/home');
-    } catch (error: any) {
-      let errorMessage = 'Erro na autenticação';
-      if (error.code === 'auth/invalid-email') errorMessage = 'E-mail inválido';
-      else if (error.code === 'auth/user-not-found') errorMessage = 'Usuário não encontrado';
-      else if (error.code === 'auth/wrong-password') errorMessage = 'Senha incorreta';
-      Alert.alert('Erro', errorMessage);
-    } finally {
-      setLoading(false);
+    } catch (err) {
+    let code = '';
+    if (err && typeof err === 'object' && 'code' in err && typeof err.code === 'string') {
+      code = err.code;
     }
+    let errorMessage = 'Erro na autenticação';
+    if (code === 'auth/invalid-email') errorMessage = 'E-mail inválido';
+    else if (code === 'auth/user-not-found') errorMessage = 'Usuário não encontrado';
+    else if (code === 'auth/wrong-password') errorMessage = 'Senha incorreta';
+    Alert.alert('Erro', errorMessage);
+  } finally { setLoading(false); }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <KeyboardAvoidingView style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
-          <Image
-            source={require('../assets/images/logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
+          <Image source={require('../assets/images/logo.png')}
+            style={styles.logo} resizeMode="contain" />
           <Text style={styles.title}>Entrar</Text>
           <Text style={styles.subtitle}>
             Acesse sua conta para monitorar seu veículo
           </Text>
         </View>
-
         <View style={styles.form}>
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>E-mail</Text>
@@ -83,7 +66,6 @@ export default function LoginScreen() {
               autoCorrect={false}
             />
           </View>
-
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Senha</Text>
             <TextInput
@@ -95,21 +77,17 @@ export default function LoginScreen() {
               autoCapitalize="none"
             />
           </View>
-
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleLogin}
-            disabled={loading}
-          >
+            disabled={loading}>
             <Text style={styles.buttonText}>
               {loading ? 'Carregando...' : 'Entrar'}
             </Text>
           </TouchableOpacity>
-
           <TouchableOpacity
             style={styles.switchButton}
-            onPress={() => router.push('/register')}
-          >
+            onPress={() => router.push('/register')}>
             <Text style={styles.switchButtonText}>
               Não tem conta? Cadastre-se
             </Text>
@@ -119,81 +97,3 @@ export default function LoginScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: theme.spacing.lg,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: theme.spacing.xxl,
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    marginBottom: theme.spacing.lg,
-  },
-  title: {
-    fontSize: theme.fontSize.header,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
-  },
-  subtitle: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  form: {
-    width: '100%',
-  },
-  inputContainer: {
-    marginBottom: theme.spacing.lg,
-  },
-  inputLabel: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
-  },
-  input: {
-    backgroundColor: theme.colors.inputBackground,
-    borderWidth: 1,
-    borderColor: theme.colors.inputBorder,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    fontSize: theme.fontSize.md,
-    color: theme.colors.text,
-  },
-  button: {
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-  },
-  buttonDisabled: {
-    backgroundColor: theme.colors.buttonDisabled,
-  },
-  buttonText: {
-    color: theme.colors.background,
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.semibold,
-  },
-  switchButton: {
-    alignItems: 'center',
-    padding: theme.spacing.sm,
-  },
-  switchButtonText: {
-    color: theme.colors.primary,
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-  },
-});

@@ -1,8 +1,7 @@
-// app/perfil.tsx - Versão simplificada usando o novo service
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -17,6 +16,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
+import { Colors } from '../constants/colors';
 import { theme } from '../constants/theme';
 import { useUserProfile } from '../hooks/useUserProfile';
 import {
@@ -26,6 +27,8 @@ import {
   validatePasswordForm,
   validateProfileForm,
 } from '../types/profile';
+
+const colors = Colors.light; // ou troque por Colors.dark conforme o estado de tema
 
 export default function PerfilScreen() {
   const {
@@ -39,7 +42,6 @@ export default function PerfilScreen() {
     signOut,
   } = useUserProfile();
 
-  // Estados para os formulários
   const [formData, setFormData] = useState<ProfileFormData>({
     name: '',
     phone: '',
@@ -57,8 +59,8 @@ export default function PerfilScreen() {
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Atualiza o formulário quando o perfil carrega
-  React.useEffect(() => {
+  /* ---------- sincroniza state inicial ---------- */
+  useEffect(() => {
     if (profile) {
       setFormData({
         name: profile.name || '',
@@ -68,203 +70,132 @@ export default function PerfilScreen() {
     }
   }, [profile]);
 
+  /* ---------- helpers ---------- */
   const handleInputChange = (field: keyof ProfileFormData, value: string) => {
-    if (field === 'phone') {
-      const formattedPhone = formatPhoneNumber(value);
-      setFormData(prev => ({ ...prev, [field]: formattedPhone }));
-    } else {
-      setFormData(prev => ({ ...prev, [field]: value }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      [field]: field === 'phone' ? formatPhoneNumber(value) : value,
+    }));
   };
 
-  const handlePasswordChange = (field: keyof PasswordFormData, value: string) => {
+  const handlePasswordChange = (field: keyof PasswordFormData, value: string) =>
     setPasswordData(prev => ({ ...prev, [field]: value }));
-  };
 
+  /* ---------- salvar perfil ---------- */
   const handleSaveProfile = async () => {
-    try {
-      const validationErrors = validateProfileForm(formData);
-      if (Object.keys(validationErrors).length > 0) {
-        const errorMessage = Object.values(validationErrors)[0];
-        Alert.alert('Erro de Validação', errorMessage);
-        return;
-      }
-
-      setIsUpdating(true);
-      await updateProfile(formData);
-      setEditMode(false);
-    } catch (error) {
-      // Erro já tratado no hook
-    } finally {
-      setIsUpdating(false);
+    const validationErrors = validateProfileForm(formData);
+    if (Object.keys(validationErrors).length) {
+      Alert.alert('Erro de Validação', Object.values(validationErrors)[0]);
+      return;
     }
+    setIsUpdating(true);
+    await updateProfile(formData);
+    setIsUpdating(false);
+    setEditMode(false);
   };
 
+  /* ---------- alterar senha ---------- */
   const handleChangePassword = async () => {
-    try {
-      const validationErrors = validatePasswordForm(passwordData);
-      if (Object.keys(validationErrors).length > 0) {
-        const errorMessage = Object.values(validationErrors)[0];
-        Alert.alert('Erro de Validação', errorMessage);
-        return;
-      }
-
-      setIsUpdating(true);
-      await updatePassword(passwordData.newPassword);
-      setShowPasswordModal(false);
-      setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      });
-    } catch (error) {
-      // Erro já tratado no hook
-    } finally {
-      setIsUpdating(false);
+    const validationErrors = validatePasswordForm(passwordData);
+    if (Object.keys(validationErrors).length) {
+      Alert.alert('Erro de Validação', Object.values(validationErrors)[0]);
+      return;
     }
+    setIsUpdating(true);
+    await updatePassword(passwordData.newPassword);
+    setIsUpdating(false);
+    setShowPasswordModal(false);
+    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
   };
 
-  const handlePickImage = async () => {
-    try {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
-      if (permissionResult.granted === false) {
-        Alert.alert('Permissão necessária', 'Permita o acesso à galeria para selecionar uma foto.');
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
-
-      if (!result.canceled && result.assets && result.assets[0]) {
-        setShowPhotoOptions(false);
-        setIsUpdating(true);
-        await uploadPhoto(result.assets[0].uri);
-        setIsUpdating(false);
-      }
-    } catch (error) {
-      setIsUpdating(false);
-      console.error('Erro ao selecionar imagem:', error);
-    }
-  };
-
-  const handleTakePhoto = async () => {
-    try {
-      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-      
-      if (permissionResult.granted === false) {
-        Alert.alert('Permissão necessária', 'Permita o acesso à câmera para tirar uma foto.');
-        return;
-      }
-
-      const result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
-
-      if (!result.canceled && result.assets && result.assets[0]) {
-        setShowPhotoOptions(false);
-        setIsUpdating(true);
-        await uploadPhoto(result.assets[0].uri);
-        setIsUpdating(false);
-      }
-    } catch (error) {
-      setIsUpdating(false);
-      console.error('Erro ao tirar foto:', error);
-    }
-  };
-
-  const handleRemovePhoto = async () => {
-    try {
+  /* ---------- imagem ---------- */
+  const pickOrCapture = async (camera = false) => {
+    const perm = camera
+      ? await ImagePicker.requestCameraPermissionsAsync()
+      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
       Alert.alert(
-        'Remover Foto',
-        'Tem certeza que deseja remover sua foto de perfil?',
-        [
-          {
-            text: 'Cancelar',
-            style: 'cancel',
-          },
-          {
-            text: 'Remover',
-            style: 'destructive',
-            onPress: async () => {
-              setShowPhotoOptions(false);
-              setIsUpdating(true);
-              await removePhoto();
-              setIsUpdating(false);
-            },
-          },
-        ]
+        'Permissão necessária',
+        camera ? 'Permita usar a câmera.' : 'Permita acessar a galeria.'
       );
-    } catch (error) {
+      return;
+    }
+    const result = camera
+      ? await ImagePicker.launchCameraAsync({ allowsEditing: true, aspect: [1, 1], quality: 0.8 })
+      : await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        });
+    if (!result.canceled && result.assets?.[0]) {
+      setIsUpdating(true);
+      await uploadPhoto(result.assets[0].uri);
       setIsUpdating(false);
     }
+    setShowPhotoOptions(false);
   };
 
-  const handleSignOut = async () => {
-    Alert.alert(
-      'Sair da Conta',
-      'Tem certeza que deseja sair da sua conta?',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
+  /* ---------- remover foto ---------- */
+  const handleRemovePhoto = () =>
+    Alert.alert('Remover Foto', 'Deseja remover sua foto?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Remover',
+        style: 'destructive',
+        onPress: async () => {
+          setIsUpdating(true);
+          await removePhoto();
+          setIsUpdating(false);
         },
-        {
-          text: 'Sair',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await signOut();
-              router.replace('/login');
-            } catch (error) {
-              // Erro já tratado no hook
-            }
-          },
-        },
-      ]
-    );
-  };
+      },
+    ]);
 
-  if (loading) {
+  /* ---------- logout ---------- */
+  const handleSignOut = () =>
+    Alert.alert('Sair da Conta', 'Tem certeza?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Sair',
+        style: 'destructive',
+        onPress: async () => {
+          await signOut();
+          router.replace('/login');
+        },
+      },
+    ]);
+
+  /* ---------- loading / erro ---------- */
+  if (loading)
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Carregando perfil...</Text>
       </View>
     );
-  }
 
-  if (error && !profile) {
+  if (error && !profile)
     return (
       <View style={styles.errorContainer}>
-        <Ionicons name="alert-circle" size={64} color={theme.colors.error} />
+        <Ionicons name="alert-circle" size={64} color={colors.error} />
         <Text style={styles.errorText}>Erro ao carregar perfil</Text>
         <Text style={styles.errorSubtext}>{error}</Text>
       </View>
     );
-  }
 
+  /* ---------- UI principal ---------- */
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      {/* Header com botão de logout */}
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Meu Perfil</Text>
         <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
-          <Ionicons name="log-out-outline" size={24} color={theme.colors.error} />
+          <Ionicons name="log-out-outline" size={24} color={colors.error} />
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        {/* Foto de Perfil */}
+        {/* Foto */}
         <View style={styles.photoSection}>
           <TouchableOpacity
             style={styles.photoContainer}
@@ -275,23 +206,21 @@ export default function PerfilScreen() {
               <Image source={{ uri: profile.photoURL }} style={styles.profilePhoto} />
             ) : (
               <View style={styles.photoPlaceholder}>
-                <Ionicons name="person" size={50} color={theme.colors.textSecondary} />
+                <Ionicons name="person" size={50} color={colors.textSecondary} />
               </View>
             )}
-            
             {isUpdating && (
               <View style={styles.photoLoading}>
-                <ActivityIndicator size="small" color={theme.colors.background} />
+                <ActivityIndicator size="small" color={colors.background} />
               </View>
             )}
-            
             <View style={styles.photoEditIcon}>
-              <Ionicons name="camera" size={16} color={theme.colors.background} />
+              <Ionicons name="camera" size={16} color={colors.background} />
             </View>
           </TouchableOpacity>
         </View>
 
-        {/* Informações do Usuário */}
+        {/* Formulário */}
         <View style={styles.infoSection}>
           {/* Nome */}
           <View style={styles.inputContainer}>
@@ -299,20 +228,16 @@ export default function PerfilScreen() {
             <TextInput
               style={[styles.input, !editMode && styles.inputDisabled]}
               value={formData.name}
-              onChangeText={(value) => handleInputChange('name', value)}
+              onChangeText={v => handleInputChange('name', v)}
               editable={editMode}
               autoCapitalize="words"
             />
           </View>
 
-          {/* Email (não editável) */}
+          {/* E-mail (readonly) */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>E-mail</Text>
-            <TextInput
-              style={[styles.input, styles.inputDisabled]}
-              value={profile?.email || ''}
-              editable={false}
-            />
+            <TextInput style={[styles.input, styles.inputDisabled]} value={profile?.email || ''} editable={false} />
             <Text style={styles.inputHelper}>O e-mail não pode ser alterado</Text>
           </View>
 
@@ -322,7 +247,7 @@ export default function PerfilScreen() {
             <TextInput
               style={[styles.input, !editMode && styles.inputDisabled]}
               value={formData.phone}
-              onChangeText={(value) => handleInputChange('phone', value)}
+              onChangeText={v => handleInputChange('phone', v)}
               editable={editMode}
               keyboardType="phone-pad"
               placeholder="(00) 00000-0000"
@@ -335,17 +260,17 @@ export default function PerfilScreen() {
             <TextInput
               style={[styles.input, !editMode && styles.inputDisabled, styles.textArea]}
               value={formData.address}
-              onChangeText={(value) => handleInputChange('address', value)}
+              onChangeText={v => handleInputChange('address', v)}
               editable={editMode}
               multiline
               numberOfLines={3}
-              autoCapitalize="words"
               placeholder="Rua, número, bairro, cidade"
+              autoCapitalize="words"
             />
           </View>
         </View>
 
-        {/* Botões de Ação */}
+        {/* Botões */}
         <View style={styles.actionButtons}>
           {editMode ? (
             <View style={styles.editButtons}>
@@ -365,29 +290,23 @@ export default function PerfilScreen() {
               >
                 <Text style={[styles.buttonText, styles.cancelButtonText]}>Cancelar</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={[styles.button, styles.saveButton, isUpdating && styles.buttonDisabled]}
                 onPress={handleSaveProfile}
                 disabled={isUpdating}
               >
                 {isUpdating ? (
-                  <ActivityIndicator size="small" color={theme.colors.background} />
+                  <ActivityIndicator size="small" color={colors.background} />
                 ) : (
                   <Text style={styles.buttonText}>Salvar</Text>
                 )}
               </TouchableOpacity>
             </View>
           ) : (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setEditMode(true)}
-              disabled={isUpdating}
-            >
-              <Ionicons name="create-outline" size={20} color={theme.colors.background} />
-              <Text style={[styles.buttonText, { marginLeft: theme.spacing.sm }]}>
-                Editar Perfil
-              </Text>
+            <TouchableOpacity style={styles.button} onPress={() => setEditMode(true)} disabled={isUpdating}>
+              <Ionicons name="create-outline" size={20} color={colors.background} />
+              <Text style={[styles.buttonText, { marginLeft: theme.spacing.sm }]}>Editar Perfil</Text>
             </TouchableOpacity>
           )}
 
@@ -396,76 +315,60 @@ export default function PerfilScreen() {
             onPress={() => setShowPasswordModal(true)}
             disabled={isUpdating}
           >
-            <Ionicons name="lock-closed-outline" size={20} color={theme.colors.background} />
-            <Text style={[styles.buttonText, { marginLeft: theme.spacing.sm }]}>
-              Alterar Senha
-            </Text>
+            <Ionicons name="lock-closed-outline" size={20} color={colors.background} />
+            <Text style={[styles.buttonText, { marginLeft: theme.spacing.sm }]}>Alterar Senha</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
 
-      {/* Modal para Opções da Foto */}
-      <Modal
-        visible={showPhotoOptions}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setShowPhotoOptions(false)}
-      >
+      {/* Modal Foto */}
+      <Modal visible={showPhotoOptions} transparent animationType="slide" onRequestClose={() => setShowPhotoOptions(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Foto de Perfil</Text>
-            
-            <TouchableOpacity style={styles.modalOption} onPress={handleTakePhoto}>
-              <Ionicons name="camera" size={24} color={theme.colors.primary} />
+
+            <TouchableOpacity style={styles.modalOption} onPress={() => pickOrCapture(true)}>
+              <Ionicons name="camera" size={24} color={colors.primary} />
               <Text style={styles.modalOptionText}>Tirar Foto</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.modalOption} onPress={handlePickImage}>
-              <Ionicons name="image" size={24} color={theme.colors.primary} />
+
+            <TouchableOpacity style={styles.modalOption} onPress={() => pickOrCapture(false)}>
+              <Ionicons name="image" size={24} color={colors.primary} />
               <Text style={styles.modalOptionText}>Escolher da Galeria</Text>
             </TouchableOpacity>
-            
+
             {profile?.photoURL && (
               <TouchableOpacity style={styles.modalOption} onPress={handleRemovePhoto}>
-                <Ionicons name="trash" size={24} color={theme.colors.error} />
-                <Text style={[styles.modalOptionText, { color: theme.colors.error }]}>
-                  Remover Foto
-                </Text>
+                <Ionicons name="trash" size={24} color={colors.error} />
+                <Text style={[styles.modalOptionText, { color: colors.error }]}>Remover Foto</Text>
               </TouchableOpacity>
             )}
-            
-            <TouchableOpacity
-              style={styles.modalCancelButton}
-              onPress={() => setShowPhotoOptions(false)}
-            >
+
+            <TouchableOpacity style={styles.modalCancelButton} onPress={() => setShowPhotoOptions(false)}>
               <Text style={styles.modalCancelText}>Cancelar</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* Modal para Alterar Senha */}
+      {/* Modal Senha */}
       <Modal
         visible={showPasswordModal}
-        animationType="slide"
         transparent
+        animationType="slide"
         onRequestClose={() => setShowPasswordModal(false)}
       >
-        <KeyboardAvoidingView
-          style={styles.modalOverlay}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
+        <KeyboardAvoidingView style={styles.modalOverlay} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View style={styles.passwordModalContent}>
             <Text style={styles.modalTitle}>Alterar Senha</Text>
-            
+
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Nova Senha</Text>
               <TextInput
                 style={styles.input}
                 value={passwordData.newPassword}
-                onChangeText={(value) => handlePasswordChange('newPassword', value)}
+                onChangeText={v => handlePasswordChange('newPassword', v)}
                 secureTextEntry
-                placeholder="Digite a nova senha"
                 autoCapitalize="none"
               />
             </View>
@@ -475,9 +378,8 @@ export default function PerfilScreen() {
               <TextInput
                 style={styles.input}
                 value={passwordData.confirmPassword}
-                onChangeText={(value) => handlePasswordChange('confirmPassword', value)}
+                onChangeText={v => handlePasswordChange('confirmPassword', v)}
                 secureTextEntry
-                placeholder="Confirme a nova senha"
                 autoCapitalize="none"
               />
             </View>
@@ -487,24 +389,20 @@ export default function PerfilScreen() {
                 style={[styles.button, styles.cancelButton]}
                 onPress={() => {
                   setShowPasswordModal(false);
-                  setPasswordData({
-                    currentPassword: '',
-                    newPassword: '',
-                    confirmPassword: '',
-                  });
+                  setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
                 }}
                 disabled={isUpdating}
               >
                 <Text style={[styles.buttonText, styles.cancelButtonText]}>Cancelar</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={[styles.button, styles.saveButton, isUpdating && styles.buttonDisabled]}
                 onPress={handleChangePassword}
                 disabled={isUpdating}
               >
                 {isUpdating ? (
-                  <ActivityIndicator size="small" color={theme.colors.background} />
+                  <ActivityIndicator size="small" color={colors.background} />
                 ) : (
                   <Text style={styles.buttonText}>Alterar</Text>
                 )}
@@ -517,39 +415,40 @@ export default function PerfilScreen() {
   );
 }
 
+/* ---------- estilos ---------- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: theme.spacing.md,
     fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
+    backgroundColor: colors.background,
     padding: theme.spacing.lg,
   },
   errorText: {
     fontSize: theme.fontSize.lg,
     fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.error,
+    color: colors.error,
     marginTop: theme.spacing.md,
     textAlign: 'center',
   },
   errorSubtext: {
     fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: theme.spacing.sm,
     textAlign: 'center',
   },
@@ -560,113 +459,90 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
     paddingTop: theme.spacing.xxl,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: theme.fontSize.header,
     fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
+    color: colors.text,
   },
-  logoutButton: {
-    padding: theme.spacing.sm,
-  },
-  scrollContainer: {
-    flex: 1,
-  },
-  photoSection: {
-    alignItems: 'center',
-    paddingVertical: theme.spacing.xl,
-  },
-  photoContainer: {
-    position: 'relative',
-  },
+  logoutButton: { padding: theme.spacing.sm },
+  scrollContainer: { flex: 1 },
+  photoSection: { alignItems: 'center', paddingVertical: theme.spacing.xl },
+  photoContainer: { position: 'relative' },
   profilePhoto: {
     width: 120,
     height: 120,
     borderRadius: theme.borderRadius.full,
     borderWidth: 3,
-    borderColor: theme.colors.primary,
+    borderColor: colors.primary,
   },
   photoPlaceholder: {
     width: 120,
     height: 120,
     borderRadius: theme.borderRadius.full,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
   photoEditIcon: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: theme.borderRadius.full,
     width: 32,
     height: 32,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: theme.colors.background,
+    borderColor: colors.background,
   },
   photoLoading: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    ...StyleSheet.absoluteFillObject,
     borderRadius: theme.borderRadius.full,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  infoSection: {
-    paddingHorizontal: theme.spacing.lg,
-  },
-  inputContainer: {
-    marginBottom: theme.spacing.lg,
-  },
+  infoSection: { paddingHorizontal: theme.spacing.lg },
+  inputContainer: { marginBottom: theme.spacing.lg },
   inputLabel: {
     fontSize: theme.fontSize.md,
     fontWeight: theme.fontWeight.medium,
-    color: theme.colors.text,
+    color: colors.text,
     marginBottom: theme.spacing.sm,
   },
   input: {
-    backgroundColor: theme.colors.inputBackground,
+    backgroundColor: colors.inputBackground,
     borderWidth: 1,
-    borderColor: theme.colors.inputBorder,
+    borderColor: colors.inputBorder,
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
     fontSize: theme.fontSize.md,
-    color: theme.colors.text,
+    color: colors.text,
   },
   inputDisabled: {
-    backgroundColor: theme.colors.surface,
-    color: theme.colors.textSecondary,
+    backgroundColor: colors.surface,
+    color: colors.textSecondary,
   },
   inputHelper: {
     fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: theme.spacing.xs,
     fontStyle: 'italic',
   },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
-  actionButtons: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.xxl,
-  },
+  textArea: { height: 80, textAlignVertical: 'top' },
+  actionButtons: { padding: theme.spacing.lg, paddingBottom: theme.spacing.xxl },
   editButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: theme.spacing.md,
   },
   button: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
     alignItems: 'center',
@@ -675,44 +551,36 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
     minHeight: 48,
   },
-  buttonDisabled: {
-    backgroundColor: theme.colors.buttonDisabled,
-  },
+  buttonDisabled: { backgroundColor: colors.buttonDisabled },
   buttonText: {
-    color: theme.colors.background,
+    color: colors.background,
     fontSize: theme.fontSize.md,
     fontWeight: theme.fontWeight.semibold,
   },
   cancelButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: theme.colors.textSecondary,
+    borderColor: colors.textSecondary,
     flex: 1,
   },
-  cancelButtonText: {
-    color: theme.colors.textSecondary,
-  },
-  saveButton: {
-    flex: 1,
-  },
-  passwordButton: {
-    backgroundColor: theme.colors.secondary,
-  },
+  cancelButtonText: { color: colors.textSecondary },
+  saveButton: { flex: 1 },
+  passwordButton: { backgroundColor: colors.secondary },
   modalOverlay: {
     flex: 1,
-    backgroundColor: theme.colors.overlay,
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: theme.colors.background,
+    backgroundColor: colors.background,
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.xl,
     width: '80%',
     maxWidth: 300,
   },
   passwordModalContent: {
-    backgroundColor: theme.colors.background,
+    backgroundColor: colors.background,
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.xl,
     width: '90%',
@@ -721,7 +589,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: theme.fontSize.lg,
     fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
+    color: colors.text,
     textAlign: 'center',
     marginBottom: theme.spacing.lg,
   },
@@ -734,17 +602,13 @@ const styles = StyleSheet.create({
   },
   modalOptionText: {
     fontSize: theme.fontSize.md,
-    color: theme.colors.text,
+    color: colors.text,
     marginLeft: theme.spacing.md,
   },
-  modalCancelButton: {
-    alignItems: 'center',
-    padding: theme.spacing.md,
-    marginTop: theme.spacing.sm,
-  },
+  modalCancelButton: { alignItems: 'center', padding: theme.spacing.md, marginTop: theme.spacing.sm },
   modalCancelText: {
     fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
     fontWeight: theme.fontWeight.medium,
   },
 });
