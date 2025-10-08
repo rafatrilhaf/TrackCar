@@ -1,4 +1,4 @@
-// app/perfil.tsx
+// app/perfil.tsx - COM HEADER GLOBAL
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Header } from '../components/Header';
 import { useTheme } from '../hooks/useTheme';
 import { useUserProfile } from '../hooks/useUserProfile';
 import {
@@ -232,11 +233,28 @@ export default function PerfilScreen() {
     );
   };
 
+  const renderLogoutButton = () => (
+    <TouchableOpacity
+      style={styles.headerLogoutButton}
+      onPress={handleSignOut}
+      activeOpacity={0.7}
+    >
+      <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
+    </TouchableOpacity>
+  );
+
   // Styles usando o hook useTheme
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
+    },
+    headerLogoutButton: {
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      borderRadius: theme.borderRadius.full,
+      padding: theme.spacing.sm,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     loadingContainer: {
       flex: 1,
@@ -268,23 +286,6 @@ export default function PerfilScreen() {
       color: theme.colors.textSecondary,
       marginTop: theme.spacing.sm,
       textAlign: 'center',
-    },
-    header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: theme.spacing.lg,
-      paddingTop: theme.spacing.xxl,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.border,
-    },
-    headerTitle: {
-      fontSize: theme.fontSize.header,
-      fontWeight: theme.fontWeight.bold,
-      color: theme.colors.text,
-    },
-    logoutButton: {
-      padding: theme.spacing.sm,
     },
     scrollContainer: {
       flex: 1,
@@ -390,12 +391,20 @@ export default function PerfilScreen() {
       flexDirection: 'row',
       marginBottom: theme.spacing.md,
       minHeight: 48,
+      elevation: 3,
+      shadowColor: theme.colors.primary,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
     },
     buttonDisabled: {
       backgroundColor: theme.colors.buttonDisabled,
     },
     buttonText: {
-      color: theme.colors.background,
+      color: '#FFFFFF',
       fontSize: theme.fontSize.md,
       fontWeight: theme.fontWeight.semibold,
     },
@@ -404,6 +413,8 @@ export default function PerfilScreen() {
       borderWidth: 1,
       borderColor: theme.colors.textSecondary,
       flex: 1,
+      elevation: 0,
+      shadowOpacity: 0,
     },
     cancelButtonText: {
       color: theme.colors.textSecondary,
@@ -413,6 +424,7 @@ export default function PerfilScreen() {
     },
     passwordButton: {
       backgroundColor: theme.colors.secondary,
+      shadowColor: theme.colors.secondary,
     },
     modalOverlay: {
       flex: 1,
@@ -467,19 +479,25 @@ export default function PerfilScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text style={styles.loadingText}>Carregando perfil...</Text>
+      <View style={styles.container}>
+        <Header title="Meu Perfil" showBackButton />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <Text style={styles.loadingText}>Carregando perfil...</Text>
+        </View>
       </View>
     );
   }
 
   if (error && !profile) {
     return (
-      <View style={styles.errorContainer}>
-        <Ionicons name="alert-circle" size={64} color={theme.colors.error} />
-        <Text style={styles.errorText}>Erro ao carregar perfil</Text>
-        <Text style={styles.errorSubtext}>{error}</Text>
+      <View style={styles.container}>
+        <Header title="Meu Perfil" showBackButton />
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={64} color={theme.colors.error} />
+          <Text style={styles.errorText}>Erro ao carregar perfil</Text>
+          <Text style={styles.errorSubtext}>{error}</Text>
+        </View>
       </View>
     );
   }
@@ -489,13 +507,12 @@ export default function PerfilScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      {/* Header com botão de logout */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Meu Perfil</Text>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
-          <Ionicons name="log-out-outline" size={24} color={theme.colors.error} />
-        </TouchableOpacity>
-      </View>
+      {/* Header Global */}
+      <Header 
+        title="Meu Perfil" 
+        showBackButton 
+        rightComponent={renderLogoutButton()}
+      />
 
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Foto de Perfil */}
@@ -606,7 +623,7 @@ export default function PerfilScreen() {
                 disabled={isUpdating}
               >
                 {isUpdating ? (
-                  <ActivityIndicator size="small" color={theme.colors.background} />
+                  <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
                   <Text style={styles.buttonText}>Salvar</Text>
                 )}
@@ -618,7 +635,7 @@ export default function PerfilScreen() {
               onPress={() => setEditMode(true)}
               disabled={isUpdating}
             >
-              <Ionicons name="create-outline" size={20} color={theme.colors.background} />
+              <Ionicons name="create-outline" size={20} color="#FFFFFF" />
               <Text style={[styles.buttonText, { marginLeft: theme.spacing.sm }]}>
                 Editar Perfil
               </Text>
@@ -630,7 +647,7 @@ export default function PerfilScreen() {
             onPress={() => setShowPasswordModal(true)}
             disabled={isUpdating}
           >
-            <Ionicons name="lock-closed-outline" size={20} color={theme.colors.background} />
+            <Ionicons name="lock-closed-outline" size={20} color="#FFFFFF" />
             <Text style={[styles.buttonText, { marginLeft: theme.spacing.sm }]}>
               Alterar Senha
             </Text>
@@ -738,7 +755,7 @@ export default function PerfilScreen() {
                 disabled={isUpdating}
               >
                 {isUpdating ? (
-                  <ActivityIndicator size="small" color={theme.colors.background} />
+                  <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
                   <Text style={styles.buttonText}>Alterar</Text>
                 )}
