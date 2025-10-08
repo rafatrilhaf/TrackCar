@@ -3,7 +3,16 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { auth } from '../services/firebase';
-import { UserProfile, UserService } from '../services/userService';
+import {
+  UserProfile,
+  getUserProfile,
+  removeProfilePhoto,
+  signOutUser,
+  subscribeToUserProfile,
+  updateUserPassword,
+  updateUserProfile,
+  uploadAndUpdateProfilePhoto,
+} from '../services/userService';
 
 interface UseUserProfileReturn {
   profile: UserProfile | null;
@@ -30,7 +39,7 @@ export const useUserProfile = (): UseUserProfileReturn => {
       setLoading(true);
       setError(null);
       
-      const userProfile = await UserService.getUserProfile();
+      const userProfile = await getUserProfile();
       setProfile(userProfile);
     } catch (err: any) {
       console.error('Erro ao carregar perfil:', err);
@@ -56,7 +65,7 @@ export const useUserProfile = (): UseUserProfileReturn => {
       setLoading(true);
       setError(null);
 
-      await UserService.updateUserProfile(data);
+      await updateUserProfile(data);
       
       // Atualiza o estado local
       if (profile) {
@@ -82,7 +91,7 @@ export const useUserProfile = (): UseUserProfileReturn => {
       setLoading(true);
       setError(null);
 
-      const photoURL = await UserService.uploadProfilePhoto(uri);
+      const photoURL = await uploadAndUpdateProfilePhoto(uri);
       
       // Atualiza o estado local
       if (profile) {
@@ -108,7 +117,7 @@ export const useUserProfile = (): UseUserProfileReturn => {
       setLoading(true);
       setError(null);
 
-      await UserService.removeProfilePhoto();
+      await removeProfilePhoto(profile?.photoURL);
       
       // Atualiza o estado local
       if (profile) {
@@ -134,7 +143,7 @@ export const useUserProfile = (): UseUserProfileReturn => {
       setLoading(true);
       setError(null);
 
-      await UserService.updateUserPassword(newPassword);
+      await updateUserPassword(newPassword);
       Alert.alert('Sucesso', 'Senha alterada com sucesso!');
     } catch (err: any) {
       console.error('Erro ao atualizar senha:', err);
@@ -154,7 +163,7 @@ export const useUserProfile = (): UseUserProfileReturn => {
       setLoading(true);
       setError(null);
 
-      await UserService.signOut();
+      await signOutUser();
       setProfile(null);
     } catch (err: any) {
       console.error('Erro ao fazer logout:', err);
@@ -168,19 +177,35 @@ export const useUserProfile = (): UseUserProfileReturn => {
 
   // Effect para carregar o perfil quando o componente for montado
   useEffect(() => {
+    let unsubscribeProfile: (() => void) | null = null;
+
     // Listener para mudanças no estado de autenticação
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Usuário está logado, carrega o perfil
-        loadProfile();
+        // Usuário está logado, configura listener do perfil
+        unsubscribeProfile = subscribeToUserProfile(user.uid, (userProfile) => {
+          setProfile(userProfile);
+          setLoading(false);
+        });
       } else {
         // Usuário não está logado, limpa o perfil
         setProfile(null);
         setLoading(false);
+        
+        // Remove listener do perfil se existir
+        if (unsubscribeProfile) {
+          unsubscribeProfile();
+          unsubscribeProfile = null;
+        }
       }
     });
 
-    return unsubscribe; // Cleanup do listener
+    return () => {
+      unsubscribeAuth(); // Cleanup do listener de auth
+      if (unsubscribeProfile) {
+        unsubscribeProfile(); // Cleanup do listener de perfil
+      }
+    };
   }, []);
 
   return {

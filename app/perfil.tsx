@@ -1,4 +1,4 @@
-// app/perfil.tsx
+// app/perfil.tsx - Versão simplificada usando o novo service
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -246,9 +246,6 @@ export default function PerfilScreen() {
         <Ionicons name="alert-circle" size={64} color={theme.colors.error} />
         <Text style={styles.errorText}>Erro ao carregar perfil</Text>
         <Text style={styles.errorSubtext}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={() => window.location.reload()}>
-          <Text style={styles.retryButtonText}>Tentar Novamente</Text>
-        </TouchableOpacity>
       </View>
     );
   }
@@ -356,7 +353,6 @@ export default function PerfilScreen() {
                 style={[styles.button, styles.cancelButton]}
                 onPress={() => {
                   setEditMode(false);
-                  // Restaura os dados originais
                   if (profile) {
                     setFormData({
                       name: profile.name || '',
@@ -556,17 +552,6 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     marginTop: theme.spacing.sm,
     textAlign: 'center',
-  },
-  retryButton: {
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    marginTop: theme.spacing.lg,
-  },
-  retryButtonText: {
-    color: theme.colors.background,
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
   },
   header: {
     flexDirection: 'row',
