@@ -1,12 +1,13 @@
+
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Alert, SafeAreaView, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../constants/colors'; // Corrigir aqui
+import { Colors } from '../../constants/colors';
 import screenLayoutStyles from '../../styles/screenLayout';
 import { ThemedText } from '../themed-text';
 import { ThemedView } from '../themed-view';
 
-const colors = Colors.light; // Defina o tema apropriado
+const colors = Colors.light;
 
 interface Props {
   title: string;
@@ -26,20 +27,28 @@ export default function ScreenLayout({ title, children, onMenuPress }: Props) {
   return (
     <SafeAreaView style={screenLayoutStyles.container}>
       <View style={screenLayoutStyles.header}>
-        <View style={screenLayoutStyles.logoPlaceholder}>
-          <ThemedText style={screenLayoutStyles.logoText}>TrackCar</ThemedText>
-        </View>
-        <ThemedText style={screenLayoutStyles.headerTitle}>{title}</ThemedText>
+        <ThemedText style={screenLayoutStyles.appName}>
+          TrackCar
+        </ThemedText>
+        <ThemedText style={screenLayoutStyles.screenTitle}>
+          {title}
+        </ThemedText>
         <TouchableOpacity 
-          style={screenLayoutStyles.menuIcon} 
+          style={screenLayoutStyles.menuIcon}   
           onPress={handleMenuPress}
         >
-          <Ionicons name="menu" size={28} color={colors.text} /> {/* Corrigir aqui */}
+          <Ionicons 
+            name="menu" 
+            size={24} 
+            color={colors.text} 
+          />
         </TouchableOpacity>
       </View>
+      
       <ThemedView style={screenLayoutStyles.content}>
         {children}
       </ThemedView>
     </SafeAreaView>
   );
 }
+

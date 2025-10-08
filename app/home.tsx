@@ -1,84 +1,84 @@
-import { useRouter } from 'expo-router';
-import React from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { ThemedText } from '../components/themed-text';
-import ScreenLayout from '../components/ui/ScreenLayout';
-import { Colors } from '../constants/colors'; // Importar cores
-import { theme } from '../constants/theme';
 
-const colors = Colors.light; // Selecionar tema claro ou escuro conforme necessário
+import { StyleSheet, Text, type TextProps } from 'react-native';
+import { Colors } from '../constants/colors';
+import { useColorScheme } from '../hooks/use-color-scheme';
 
-const Home: React.FC = () => {
-  const router = useRouter();
-  const userName = 'Usuário';
-
-  return (
-    <ScreenLayout title="Início">
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <ThemedText style={styles.welcome}>
-          Olá, {userName}! Bem-vindo ao TrackCar
-        </ThemedText>
-
-        <View style={styles.blocksContainer}>
-          <TouchableOpacity
-            style={styles.block}
-            onPress={() => router.push('/perfil')}
-          >
-            <ThemedText style={styles.blockText}>Usuário</ThemedText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.block}
-            onPress={() => router.push('/carros')}
-          >
-            <ThemedText style={styles.blockText}>Carros</ThemedText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.block}
-            onPress={() => router.push('/veiculosroubados')}
-          >
-            <ThemedText style={styles.blockText}>Veículos Roubados</ThemedText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.block}
-            onPress={() => router.push('/localizacao')}
-          >
-            <ThemedText style={styles.blockText}>Localização</ThemedText>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </ScreenLayout>
-  );
+export type ThemedTextProps = TextProps & {
+  lightColor?: string;
+  darkColor?: string;
+  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
 };
 
+// Hook corrigido - movido para dentro do arquivo para evitar problemas de import
+function useThemeColor(
+  props: { light?: string; dark?: string },
+  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
+) {
+  const theme = useColorScheme() ?? 'light';
+  const colorFromProps = props[theme];
+  
+  if (colorFromProps) {
+    return colorFromProps;
+  } else {
+    return Colors[theme][colorName];
+  }
+}
+
+export function ThemedText({
+  style,
+  lightColor,
+  darkColor,
+  type = 'default',
+  children,
+  ...rest
+}: ThemedTextProps) {
+  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+
+  // Validação para garantir que children não é undefined ou null
+  if (!children && children !== 0) {
+    return null;
+  }
+
+  return (
+    <Text
+      style={[
+        { color },
+        type === 'default' ? styles.default : undefined,
+        type === 'title' ? styles.title : undefined,
+        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
+        type === 'subtitle' ? styles.subtitle : undefined,
+        type === 'link' ? styles.link : undefined,
+        style,
+      ]}
+      {...rest}
+    >
+      {children}
+    </Text>
+  );
+}
+
 const styles = StyleSheet.create({
-  welcome: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-    marginBottom: theme.spacing.xl,
-    color: colors.text, // Usar colors
+  default: {
+    fontSize: 16,
+    lineHeight: 24,
   },
-  blocksContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+  defaultSemiBold: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '600',
   },
-  block: {
-    width: '48%',
-    backgroundColor: colors.primary, // Usar colors
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.md,
-    alignItems: 'center',
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    lineHeight: 32,
   },
-  blockText: {
-    color: colors.background, // Usar colors
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    textAlign: 'center',
+  subtitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  link: {
+    lineHeight: 30,
+    fontSize: 16,
+    color: '#0a7ea4',
   },
 });
-
-export default Home;
