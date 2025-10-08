@@ -3,16 +3,16 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import React from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Modal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { theme } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface ProfilePhotoSelectorProps {
   photoURL?: string;
@@ -27,6 +27,7 @@ export const ProfilePhotoSelector: React.FC<ProfilePhotoSelectorProps> = ({
   onPhotoRemove,
   isLoading = false,
 }) => {
+  const theme = useTheme();
   const [showOptions, setShowOptions] = React.useState(false);
 
   const handlePickFromGallery = async () => {
@@ -101,6 +102,95 @@ export const ProfilePhotoSelector: React.FC<ProfilePhotoSelectorProps> = ({
     );
   };
 
+  const styles = StyleSheet.create({
+    photoContainer: {
+      position: 'relative',
+    },
+    profilePhoto: {
+      width: 120,
+      height: 120,
+      borderRadius: theme.borderRadius.full,
+      borderWidth: 3,
+      borderColor: theme.colors.primary,
+    },
+    photoPlaceholder: {
+      width: 120,
+      height: 120,
+      borderRadius: theme.borderRadius.full,
+      backgroundColor: theme.colors.surface,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 3,
+      borderColor: theme.colors.border,
+    },
+    photoEditIcon: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.borderRadius.full,
+      width: 32,
+      height: 32,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 3,
+      borderColor: theme.colors.background,
+    },
+    photoLoading: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderRadius: theme.borderRadius.full,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: theme.colors.overlay,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: theme.colors.background,
+      borderRadius: theme.borderRadius.lg,
+      padding: theme.spacing.xl,
+      width: '80%',
+      maxWidth: 300,
+    },
+    modalTitle: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.bold,
+      color: theme.colors.text,
+      textAlign: 'center',
+      marginBottom: theme.spacing.lg,
+    },
+    modalOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      marginBottom: theme.spacing.sm,
+    },
+    modalOptionText: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.text,
+      marginLeft: theme.spacing.md,
+    },
+    modalCancelButton: {
+      alignItems: 'center',
+      padding: theme.spacing.md,
+      marginTop: theme.spacing.sm,
+    },
+    modalCancelText: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.textSecondary,
+      fontWeight: theme.fontWeight.medium,
+    },
+  });
+
   return (
     <>
       <TouchableOpacity
@@ -169,92 +259,3 @@ export const ProfilePhotoSelector: React.FC<ProfilePhotoSelectorProps> = ({
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  photoContainer: {
-    position: 'relative',
-  },
-  profilePhoto: {
-    width: 120,
-    height: 120,
-    borderRadius: theme.borderRadius.full,
-    borderWidth: 3,
-    borderColor: theme.colors.primary,
-  },
-  photoPlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: theme.borderRadius.full,
-    backgroundColor: theme.colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: theme.colors.border,
-  },
-  photoEditIcon: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.full,
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: theme.colors.background,
-  },
-  photoLoading: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: theme.borderRadius.full,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: theme.colors.overlay,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.xl,
-    width: '80%',
-    maxWidth: 300,
-  },
-  modalTitle: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    textAlign: 'center',
-    marginBottom: theme.spacing.lg,
-  },
-  modalOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.sm,
-  },
-  modalOptionText: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.text,
-    marginLeft: theme.spacing.md,
-  },
-  modalCancelButton: {
-    alignItems: 'center',
-    padding: theme.spacing.md,
-    marginTop: theme.spacing.sm,
-  },
-  modalCancelText: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    fontWeight: theme.fontWeight.medium,
-  },
-});
