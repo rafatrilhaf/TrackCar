@@ -9,11 +9,11 @@ import {
     View,
 } from 'react-native';
 
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 const Home: React.FC = () => {
-  const navigation = useNavigation();
-  const userName = 'Usuário'; // Você pode substituir isso por estado/contexto real
+  const router = useRouter();
+  const userName = 'Usuário'; // Use o contexto do usuário no futuro
 
   return (
     <SafeAreaView style={styles.container}>
@@ -23,28 +23,28 @@ const Home: React.FC = () => {
         <View style={styles.blocksContainer}>
           <TouchableOpacity
             style={styles.block}
-            onPress={() => navigation.navigate('perfil')}
+            onPress={() => router.push('/perfil')}
           >
             <Text style={styles.blockText}>Usuário</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.block}
-            onPress={() => navigation.navigate('carros')}
+            onPress={() => router.push('/carros')}
           >
             <Text style={styles.blockText}>Carros</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.block}
-            onPress={() => navigation.navigate('veiculosroubados')}
+            onPress={() => router.push('/veiculosroubados')}
           >
             <Text style={styles.blockText}>Veículos Roubados</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.block}
-            onPress={() => navigation.navigate('localizacao')}
+            onPress={() => router.push('/localizacao')}
           >
             <Text style={styles.blockText}>Localização</Text>
           </TouchableOpacity>
