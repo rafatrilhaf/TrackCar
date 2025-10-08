@@ -40,7 +40,7 @@ export default function LoginScreen() {
     try {
       await signInWithEmailAndPassword(auth, form.email, form.password);
       Alert.alert('Sucesso', 'Login realizado com sucesso!');
-      router.replace('/home);
+      router.replace('/home');
     } catch (error: any) {
       let errorMessage = 'Erro na autenticação';
       if (error.code === 'auth/invalid-email') errorMessage = 'E-mail inválido';
