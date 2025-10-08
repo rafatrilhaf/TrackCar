@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import {
     Alert,
+    Image,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -19,7 +20,6 @@ import { auth } from '../services/firebase';
 interface LoginForm {
   email: string;
   password: string;
-  phone?: string; // opcional, mas mantido para futura autenticação via telefone
 }
 
 export default function LoginScreen() {
@@ -59,9 +59,11 @@ export default function LoginScreen() {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
-          <View style={styles.logoPlaceholder}>
-            <Text style={styles.logoText}>TrackCar</Text>
-          </View>
+          <Image
+            source={require('../assets/images/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
           <Text style={styles.title}>Entrar</Text>
           <Text style={styles.subtitle}>
             Acesse sua conta para monitorar seu veículo
@@ -132,19 +134,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: theme.spacing.xxl,
   },
-  logoPlaceholder: {
-    width: 80,
-    height: 80,
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
+  logo: {
+    width: 120,
+    height: 120,
     marginBottom: theme.spacing.lg,
-  },
-  logoText: {
-    color: theme.colors.background,
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.bold,
   },
   title: {
     fontSize: theme.fontSize.header,
