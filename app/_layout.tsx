@@ -18,15 +18,20 @@ export default function RootLayout() {
   }, []);
 
   if (isLoading) {
-    // Você pode criar uma splash screen aqui depois
+    // Splash screen opcional
     return null;
   }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
+      <Stack.Screen name="home" />
       <Stack.Screen name="login" />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="register" />
+      <Stack.Screen name="modal" />
+      <Stack.Screen name="perfil" />
+      <Stack.Screen name="carros" />
+      <Stack.Screen name="veiculosroubados" />
+      <Stack.Screen name="localizacao" />
     </Stack>
   );
 }
