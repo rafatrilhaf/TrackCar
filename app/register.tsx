@@ -178,6 +178,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: theme.spacing.lg,
+    paddingTop: theme.spacing.xxl, // espaço invisível no topo
   },
   title: {
     fontSize: theme.fontSize.header,
