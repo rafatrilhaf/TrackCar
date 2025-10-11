@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,37 +33,37 @@ import lombok.RequiredArgsConstructor;
 public class GridFSController {
 
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
-            MediaType.IMAGE_JPEG_VALUE,
-            MediaType.IMAGE_PNG_VALUE,
-            "image/webp"
+        MediaType.IMAGE_JPEG_VALUE,
+        MediaType.IMAGE_PNG_VALUE,
+        "image/webp"
     );
 
     private final GridFsTemplate gridFsTemplate;
 
-    // Upload de imagem
-    @PostMapping("/upload")
-    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
+    // Upload de imagem (exige multipart/form-data)
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> upload(@RequestPart("file") MultipartFile file) {
         try {
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest().body("Arquivo vazio");
             }
-
             if (!ALLOWED_CONTENT_TYPES.contains(file.getContentType())) {
                 return ResponseEntity.badRequest().body("Tipo de arquivo não permitido");
             }
 
-            String originalFilename = StringUtils.hasText(file.getOriginalFilename()) ? file.getOriginalFilename() : UUID.randomUUID().toString();
-            String filename = UUID.randomUUID() + "_" + originalFilename;
+            String original = StringUtils.hasText(file.getOriginalFilename())
+                              ? file.getOriginalFilename()
+                              : UUID.randomUUID().toString();
+            String filename = UUID.randomUUID() + "_" + original;
 
             gridFsTemplate.store(file.getInputStream(), filename, file.getContentType());
 
             return ResponseEntity.ok(Map.of(
-                    "filename", filename,
-                    "message", "Upload realizado com sucesso",
-                    "url", "/files/download/" + filename
+                "filename", filename,
+                "message", "Upload realizado com sucesso",
+                "url", "/files/download/" + filename
             ));
         } catch (IOException e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().body("Erro ao salvar o arquivo");
         }
     }
@@ -72,13 +72,13 @@ public class GridFSController {
     @GetMapping("/download/{filename:.+}")
     public ResponseEntity<?> download(@PathVariable String filename) {
         try {
-            GridFSFile gridFSFile = gridFsTemplate.findOne(new Query(Criteria.where("filename").is(filename)));
-            if (gridFSFile == null) {
+            GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("filename").is(filename)));
+            if (file == null) {
                 return ResponseEntity.notFound().build();
             }
 
-            GridFsResource resource = gridFsTemplate.getResource(gridFSFile);
-            InputStreamResource inputStreamResource = new InputStreamResource(resource.getInputStream());
+            GridFsResource resource = gridFsTemplate.getResource(file);
+            InputStreamResource stream = new InputStreamResource(resource.getInputStream());
 
             String contentType = resource.getContentType();
             if (contentType == null) {
@@ -86,34 +86,33 @@ public class GridFSController {
             }
 
             return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + gridFSFile.getFilename() + "\"")
-                    .body(inputStreamResource);
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + file.getFilename() + "\"")
+                .body(stream);
 
         } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().body("Erro ao ler o arquivo: " + e.getMessage());
+            return ResponseEntity.internalServerError()
+                                 .body("Erro ao ler o arquivo: " + e.getMessage());
         }
     }
 
-    // (Opcional) Endpoint para deletar um arquivo
+    // Deletar arquivo
     @DeleteMapping("/delete/{filename:.+}")
     public ResponseEntity<?> deleteFile(@PathVariable String filename) {
         try {
-            GridFSFile foundFile = gridFsTemplate.findOne(new Query(Criteria.where("filename").is(filename)));
-            if (foundFile == null) {
+            GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("filename").is(filename)));
+            if (file == null) {
                 return ResponseEntity.notFound().build();
             }
-
             gridFsTemplate.delete(new Query(Criteria.where("filename").is(filename)));
-
             return ResponseEntity.ok(Map.of(
-                    "filename", filename,
-                    "message", "Arquivo deletado com sucesso"
+                "filename", filename,
+                "message", "Arquivo deletado com sucesso"
             ));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().body("Erro ao deletar arquivo: " + e.getMessage());
+            return ResponseEntity.internalServerError()
+                                 .body("Erro ao deletar arquivo: " + e.getMessage());
         }
     }
 }
