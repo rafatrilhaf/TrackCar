@@ -18,7 +18,7 @@ import { auth, db } from './firebase';
 // ⚠️ IMPORTANTE: Substitua pelo IP da sua máquina onde está rodando o servidor Java
 const BASE_URL = Platform.OS === 'android' 
   ? 'http://10.0.2.2:8080'  // Emulador Android
-  : 'http://192.168.3.50:8080'; // iOS Simulator ou dispositivo físico
+  : 'http://192.168.1.185:8080'; // iOS Simulator ou dispositivo físico
 
 /**
  * Upload da foto do carro para a API Java
