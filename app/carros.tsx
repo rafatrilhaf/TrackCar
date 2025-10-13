@@ -1,4 +1,4 @@
-// app/carros.tsx - COM HEADER GLOBAL E DESIGN ATUALIZADO
+// app/carros.tsx - COM HEADER GLOBAL, DESIGN ATUALIZADO E BOTÃO DE IGNIÇÃO
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
@@ -14,8 +14,9 @@ import {
   View,
 } from 'react-native';
 import { Header } from '../components/Header';
+import { IgnitionButton } from '../components/IgnitionButton';
 import { useTheme } from '../hooks/useTheme';
-import { deleteCar, getUserCars } from '../services/carService';
+import { deleteCar, getUserCars, toggleCarIgnition } from '../services/carService';
 import { Car } from '../types/car';
 
 export default function CarrosScreen() {
@@ -83,6 +84,20 @@ export default function CarrosScreen() {
     );
   };
 
+  // NOVA FUNÇÃO: Lidar com ignição
+  const handleIgnitionToggle = async (carId: string, newState: 'on' | 'off') => {
+    try {
+      await toggleCarIgnition(carId, newState);
+      // Recarrega a lista para mostrar o estado atualizado
+      await loadCars();
+      
+      const actionText = newState === 'on' ? 'ligada' : 'desligada';
+      Alert.alert('Sucesso', `Ignição ${actionText} com sucesso!`);
+    } catch (error: any) {
+      Alert.alert('Erro', error.message || 'Erro ao alterar ignição');
+    }
+  };
+
   const renderAddButton = () => (
     <TouchableOpacity
       style={styles.headerAddButton}
@@ -123,38 +138,48 @@ export default function CarrosScreen() {
         </View>
       </View>
 
-      {/* Botão de Opções */}
-      <TouchableOpacity
-        style={styles.optionsButton}
-        onPress={(e) => {
-          e.stopPropagation();
-          Alert.alert(
-            'Opções do Veículo',
-            `${car.brand} ${car.model} - ${car.year}`,
-            [
-              {
-                text: 'Ver Detalhes',
-                onPress: () => router.push(`/detalhes-carro?id=${car.id}` as any),
-              },
-              {
-                text: 'Editar',
-                onPress: () => router.push(`/editar-carro?id=${car.id}` as any),
-              },
-              {
-                text: 'Remover',
-                style: 'destructive',
-                onPress: () => handleDeleteCar(car),
-              },
-              {
-                text: 'Cancelar',
-                style: 'cancel',
-              },
-            ]
-          );
-        }}
-      >
-        <Ionicons name="ellipsis-vertical" size={20} color={theme.colors.textSecondary} />
-      </TouchableOpacity>
+      {/* NOVA SEÇÃO: Controles do Carro */}
+      <View style={styles.carControls}>
+        {/* Botão de Ignição */}
+        <IgnitionButton
+          carId={car.id!}
+          ignitionState={car.ignitionState || 'unknown'}
+          onToggle={handleIgnitionToggle}
+        />
+
+        {/* Botão de Opções */}
+        <TouchableOpacity
+          style={styles.optionsButton}
+          onPress={(e) => {
+            e.stopPropagation();
+            Alert.alert(
+              'Opções do Veículo',
+              `${car.brand} ${car.model} - ${car.year}`,
+              [
+                {
+                  text: 'Ver Detalhes',
+                  onPress: () => router.push(`/detalhes-carro?id=${car.id}` as any),
+                },
+                {
+                  text: 'Editar',
+                  onPress: () => router.push(`/editar-carro?id=${car.id}` as any),
+                },
+                {
+                  text: 'Remover',
+                  style: 'destructive',
+                  onPress: () => handleDeleteCar(car),
+                },
+                {
+                  text: 'Cancelar',
+                  style: 'cancel',
+                },
+              ]
+            );
+          }}
+        >
+          <Ionicons name="ellipsis-vertical" size={20} color={theme.colors.textSecondary} />
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 
@@ -274,9 +299,17 @@ export default function CarrosScreen() {
       fontSize: theme.fontSize.sm,
       color: theme.colors.textSecondary,
     },
+    // NOVOS ESTILOS: Controles do carro
+    carControls: {
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingLeft: theme.spacing.sm,
+      minWidth: 90,
+    },
     optionsButton: {
       padding: theme.spacing.sm,
       justifyContent: 'center',
+      marginTop: theme.spacing.sm,
     },
     emptyContainer: {
       flex: 1,

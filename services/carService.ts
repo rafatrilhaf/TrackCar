@@ -1,4 +1,4 @@
-// services/carService.ts - VERSÃO CORRIGIDA PARA CAMPOS OPCIONAIS
+// services/carService.ts - VERSÃO CORRIGIDA PARA CAMPOS OPCIONAIS + IGNIÇÃO
 import * as ImageManipulator from 'expo-image-manipulator';
 import {
   addDoc,
@@ -126,6 +126,9 @@ export async function createCar(carData: CarFormData, photoURL?: string): Promis
       fuel: carData.fuel || undefined,
       description: carData.description || undefined,
       
+      // NOVO: Estado inicial da ignição
+      ignitionState: 'unknown',
+      
       photoURL,
       isActive: true,
       createdAt: new Date(),
@@ -168,6 +171,7 @@ export async function getUserCars(): Promise<Car[]> {
         ...carData,
         createdAt: carData.createdAt?.toDate() || new Date(),
         updatedAt: carData.updatedAt?.toDate(),
+        lastIgnitionUpdate: carData.lastIgnitionUpdate?.toDate(),
       } as Car);
     });
 
@@ -300,5 +304,61 @@ export async function checkLicensePlateExists(licensePlate: string, excludeCarId
   } catch (error: any) {
     console.error('Erro ao verificar placa:', error);
     return false;
+  }
+}
+
+/**
+ * NOVA FUNÇÃO: Alterna o estado da ignição do carro
+ */
+export async function toggleCarIgnition(
+  carId: string, 
+  newState: 'on' | 'off'
+): Promise<void> {
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    // Aqui você faria a chamada para o hardware/API do relé
+    const relayResponse = await controlIgnitionRelay(carId, newState);
+    
+    if (!relayResponse.success) {
+      throw new Error('Falha ao controlar relé da ignição');
+    }
+
+    // Atualiza o estado no Firebase
+    const carDocRef = doc(db, 'cars', carId);
+    await updateDoc(carDocRef, {
+      ignitionState: newState,
+      lastIgnitionUpdate: new Date(),
+      updatedAt: new Date(),
+    });
+
+    console.log(`Ignição ${newState === 'on' ? 'ligada' : 'desligada'} com sucesso`);
+  } catch (error: any) {
+    console.error('Erro ao alterar ignição:', error);
+    throw new Error(`Erro ao ${newState === 'on' ? 'ligar' : 'desligar'} ignição`);
+  }
+}
+
+/**
+ * NOVA FUNÇÃO: Controla o relé da ignição (placeholder para implementação futura)
+ */
+async function controlIgnitionRelay(
+  carId: string, 
+  state: 'on' | 'off'
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    // TODO: Implementar comunicação com hardware/API do relé
+    // Esta função será implementada quando definirmos a arquitetura do hardware
+    
+    // Simula delay da comunicação
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Simula resposta bem-sucedida
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro na comunicação com o relé' };
   }
 }

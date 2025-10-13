@@ -1,4 +1,4 @@
-// types/car.ts - VERSÃO REORGANIZADA
+// types/car.ts - VERSÃO REORGANIZADA COM IGNIÇÃO
 export interface CarFormData {
   // Informações Essenciais (obrigatórias)
   brand: string;
@@ -34,6 +34,11 @@ export interface Car {
   fuel?: string;
   description?: string;
   photoURL?: string;
+  
+  // NOVO: Estado da ignição
+  ignitionState?: 'on' | 'off' | 'unknown';
+  lastIgnitionUpdate?: Date;
+  
   isActive: boolean;
   createdAt: Date;
   updatedAt?: Date;
@@ -85,7 +90,6 @@ export const validateCarForm = (data: CarFormData): CarValidationErrors => {
   const errors: CarValidationErrors = {};
 
   // Validação APENAS dos campos obrigatórios (informações essenciais)
-
   // Marca
   if (!data.brand.trim()) {
     errors.brand = 'Marca é obrigatória';
