@@ -162,3 +162,21 @@ export const formatRenavam = (renavam: string): string => {
   
   return numbers.slice(0, 11);
 };
+
+// Adicionar estas interfaces ao arquivo car.ts existente
+
+export interface CarLocation {
+  latitude: number;
+  longitude: number;
+  timestamp: Date;
+  accuracy?: number;
+}
+
+export interface CarStatus {
+  ignitionState: 'on' | 'off' | 'unknown';
+  lastLocationUpdate?: Date;
+  lastIgnitionUpdate?: Date;
+  isOnline: boolean;
+  batteryLevel?: number;
+  gsmSignal?: number;
+}

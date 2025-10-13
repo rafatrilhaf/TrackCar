@@ -4,7 +4,10 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   getDocs,
+  limit,
+  onSnapshot,
   orderBy,
   query,
   updateDoc,
@@ -360,5 +363,157 @@ async function controlIgnitionRelay(
     return { success: true };
   } catch (error) {
     return { success: false, message: 'Erro na comunicação com o relé' };
+  }
+}
+
+// Adicionar estas funções ao arquivo carService.ts existente
+
+/**
+ * NOVA FUNÇÃO: Controla a ignição do carro via comando remoto
+ */
+export async function controlCarIgnition(
+  carId: string, 
+  action: 'start' | 'stop' | 'toggle'
+): Promise<{ success: boolean; newState: 'on' | 'off'; message: string }> {
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    // Busca o estado atual do carro
+    const carDoc = await getDoc(doc(db, 'cars', carId));
+    if (!carDoc.exists()) {
+      throw new Error('Carro não encontrado');
+    }
+
+    const carData = carDoc.data() as Car;
+    const currentState = carData.ignitionState || 'unknown';
+    
+    let newState: 'on' | 'off';
+    
+    // Determina o novo estado baseado na ação
+    switch (action) {
+      case 'start':
+        newState = 'on';
+        break;
+      case 'stop':
+        newState = 'off';
+        break;
+      case 'toggle':
+        newState = currentState === 'on' ? 'off' : 'on';
+        break;
+      default:
+        throw new Error('Ação inválida');
+    }
+
+    // Envia comando para o Arduino via Firebase
+    await sendIgnitionCommand(carId, newState);
+    
+    // Atualiza o estado no Firebase
+    const carDocRef = doc(db, 'cars', carId);
+    await updateDoc(carDocRef, {
+      ignitionState: newState,
+      lastIgnitionUpdate: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const actionMessage = newState === 'on' ? 'ligada' : 'desligada';
+    
+    return {
+      success: true,
+      newState,
+      message: `Ignição ${actionMessage} com sucesso`
+    };
+  } catch (error: any) {
+    console.error('Erro ao controlar ignição:', error);
+    throw new Error(`Erro ao ${action === 'start' ? 'ligar' : 'desligar'} ignição: ${error.message}`);
+  }
+}
+
+/**
+ * Envia comando de ignição para o Arduino via Firebase Realtime Database
+ */
+async function sendIgnitionCommand(carId: string, state: 'on' | 'off'): Promise<void> {
+  try {
+    // Usa Firebase Realtime Database para comunicação em tempo real
+    const commandData = {
+      carId,
+      command: state === 'on' ? 'unlock' : 'lock', // unlock = ignição on, lock = ignição off
+      timestamp: Date.now(),
+      status: 'pending'
+    };
+
+    // Salva comando na coleção de comandos
+    await addDoc(collection(db, 'car_commands'), commandData);
+    
+    console.log(`Comando de ignição enviado: ${state}`);
+  } catch (error) {
+    console.error('Erro ao enviar comando:', error);
+    throw new Error('Falha na comunicação com o veículo');
+  }
+}
+
+/**
+ * Escuta em tempo real o estado da ignição do carro
+ */
+export function subscribeToIgnitionState(
+  carId: string,
+  callback: (state: { ignitionState: 'on' | 'off' | 'unknown'; lastUpdate?: Date }) => void
+): () => void {
+  try {
+    const carDocRef = doc(db, 'cars', carId);
+    
+    return onSnapshot(carDocRef, (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        callback({
+          ignitionState: data.ignitionState || 'unknown',
+          lastUpdate: data.lastIgnitionUpdate?.toDate()
+        });
+      }
+    }, (error) => {
+      console.error('Erro na escuta do estado da ignição:', error);
+    });
+  } catch (error: any) {
+    console.error('Erro ao configurar escuta de ignição:', error);
+    return () => {};
+  }
+}
+
+/**
+ * Obtém o histórico de comandos de ignição
+ */
+export async function getIgnitionHistory(carId: string, limitCount: number = 20): Promise<any[]> {
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    const commandsRef = collection(db, 'car_commands');
+    const q = query(
+      commandsRef,
+      where('carId', '==', carId),
+      orderBy('timestamp', 'desc'),
+      limit(limitCount)
+    );
+
+    const querySnapshot = await getDocs(q);
+    const commands: any[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      commands.push({
+        id: doc.id,
+        ...data,
+        timestamp: new Date(data.timestamp),
+      });
+    });
+
+    return commands;
+  } catch (error: any) {
+    console.error('Erro ao buscar histórico de ignição:', error);
+    throw new Error('Erro ao carregar histórico');
   }
 }
