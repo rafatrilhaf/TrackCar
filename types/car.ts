@@ -38,6 +38,10 @@ export interface Car {
   // NOVO: Estado da ignição
   ignitionState?: 'on' | 'off' | 'unknown';
   lastIgnitionUpdate?: Date;
+
+    // NOVO: Status de roubo
+  isStolen?: boolean;
+  stolenReportedAt?: Date;
   
   isActive: boolean;
   createdAt: Date;
@@ -165,11 +169,14 @@ export const formatRenavam = (renavam: string): string => {
 
 // Adicionar estas interfaces ao arquivo car.ts existente
 
+// Adicionar estas interfaces ao arquivo car.ts existente
+
 export interface CarLocation {
   latitude: number;
   longitude: number;
   timestamp: Date;
   accuracy?: number;
+  address?: string;
 }
 
 export interface CarStatus {
@@ -179,4 +186,13 @@ export interface CarStatus {
   isOnline: boolean;
   batteryLevel?: number;
   gsmSignal?: number;
+  isStolen?: boolean;
 }
+
+export interface VehicleLocationData {
+  car: Car;
+  location: CarLocation | null;
+  status: CarStatus;
+  lastUpdate: Date;
+}
+

@@ -1,4 +1,10 @@
 // components/GPSTracker.tsx - Componente para rastreamento GPS
+import {
+    generateMapsURL,
+    GPSLocation,
+    isCarMoving,
+    subscribeToCarLocation,
+} from '@/services/TrackingService'; // ✅ CORRIGIDO: Caminho e nome do arquivo
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
@@ -9,13 +15,11 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import {
-    generateMapsURL,
-    GPSLocation,
-    isCarMoving,
-    subscribeToCarLocation,
-} from '../services/TrackingService';
+import { Colors } from '../constants/colors';
+import { theme } from '../constants/theme';
 import { Car } from '../types/car';
+
+const colors = Colors.light;
 
 interface Props {
   car: Car;
@@ -86,7 +90,7 @@ export default function GPSTracker({ car, onLocationUpdate }: Props) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Rastreamento GPS</Text>
-        <View style={[styles.statusBadge, { backgroundColor: isMoving ? '#4CAF50' : '#757575' }]}>
+        <View style={[styles.statusBadge, { backgroundColor: isMoving ? colors.success : colors.textSecondary }]}>
           <Text style={styles.statusBadgeText}>
             {isMoving ? 'Em movimento' : 'Parado'}
           </Text>
@@ -97,7 +101,7 @@ export default function GPSTracker({ car, onLocationUpdate }: Props) {
         <>
           <View style={styles.locationInfo}>
             <View style={styles.coordinatesRow}>
-              <Ionicons name="location" size={20} color="#2196F3" />
+              <Ionicons name="location" size={20} color={colors.info} />
               <Text style={styles.coordinates}>
                 {formatCoordinates(currentLocation.latitude, currentLocation.longitude)}
               </Text>
@@ -105,20 +109,20 @@ export default function GPSTracker({ car, onLocationUpdate }: Props) {
             
             <View style={styles.detailsRow}>
               <View style={styles.detail}>
-                <Ionicons name="time" size={16} color="#666" />
+                <Ionicons name="time" size={16} color={colors.textSecondary} />
                 <Text style={styles.detailText}>{getLocationAge()}</Text>
               </View>
               
               {currentLocation.speed !== undefined && (
                 <View style={styles.detail}>
-                  <Ionicons name="speedometer" size={16} color="#666" />
+                  <Ionicons name="speedometer" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>{currentLocation.speed.toFixed(0)} km/h</Text>
                 </View>
               )}
               
               {currentLocation.accuracy !== undefined && (
                 <View style={styles.detail}>
-                  <Ionicons name="radio" size={16} color="#666" />
+                  <Ionicons name="radio" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>±{currentLocation.accuracy.toFixed(0)}m</Text>
                 </View>
               )}
@@ -132,7 +136,7 @@ export default function GPSTracker({ car, onLocationUpdate }: Props) {
         </>
       ) : (
         <View style={styles.noLocationContainer}>
-          <Ionicons name="location-outline" size={48} color="#ccc" />
+          <Ionicons name="location-outline" size={48} color={colors.textSecondary} />
           <Text style={styles.noLocationText}>
             Aguardando sinal GPS...
           </Text>
@@ -147,10 +151,10 @@ export default function GPSTracker({ car, onLocationUpdate }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    margin: 10,
+    backgroundColor: colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    margin: theme.spacing.sm,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -161,36 +165,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: theme.spacing.md,
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: theme.fontSize.lg,
+    fontWeight: theme.fontWeight.bold,
+    color: colors.text,
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.lg,
   },
   statusBadgeText: {
     color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
+    fontSize: theme.fontSize.sm,
+    fontWeight: theme.fontWeight.bold,
   },
   locationInfo: {
-    marginBottom: 20,
+    marginBottom: theme.spacing.lg,
   },
   coordinatesRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: theme.spacing.sm,
   },
   coordinates: {
-    fontSize: 16,
+    fontSize: theme.fontSize.md,
     fontFamily: 'monospace',
-    marginLeft: 8,
-    color: '#333',
+    marginLeft: theme.spacing.sm,
+    color: colors.text,
   },
   detailsRow: {
     flexDirection: 'row',
@@ -201,38 +205,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   detailText: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 4,
+    fontSize: theme.fontSize.sm,
+    color: colors.textSecondary,
+    marginLeft: theme.spacing.xs,
   },
   mapButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#2196F3',
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: colors.info,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
   },
   mapButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 8,
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.bold,
+    marginLeft: theme.spacing.sm,
   },
   noLocationContainer: {
     alignItems: 'center',
-    padding: 30,
+    padding: theme.spacing.xl,
   },
   noLocationText: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 15,
+    fontSize: theme.fontSize.md,
+    color: colors.textSecondary,
+    marginTop: theme.spacing.md,
     textAlign: 'center',
   },
   noLocationSubtext: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 5,
+    fontSize: theme.fontSize.sm,
+    color: colors.textSecondary,
+    marginTop: theme.spacing.xs,
     textAlign: 'center',
   },
 });

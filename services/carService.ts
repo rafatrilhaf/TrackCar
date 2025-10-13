@@ -517,3 +517,77 @@ export async function getIgnitionHistory(carId: string, limitCount: number = 20)
     throw new Error('Erro ao carregar histórico');
   }
 }
+
+/**
+ * NOVA FUNÇÃO: Atualiza o status de roubo do veículo
+ */
+export async function updateCarStolenStatus(
+  carId: string, 
+  isStolen: boolean,
+  reportedAt?: Date
+): Promise<void> {
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    const carDocRef = doc(db, 'cars', carId);
+    const updateData: any = {
+      isStolen,
+      updatedAt: new Date(),
+    };
+
+    // Se está marcando como roubado, adiciona timestamp
+    if (isStolen) {
+      updateData.stolenReportedAt = reportedAt || new Date();
+    } else {
+      // Se está removendo status de roubado, remove o timestamp
+      updateData.stolenReportedAt = null;
+    }
+
+    await updateDoc(carDocRef, updateData);
+
+    // Se está marcando como roubado, criar um registro na coleção de carros roubados
+    if (isStolen) {
+      await addDoc(collection(db, 'stolen_cars'), {
+        carId,
+        userId: currentUser.uid,
+        reportedAt: reportedAt || new Date(),
+        isActive: true,
+      });
+    }
+
+    console.log(`Status de roubo atualizado: ${isStolen ? 'ROUBADO' : 'SEGURO'}`);
+  } catch (error: any) {
+    console.error('Erro ao atualizar status de roubo:', error);
+    throw new Error('Erro ao atualizar status do veículo');
+  }
+}
+
+/**
+ * NOVA FUNÇÃO: Escuta em tempo real o status de roubo do carro
+ */
+export function subscribeToCarStolenStatus(
+  carId: string,
+  callback: (isStolen: boolean, reportedAt?: Date) => void
+): () => void {
+  try {
+    const carDocRef = doc(db, 'cars', carId);
+    
+    return onSnapshot(carDocRef, (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        callback(
+          data.isStolen || false,
+          data.stolenReportedAt?.toDate()
+        );
+      }
+    }, (error) => {
+      console.error('Erro na escuta do status de roubo:', error);
+    });
+  } catch (error: any) {
+    console.error('Erro ao configurar escuta de status de roubo:', error);
+    return () => {};
+  }
+}
