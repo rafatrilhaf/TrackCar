@@ -1,4 +1,4 @@
-// services/carService.ts - VERSÃO CORRIGIDA PARA CAMPOS OPCIONAIS + IGNIÇÃO
+// services/carService.ts - VERSÃO CORRIGIDA PARA CAMPOS OPCIONAIS + IGNIÇÃO + DADOS DO PROPRIETÁRIO
 import * as ImageManipulator from 'expo-image-manipulator';
 import {
   addDoc,
@@ -366,8 +366,6 @@ async function controlIgnitionRelay(
   }
 }
 
-// Adicionar estas funções ao arquivo carService.ts existente
-
 /**
  * NOVA FUNÇÃO: Controla a ignição do carro via comando remoto
  */
@@ -553,7 +551,7 @@ export async function updateCarStolenStatus(
       await addDoc(collection(db, 'stolen_cars'), {
         carId,
         userId: currentUser.uid,
-        reportedAt: reportedAt || new Date(),
+        stolenAt: reportedAt || new Date(),
         isActive: true,
       });
     }
@@ -589,5 +587,162 @@ export function subscribeToCarStolenStatus(
   } catch (error: any) {
     console.error('Erro ao configurar escuta de status de roubo:', error);
     return () => {};
+  }
+}
+
+/**
+ * CORRIGIDO: Marca um veículo como roubado e cria registro na coleção stolen_cars com dados do proprietário
+ */
+export async function markCarAsStolen(
+  carId: string,
+  stolenAt?: Date
+): Promise<string> {
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    const reportTime = stolenAt || new Date();
+
+    // 1. Atualiza o carro na coleção cars
+    const carDocRef = doc(db, 'cars', carId);
+    await updateDoc(carDocRef, {
+      isStolen: true,
+      stolenReportedAt: reportTime,
+      updatedAt: new Date(),
+    });
+
+    // 2. Busca dados do carro
+    const carDoc = await getDoc(carDocRef);
+    if (!carDoc.exists()) {
+      throw new Error('Carro não encontrado');
+    }
+    const carData = carDoc.data();
+
+    // 3. NOVO: Busca dados do proprietário para incluir no registro
+    const userDocRef = doc(db, 'users', currentUser.uid);
+    const userDoc = await getDoc(userDocRef);
+    
+    let userData = null;
+    if (userDoc.exists()) {
+      userData = userDoc.data();
+      console.log('👤 Dados do proprietário encontrados:', userData);
+    } else {
+      console.warn('⚠️ Documento do proprietário não encontrado, tentando busca por query...');
+      
+      // FALLBACK: Tenta buscar por query
+      const userQuery = query(collection(db, 'users'), where('uid', '==', currentUser.uid));
+      const userQuerySnapshot = await getDocs(userQuery);
+      
+      if (!userQuerySnapshot.empty) {
+        userData = userQuerySnapshot.docs[0].data();
+        console.log('👤 Proprietário encontrado via query:', userData);
+      } else {
+        console.warn('⚠️ Nenhum dado do proprietário encontrado');
+      }
+    }
+
+    // 4. Cria registro na coleção stolen_cars COM dados do proprietário
+    const stolenCarData = {
+      carId,
+      userId: currentUser.uid,
+      stolenAt: reportTime,
+      isActive: true,
+      sightingsCount: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      
+      // Dados do veículo para facilitar buscas
+      brand: carData.brand,
+      model: carData.model,
+      licensePlate: carData.licensePlate,
+      
+      // NOVO: Dados do proprietário para evitar buscas adicionais na tela
+      ownerName: userData?.name || userData?.displayName || 'Proprietário',
+      ownerPhone: userData?.phone || userData?.phoneNumber,
+      ownerPhotoURL: userData?.photoURL || userData?.avatar,
+      ownerEmail: userData?.email,
+    };
+
+    const docRef = await addDoc(collection(db, 'stolen_cars'), stolenCarData);
+    
+    console.log(`✅ Veículo ${carData.brand} ${carData.model} marcado como roubado com dados do proprietário`);
+    console.log('📋 Dados salvos:', stolenCarData);
+    
+    return docRef.id;
+  } catch (error: any) {
+    console.error('❌ Erro ao marcar veículo como roubado:', error);
+    throw new Error('Erro ao reportar roubo do veículo');
+  }
+}
+
+/**
+ * Remove marca de roubado do veículo
+ */
+export async function markCarAsRecovered(carId: string): Promise<void> {
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    // 1. Atualiza o carro na coleção cars
+    const carDocRef = doc(db, 'cars', carId);
+    await updateDoc(carDocRef, {
+      isStolen: false,
+      stolenReportedAt: null,
+      updatedAt: new Date(),
+    });
+
+    // 2. Desativa registros na coleção stolen_cars
+    const stolenCarsRef = collection(db, 'stolen_cars');
+    const q = query(
+      stolenCarsRef,
+      where('carId', '==', carId),
+      where('isActive', '==', true)
+    );
+
+    const querySnapshot = await getDocs(q);
+    for (const docSnapshot of querySnapshot.docs) {
+      await updateDoc(docSnapshot.ref, {
+        isActive: false,
+        updatedAt: new Date(),
+      });
+    }
+
+    console.log('✅ Veículo marcado como recuperado');
+  } catch (error: any) {
+    console.error('❌ Erro ao marcar veículo como recuperado:', error);
+    throw new Error('Erro ao marcar veículo como recuperado');
+  }
+}
+
+/**
+ * NOVA FUNÇÃO: Busca dados do proprietário (utilitária)
+ */
+export async function getOwnerData(userId: string): Promise<any | null> {
+  try {
+    // Primeira tentativa: busca direta por documento
+    const userDocRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    
+    if (userDoc.exists()) {
+      return userDoc.data();
+    }
+    
+    // Segunda tentativa: busca por query
+    const userQuery = query(collection(db, 'users'), where('uid', '==', userId));
+    const userQuerySnapshot = await getDocs(userQuery);
+    
+    if (!userQuerySnapshot.empty) {
+      return userQuerySnapshot.docs[0].data();
+    }
+    
+    console.warn(`⚠️ Proprietário não encontrado para userId: ${userId}`);
+    return null;
+  } catch (error) {
+    console.error('❌ Erro ao buscar dados do proprietário:', error);
+    return null;
   }
 }

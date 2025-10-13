@@ -116,22 +116,6 @@ const StolenVehicleCard: React.FC<{
         )}
       </View>
 
-      {/* Estatísticas */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statItem}>
-          <Ionicons name="eye" size={16} color={colors.info} />
-          <Text style={[styles.statText, { color: colors.textSecondary }]}>
-            {vehicle.sightingsCount} avistamento{vehicle.sightingsCount !== 1 ? 's' : ''}
-          </Text>
-        </View>
-        <View style={styles.statItem}>
-          <Ionicons name="time" size={16} color={colors.textSecondary} />
-          <Text style={[styles.statText, { color: colors.textSecondary }]}>
-            {getTimeAgo(vehicle.stolenAt)}
-          </Text>
-        </View>
-      </View>
-
       {/* Botões de Ação */}
       <View style={styles.actionButtons}>
         <TouchableOpacity
@@ -484,22 +468,11 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     flex: 1,
   },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.md,
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.xs,
-  },
-  statText: {
-    fontSize: theme.fontSize.sm,
-  },
   actionButtons: {
     flexDirection: 'row',
     gap: theme.spacing.sm,
+    padding: theme.spacing.md,
+    paddingTop: 0,
   },
   sightingButton: {
     flex: 1,
