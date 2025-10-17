@@ -1,4 +1,4 @@
-// app/home.tsx - VERSÃO CORRIGIDA
+// app/home.tsx - VERSÃO ATUALIZADA COM CONFIGURAÇÕES
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
@@ -16,6 +16,7 @@ import {
   View
 } from 'react-native';
 import { Header } from '../components/Header';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../hooks/useTheme';
 import { auth } from '../services/firebase';
 
@@ -24,8 +25,9 @@ const { width: screenWidth } = Dimensions.get('window');
 export default function HomeScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const { t } = useLanguage();
   const [menuVisible, setMenuVisible] = useState(false);
-  const slideAnim = useRef(new Animated.Value(screenWidth * 0.8)).current; // ALTERADO: inicia do lado direito
+  const slideAnim = useRef(new Animated.Value(screenWidth * 0.8)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
 
   const handleLogout = async () => {
@@ -35,7 +37,7 @@ export default function HomeScreen() {
       'Tem certeza que deseja sair da sua conta?',
       [
         {
-          text: 'Cancelar',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
@@ -44,10 +46,10 @@ export default function HomeScreen() {
           onPress: async () => {
             try {
               await signOut(auth);
-              Alert.alert('Sucesso', 'Logout realizado com sucesso!');
+              Alert.alert(t('common.success'), 'Logout realizado com sucesso!');
               router.replace('/login');
             } catch (error) {
-              Alert.alert('Erro', 'Erro ao fazer logout');
+              Alert.alert(t('common.error'), 'Erro ao fazer logout');
               console.error('Erro no logout:', error);
             }
           },
@@ -60,7 +62,7 @@ export default function HomeScreen() {
     setMenuVisible(true);
     Animated.parallel([
       Animated.timing(slideAnim, {
-        toValue: 0, // desliza para posição 0 (visível)
+        toValue: 0,
         duration: 300,
         useNativeDriver: true,
       }),
@@ -75,7 +77,7 @@ export default function HomeScreen() {
   const closeMenu = () => {
     Animated.parallel([
       Animated.timing(slideAnim, {
-        toValue: screenWidth * 0.8, // volta para o lado direito
+        toValue: screenWidth * 0.8,
         duration: 250,
         useNativeDriver: true,
       }),
@@ -109,39 +111,45 @@ export default function HomeScreen() {
   const menuItems = [
     {
       icon: 'home',
-      title: 'Início',
+      title: t('menu.home'),
       description: 'Tela principal',
       route: '/home',
     },
     {
       icon: 'car',
-      title: 'Meus Carros',
+      title: t('menu.myCars'),
       description: 'Gerenciar veículos cadastrados',
       route: '/carros',
     },
     {
       icon: 'add-circle',
-      title: 'Cadastrar Veículo',
+      title: t('menu.addVehicle'),
       description: 'Adicionar novo veículo',
       route: '/cadastrar-carro',
     },
     {
       icon: 'location',
-      title: 'Localização',
+      title: t('menu.location'),
       description: 'Ver localização dos veículos',
       route: '/localizacao',
     },
     {
       icon: 'warning',
-      title: 'Veículos Roubados',
+      title: t('menu.stolenVehicles'),
       description: 'Consultar base de dados',
       route: '/veiculosroubados',
     },
     {
       icon: 'person',
-      title: 'Perfil',
+      title: t('menu.profile'),
       description: 'Configurações da conta',
       route: '/perfil',
+    },
+    {
+      icon: 'settings',
+      title: t('menu.settings'),
+      description: 'Configurações do aplicativo',
+      route: '/configuracoes',
     },
   ];
 
@@ -187,7 +195,7 @@ export default function HomeScreen() {
     },
     menuContainer: {
       flex: 1,
-      marginBottom: theme.spacing.xxl, // ALTERADO: margem inferior para espaçamento
+      marginBottom: theme.spacing.xxl,
     },
     menuButton: {
       backgroundColor: theme.colors.surface,
@@ -232,14 +240,14 @@ export default function HomeScreen() {
     sideMenu: {
       position: 'absolute',
       top: 0,
-      right: 0, // ALTERADO: posicionado à direita
+      right: 0,
       bottom: 0,
       width: screenWidth * 0.8,
       backgroundColor: theme.colors.background,
       elevation: 10,
       shadowColor: '#000',
       shadowOffset: {
-        width: -2, // ALTERADO: sombra para a esquerda
+        width: -2,
         height: 0,
       },
       shadowOpacity: 0.3,
@@ -315,7 +323,6 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header Global */}
       <Header 
         title="TrackCar" 
         rightComponent={renderMenuButton()}
@@ -326,23 +333,20 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: theme.spacing.xxl }}
       >
-        {/* Seção de Boas-vindas */}
         <View style={styles.welcomeSection}>
-          <Text style={styles.title}>Bem-vindo ao TrackCar</Text>
-          <Text style={styles.subtitle}>Sistema de Monitoramento Veicular</Text>
+          <Text style={styles.title}>{t('home.title')}</Text>
+          <Text style={styles.subtitle}>{t('home.subtitle')}</Text>
         </View>
 
-        {/* Título Acesso Rápido */}
-        <Text style={styles.quickAccessTitle}>Acesso Rápido</Text>
+        <Text style={styles.quickAccessTitle}>{t('home.quickAccess')}</Text>
 
-        {/* Menu de Acesso Rápido */}
         <View style={styles.menuContainer}>
           <TouchableOpacity 
             style={styles.menuButton} 
             onPress={() => router.push('/carros')}
             activeOpacity={0.7}
           >
-            <Text style={styles.menuButtonText}>🚗 Meus Carros</Text>
+            <Text style={styles.menuButtonText}>🚗 {t('menu.myCars')}</Text>
             <Text style={styles.menuButtonDescription}>
               Gerenciar veículos cadastrados
             </Text>
@@ -353,7 +357,7 @@ export default function HomeScreen() {
             onPress={() => router.push('/localizacao')}
             activeOpacity={0.7}
           >
-            <Text style={styles.menuButtonText}>📍 Localização</Text>
+            <Text style={styles.menuButtonText}>📍 {t('menu.location')}</Text>
             <Text style={styles.menuButtonDescription}>
               Ver localização dos veículos
             </Text>
@@ -364,7 +368,7 @@ export default function HomeScreen() {
             onPress={() => router.push('/veiculosroubados')}
             activeOpacity={0.7}
           >
-            <Text style={styles.menuButtonText}>🚨 Veículos Roubados</Text>
+            <Text style={styles.menuButtonText}>🚨 {t('menu.stolenVehicles')}</Text>
             <Text style={styles.menuButtonDescription}>
               Consultar base de dados
             </Text>
@@ -372,18 +376,18 @@ export default function HomeScreen() {
 
           <TouchableOpacity 
             style={styles.menuButton} 
-            onPress={() => router.push('/perfil')}
+            onPress={() => router.push('/settings')}
             activeOpacity={0.7}
           >
-            <Text style={styles.menuButtonText}>👤 Perfil</Text>
+            <Text style={styles.menuButtonText}>⚙️ {t('menu.settings')}</Text>
             <Text style={styles.menuButtonDescription}>
-              Configurações da conta
+              Configurações do aplicativo
             </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
 
-      {/* Menu Lateral Animado */}
+      {/* Menu Lateral */}
       <Modal
         visible={menuVisible}
         transparent
@@ -403,13 +407,11 @@ export default function HomeScreen() {
               { transform: [{ translateX: slideAnim }] }
             ]}
           >
-            {/* Header do Menu */}
             <View style={styles.menuHeader}>
               <Text style={styles.menuTitle}>TrackCar</Text>
               <Text style={styles.menuSubtitle}>Menu de Navegação</Text>
             </View>
 
-            {/* Conteúdo do Menu */}
             <ScrollView style={styles.menuContent} showsVerticalScrollIndicator={false}>
               {menuItems.map((item, index) => (
                 <TouchableOpacity
@@ -429,7 +431,6 @@ export default function HomeScreen() {
               ))}
             </ScrollView>
 
-            {/* Rodapé do Menu */}
             <View style={styles.menuFooter}>
               <TouchableOpacity
                 style={styles.menuLogoutButton}
@@ -437,7 +438,7 @@ export default function HomeScreen() {
                 activeOpacity={0.8}
               >
                 <Ionicons name="log-out" size={20} color="#FFFFFF" />
-                <Text style={styles.menuLogoutText}>Sair da Conta</Text>
+                <Text style={styles.menuLogoutText}>{t('menu.logout')}</Text>
               </TouchableOpacity>
             </View>
           </Animated.View>
