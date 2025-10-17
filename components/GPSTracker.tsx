@@ -1,19 +1,19 @@
 // components/GPSTracker.tsx - Componente para rastreamento GPS
 import {
-    generateMapsURL,
-    GPSLocation,
-    isCarMoving,
-    subscribeToCarLocation,
-} from '@/services/TrackingService'; // ✅ CORRIGIDO: Caminho e nome do arquivo
+  generateMapsURL,
+  GPSLocation,
+  isCarMoving,
+  subscribeToCarLocation,
+} from '@/services/tckService'; // ✅ CORRIGIDO: Caminho e nome do arquivo
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Linking,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Colors } from '../constants/colors';
 import { theme } from '../constants/theme';
