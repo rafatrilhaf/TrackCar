@@ -1,4 +1,4 @@
-// hooks/useThemeManager.ts - VERSÃO CORRIGIDA PARA ATUALIZAÇÃO IMEDIATA
+// hooks/useThemeManager.ts - VERSÃO FUNCIONAL SIMPLES
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { Appearance, ColorSchemeName } from 'react-native';
@@ -6,6 +6,35 @@ import { Appearance, ColorSchemeName } from 'react-native';
 const THEME_STORAGE_KEY = '@trackcar_theme';
 
 type ThemeMode = 'light' | 'dark' | 'system';
+
+// Estado global compartilhado
+let globalIsDark = false;
+let globalListeners: (() => void)[] = [];
+
+const notifyAllListeners = () => {
+  globalListeners.forEach(listener => {
+    try {
+      listener();
+    } catch (error) {
+      console.log('Erro ao notificar listener:', error);
+    }
+  });
+};
+
+const addGlobalListener = (listener: () => void) => {
+  globalListeners.push(listener);
+  return () => {
+    globalListeners = globalListeners.filter(l => l !== listener);
+  };
+};
+
+const updateGlobalTheme = (isDark: boolean) => {
+  if (globalIsDark !== isDark) {
+    globalIsDark = isDark;
+    console.log('🎨 Global theme updated to:', isDark ? 'DARK' : 'LIGHT');
+    notifyAllListeners();
+  }
+};
 
 interface ThemeManager {
   themeMode: ThemeMode;
@@ -20,9 +49,20 @@ export const useThemeManager = (): ThemeManager => {
   const [currentScheme, setCurrentScheme] = useState<ColorSchemeName>(
     Appearance.getColorScheme()
   );
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isDark, setIsDark] = useState(globalIsDark);
+  const [, forceUpdate] = useState(0);
 
-  // Carrega o tema salvo na inicialização
+  // Listener para mudanças globais de tema
+  useEffect(() => {
+    const cleanup = addGlobalListener(() => {
+      console.log('📱 Component received theme change notification');
+      setIsDark(globalIsDark);
+      forceUpdate(prev => prev + 1);
+    });
+    return cleanup;
+  }, []);
+
+  // Carrega tema salvo na inicialização
   useEffect(() => {
     loadSavedTheme();
   }, []);
@@ -30,53 +70,72 @@ export const useThemeManager = (): ThemeManager => {
   // Escuta mudanças do sistema
   useEffect(() => {
     const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      console.log('🌓 System theme changed to:', colorScheme);
       setCurrentScheme(colorScheme);
+      
+      // Se está no modo system, atualiza o tema
+      if (themeMode === 'system') {
+        updateGlobalTheme(colorScheme === 'dark');
+      }
     });
 
     return () => subscription?.remove();
-  }, []);
+  }, [themeMode]);
 
   const loadSavedTheme = async () => {
     try {
       const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
       if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
-        setThemeModeState(savedTheme as ThemeMode);
+        const mode = savedTheme as ThemeMode;
+        console.log('💾 Loaded saved theme:', mode);
+        setThemeModeState(mode);
+        
+        // Calcula o tema efetivo
+        const effectiveIsDark = mode === 'system' 
+          ? currentScheme === 'dark' 
+          : mode === 'dark';
+        
+        updateGlobalTheme(effectiveIsDark);
+      } else {
+        // Default para system
+        console.log('🔄 Using system theme by default');
+        updateGlobalTheme(currentScheme === 'dark');
       }
-      setIsLoaded(true);
     } catch (error) {
-      console.log('Erro ao carregar tema:', error);
-      setIsLoaded(true);
+      console.log('❌ Error loading theme:', error);
+      updateGlobalTheme(currentScheme === 'dark');
     }
   };
 
   const setThemeMode = async (mode: ThemeMode) => {
     try {
-      // CORRIGIDO: Atualiza o estado imediatamente
+      console.log('🎯 Setting theme mode to:', mode);
       setThemeModeState(mode);
       
-      // Salva em background para não bloquear a UI
+      // Calcula e atualiza o tema imediatamente
+      const effectiveIsDark = mode === 'system' 
+        ? currentScheme === 'dark' 
+        : mode === 'dark';
+      
+      updateGlobalTheme(effectiveIsDark);
+      
+      // Salva em background
       AsyncStorage.setItem(THEME_STORAGE_KEY, mode).catch((error) => {
-        console.log('Erro ao salvar tema:', error);
+        console.log('❌ Error saving theme:', error);
       });
     } catch (error) {
-      console.log('Erro ao definir tema:', error);
+      console.log('❌ Error setting theme:', error);
     }
   };
 
   const toggleTheme = () => {
-    // CORRIGIDO: Determina o novo modo baseado no estado atual efetivo
-    const currentEffectiveScheme = getEffectiveScheme();
-    const newMode = currentEffectiveScheme === 'dark' ? 'light' : 'dark';
+    const newMode = isDark ? 'light' : 'dark';
+    console.log('🔄 Toggling theme from', isDark ? 'dark' : 'light', 'to', newMode);
     setThemeMode(newMode);
   };
 
-  // Determina o esquema atual baseado na configuração
+  // Calcula o esquema efetivo
   const getEffectiveScheme = (): ColorSchemeName => {
-    if (!isLoaded) {
-      // Durante o carregamento, usa o esquema do sistema
-      return currentScheme;
-    }
-    
     if (themeMode === 'system') {
       return currentScheme;
     }
@@ -84,7 +143,6 @@ export const useThemeManager = (): ThemeManager => {
   };
 
   const effectiveScheme = getEffectiveScheme();
-  const isDark = effectiveScheme === 'dark';
 
   return {
     themeMode,
