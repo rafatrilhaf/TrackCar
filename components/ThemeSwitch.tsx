@@ -1,4 +1,4 @@
-// components/ThemeSwitch.tsx - VERSÃO TOTALMENTE CORRIGIDA
+// components/ThemeSwitch.tsx - VERSÃO OTIMIZADA PARA ATUALIZAÇÃO IMEDIATA
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useRef } from 'react';
 import {
@@ -21,10 +21,8 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps> = ({
   const theme = useTheme();
   const { isDark, toggleTheme } = useThemeManager();
   
-  // CORRIGIDO: Valores animados separados para cada tipo de driver
-  const slideAnimJS = useRef(new Animated.Value(isDark ? 1 : 0)).current; // Para JS driver
-  const scaleAnimNative = useRef(new Animated.Value(1)).current; // Para Native driver
-  const rotateAnimNative = useRef(new Animated.Value(0)).current; // Para Native driver
+  // VALOR ANIMADO SIMPLES
+  const animatedValue = useRef(new Animated.Value(isDark ? 1 : 0)).current;
   
   // Configurações de tamanho
   const sizes = {
@@ -53,77 +51,44 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps> = ({
 
   const currentSize = sizes[size];
 
-  // Anima a transição quando o tema muda
+  // CORRIGIDO: Animação sincronizada com mudança de tema
   useEffect(() => {
-    // CORRIGIDO: Animação do slide usando APENAS JS driver
-    Animated.spring(slideAnimJS, {
+    Animated.spring(animatedValue, {
       toValue: isDark ? 1 : 0,
-      useNativeDriver: false, // SEMPRE false para este valor
+      useNativeDriver: false,
       tension: 300,
       friction: 8,
     }).start();
-
-    // CORRIGIDO: Animação de rotação usando APENAS Native driver
-    Animated.sequence([
-      Animated.timing(rotateAnimNative, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true, // SEMPRE true para este valor
-      }),
-      Animated.timing(rotateAnimNative, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true, // SEMPRE true para este valor
-      }),
-    ]).start();
-  }, [isDark]);
+  }, [isDark, animatedValue]);
 
   const handlePress = () => {
-    // CORRIGIDO: Animação de escala usando APENAS Native driver
-    Animated.sequence([
-      Animated.timing(scaleAnimNative, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: true, // SEMPRE true para este valor
-      }),
-      Animated.timing(scaleAnimNative, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true, // SEMPRE true para este valor
-      }),
-    ]).start();
-
+    // CORRIGIDO: Log para debug + toggle imediato
+    console.log('ThemeSwitch pressed, current isDark:', isDark);
     toggleTheme();
   };
 
-  // Interpolações usando os valores corretos
-  const thumbTranslateX = slideAnimJS.interpolate({
+  // Interpolações
+  const thumbTranslateX = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: [0, currentSize.width - currentSize.thumbSize - currentSize.padding * 2],
   });
 
-  const backgroundColor = slideAnimJS.interpolate({
+  const backgroundColor = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['rgba(255, 206, 84, 0.8)', 'rgba(96, 125, 139, 0.8)'],
   });
 
-  const thumbBackgroundColor = slideAnimJS.interpolate({
+  const thumbBackgroundColor = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['#FFD700', '#37474F'],
   });
 
-  const iconRotation = rotateAnimNative.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
-  // Interpolação para opacidade dos ícones de fundo
-  const sunOpacity = slideAnimJS.interpolate({
+  const sunOpacity = animatedValue.interpolate({
     inputRange: [0, 0.5, 1],
     outputRange: [0.8, 0.4, 0.2],
   });
 
-  const moonOpacity = slideAnimJS.interpolate({
+  const moonOpacity = animatedValue.interpolate({
     inputRange: [0, 0.5, 1],
     outputRange: [0.2, 0.4, 0.8],
   });
@@ -182,6 +147,9 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps> = ({
     },
   });
 
+  // ADICIONADO: Log para debug do estado atual
+  console.log('ThemeSwitch render - isDark:', isDark, 'theme.isDark:', theme.isDark);
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
@@ -192,8 +160,7 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps> = ({
         style={[
           styles.track,
           {
-            backgroundColor, // JS driver
-            transform: [{ scale: scaleAnimNative }], // Native driver
+            backgroundColor,
           },
         ]}
       >
@@ -203,7 +170,7 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps> = ({
             styles.backgroundIcon,
             styles.sunIcon,
             {
-              opacity: sunOpacity, // JS driver
+              opacity: sunOpacity,
             },
           ]}
         >
@@ -219,7 +186,7 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps> = ({
             styles.backgroundIcon,
             styles.moonIcon,
             {
-              opacity: moonOpacity, // JS driver
+              opacity: moonOpacity,
             },
           ]}
         >
@@ -235,11 +202,8 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps> = ({
           style={[
             styles.thumb,
             {
-              backgroundColor: thumbBackgroundColor, // JS driver
-              transform: [
-                { translateX: thumbTranslateX }, // JS driver (NÃO pode usar native)
-                { rotate: iconRotation }, // Native driver
-              ],
+              backgroundColor: thumbBackgroundColor,
+              transform: [{ translateX: thumbTranslateX }],
             },
           ]}
         >

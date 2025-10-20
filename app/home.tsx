@@ -1,4 +1,4 @@
-// app/home.tsx - VERSÃO COMPLETA COM SWITCH DE TEMA
+// app/home.tsx - VERSÃO SEM SWITCH NO HEADER
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
@@ -97,20 +97,15 @@ export default function HomeScreen() {
     }, 200);
   };
 
+  // CORRIGIDO: Botão do menu SEM o ThemeSwitch
   const renderMenuButton = () => (
-    <View style={styles.headerRightContainer}>
-      {/* Switch de tema */}
-      <ThemeSwitch size="medium" style={styles.themeSwitch} />
-      
-      {/* Botão do menu */}
-      <TouchableOpacity
-        style={styles.headerMenuButton}
-        onPress={openMenu}
-        activeOpacity={0.7}
-      >
-        <Ionicons name="menu" size={24} color="#FFFFFF" />
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity
+      style={styles.headerMenuButton}
+      onPress={openMenu}
+      activeOpacity={0.7}
+    >
+      <Ionicons name="menu" size={24} color="#FFFFFF" />
+    </TouchableOpacity>
   );
 
   const menuItems = [
@@ -156,14 +151,6 @@ export default function HomeScreen() {
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
-    },
-    headerRightContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.sm,
-    },
-    themeSwitch: {
-      marginRight: theme.spacing.xs,
     },
     headerMenuButton: {
       backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -308,6 +295,30 @@ export default function HomeScreen() {
       fontSize: theme.fontSize.sm,
       color: theme.colors.textSecondary,
     },
+    // ADICIONADO: Seção do ThemeSwitch no menu
+    themeSwitchSection: {
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    themeSwitchLabel: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.medium,
+      color: theme.colors.text,
+    },
+    themeSwitchDescription: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textSecondary,
+      marginTop: 2,
+    },
+    themeSwitchContent: {
+      flex: 1,
+      marginRight: theme.spacing.md,
+    },
     menuFooter: {
       paddingHorizontal: theme.spacing.lg,
       paddingBottom: theme.spacing.xl,
@@ -330,7 +341,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header Global */}
+      {/* Header Global - SEM ThemeSwitch */}
       <Header 
         title="TrackCar" 
         rightComponent={renderMenuButton()}
@@ -422,6 +433,17 @@ export default function HomeScreen() {
             <View style={styles.menuHeader}>
               <Text style={styles.menuTitle}>TrackCar</Text>
               <Text style={styles.menuSubtitle}>Menu de Navegação</Text>
+            </View>
+
+            {/* ADICIONADO: Seção do ThemeSwitch no menu */}
+            <View style={styles.themeSwitchSection}>
+              <View style={styles.themeSwitchContent}>
+                <Text style={styles.themeSwitchLabel}>Tema do Aplicativo</Text>
+                <Text style={styles.themeSwitchDescription}>
+                  Alternar entre claro e escuro
+                </Text>
+              </View>
+              <ThemeSwitch size="medium" />
             </View>
 
             {/* Conteúdo do Menu */}

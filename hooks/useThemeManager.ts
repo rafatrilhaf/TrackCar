@@ -1,4 +1,4 @@
-// hooks/useThemeManager.ts
+// hooks/useThemeManager.ts - VERSÃO CORRIGIDA PARA ATUALIZAÇÃO IMEDIATA
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { Appearance, ColorSchemeName } from 'react-native';
@@ -20,8 +20,9 @@ export const useThemeManager = (): ThemeManager => {
   const [currentScheme, setCurrentScheme] = useState<ColorSchemeName>(
     Appearance.getColorScheme()
   );
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Carrega o tema salvo
+  // Carrega o tema salvo na inicialização
   useEffect(() => {
     loadSavedTheme();
   }, []);
@@ -41,27 +42,41 @@ export const useThemeManager = (): ThemeManager => {
       if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
         setThemeModeState(savedTheme as ThemeMode);
       }
+      setIsLoaded(true);
     } catch (error) {
       console.log('Erro ao carregar tema:', error);
+      setIsLoaded(true);
     }
   };
 
   const setThemeMode = async (mode: ThemeMode) => {
     try {
+      // CORRIGIDO: Atualiza o estado imediatamente
       setThemeModeState(mode);
-      await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
+      
+      // Salva em background para não bloquear a UI
+      AsyncStorage.setItem(THEME_STORAGE_KEY, mode).catch((error) => {
+        console.log('Erro ao salvar tema:', error);
+      });
     } catch (error) {
-      console.log('Erro ao salvar tema:', error);
+      console.log('Erro ao definir tema:', error);
     }
   };
 
   const toggleTheme = () => {
-    const newMode = themeMode === 'light' ? 'dark' : 'light';
+    // CORRIGIDO: Determina o novo modo baseado no estado atual efetivo
+    const currentEffectiveScheme = getEffectiveScheme();
+    const newMode = currentEffectiveScheme === 'dark' ? 'light' : 'dark';
     setThemeMode(newMode);
   };
 
   // Determina o esquema atual baseado na configuração
   const getEffectiveScheme = (): ColorSchemeName => {
+    if (!isLoaded) {
+      // Durante o carregamento, usa o esquema do sistema
+      return currentScheme;
+    }
+    
     if (themeMode === 'system') {
       return currentScheme;
     }
