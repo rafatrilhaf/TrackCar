@@ -1,7 +1,9 @@
-// app/_layout.tsx - ATUALIZADO COM NOVAS ROTAS
+// app/_layout.tsx - VERSÃO COMPLETA ATUALIZADA
 import { Stack } from 'expo-router';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { ThemeTransition } from '../components/ThemeTransition';
 import { auth } from '../services/firebase';
 
 export default function RootLayout() {
@@ -18,24 +20,38 @@ export default function RootLayout() {
   }, []);
 
   if (isLoading) {
-    // Splash screen opcional
-    return null;
+    // Você pode adicionar uma splash screen aqui se quiser
+    return (
+      <View style={styles.loadingContainer}>
+        {/* Adicione seu componente de loading aqui se necessário */}
+      </View>
+    );
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="home" />
-      <Stack.Screen name="login" />
-      <Stack.Screen name="register" />
-      <Stack.Screen name="modal" />
-      <Stack.Screen name="perfil" />
-      <Stack.Screen name="carros" />
-      <Stack.Screen name="cadastrar-carro" />
-      <Stack.Screen name="detalhes-carro" />
-      <Stack.Screen name="editar-carro" />
-      <Stack.Screen name="veiculosroubados" />
-      <Stack.Screen name="localizacao" />
-    </Stack>
+    <ThemeTransition>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="home" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="register" />
+        <Stack.Screen name="modal" />
+        <Stack.Screen name="perfil" />
+        <Stack.Screen name="carros" />
+        <Stack.Screen name="cadastrar-carro" />
+        <Stack.Screen name="detalhes-carro" />
+        <Stack.Screen name="editar-carro" />
+        <Stack.Screen name="veiculosroubados" />
+        <Stack.Screen name="localizacao" />
+      </Stack>
+    </ThemeTransition>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

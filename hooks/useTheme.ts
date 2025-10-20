@@ -1,11 +1,10 @@
-// hooks/useTheme.ts
-import { useColorScheme } from 'react-native';
+// hooks/useTheme.ts - VERSÃO ATUALIZADA
 import { Colors } from '../constants/colors';
 import { theme as baseTheme } from '../constants/theme';
+import { useThemeManager } from './useThemeManager';
 
 export const useTheme = () => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { isDark } = useThemeManager();
   
   const colors = isDark ? Colors.dark : Colors.light;
   

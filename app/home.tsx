@@ -1,4 +1,4 @@
-// app/home.tsx - VERSÃO CORRIGIDA
+// app/home.tsx - VERSÃO COMPLETA COM SWITCH DE TEMA
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
@@ -16,6 +16,7 @@ import {
   View
 } from 'react-native';
 import { Header } from '../components/Header';
+import { ThemeSwitch } from '../components/ThemeSwitch';
 import { useTheme } from '../hooks/useTheme';
 import { auth } from '../services/firebase';
 
@@ -25,7 +26,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const theme = useTheme();
   const [menuVisible, setMenuVisible] = useState(false);
-  const slideAnim = useRef(new Animated.Value(screenWidth * 0.8)).current; // ALTERADO: inicia do lado direito
+  const slideAnim = useRef(new Animated.Value(screenWidth * 0.8)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
 
   const handleLogout = async () => {
@@ -60,7 +61,7 @@ export default function HomeScreen() {
     setMenuVisible(true);
     Animated.parallel([
       Animated.timing(slideAnim, {
-        toValue: 0, // desliza para posição 0 (visível)
+        toValue: 0,
         duration: 300,
         useNativeDriver: true,
       }),
@@ -75,7 +76,7 @@ export default function HomeScreen() {
   const closeMenu = () => {
     Animated.parallel([
       Animated.timing(slideAnim, {
-        toValue: screenWidth * 0.8, // volta para o lado direito
+        toValue: screenWidth * 0.8,
         duration: 250,
         useNativeDriver: true,
       }),
@@ -97,13 +98,19 @@ export default function HomeScreen() {
   };
 
   const renderMenuButton = () => (
-    <TouchableOpacity
-      style={styles.headerMenuButton}
-      onPress={openMenu}
-      activeOpacity={0.7}
-    >
-      <Ionicons name="menu" size={24} color="#FFFFFF" />
-    </TouchableOpacity>
+    <View style={styles.headerRightContainer}>
+      {/* Switch de tema */}
+      <ThemeSwitch size="medium" style={styles.themeSwitch} />
+      
+      {/* Botão do menu */}
+      <TouchableOpacity
+        style={styles.headerMenuButton}
+        onPress={openMenu}
+        activeOpacity={0.7}
+      >
+        <Ionicons name="menu" size={24} color="#FFFFFF" />
+      </TouchableOpacity>
+    </View>
   );
 
   const menuItems = [
@@ -150,6 +157,14 @@ export default function HomeScreen() {
       flex: 1,
       backgroundColor: theme.colors.background,
     },
+    headerRightContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+    },
+    themeSwitch: {
+      marginRight: theme.spacing.xs,
+    },
     headerMenuButton: {
       backgroundColor: 'rgba(255, 255, 255, 0.2)',
       borderRadius: theme.borderRadius.full,
@@ -187,7 +202,7 @@ export default function HomeScreen() {
     },
     menuContainer: {
       flex: 1,
-      marginBottom: theme.spacing.xxl, // ALTERADO: margem inferior para espaçamento
+      marginBottom: theme.spacing.xxl,
     },
     menuButton: {
       backgroundColor: theme.colors.surface,
@@ -232,14 +247,14 @@ export default function HomeScreen() {
     sideMenu: {
       position: 'absolute',
       top: 0,
-      right: 0, // ALTERADO: posicionado à direita
+      right: 0,
       bottom: 0,
       width: screenWidth * 0.8,
       backgroundColor: theme.colors.background,
       elevation: 10,
       shadowColor: '#000',
       shadowOffset: {
-        width: -2, // ALTERADO: sombra para a esquerda
+        width: -2,
         height: 0,
       },
       shadowOpacity: 0.3,
