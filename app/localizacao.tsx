@@ -17,7 +17,7 @@ import { Header } from '../components/Header';
 import { theme } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import { getUserCars, subscribeToCarStolenStatus, updateCarStolenStatus } from '../services/carService';
-import { GPSLocation, subscribeToCarLocation } from '../services/TrackingService';
+import { GPSLocation, subscribeToCarLocation } from '../services/tkService';
 import { Car } from '../types/car';
 
 interface LocationData {
