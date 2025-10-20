@@ -1,10 +1,9 @@
-// app/_layout.tsx - COM THEMEPROVIDER
+// app/_layout.tsx - VERSÃO CORRIGIDA (SEM THEMEPROVIDER)
 import { Stack } from 'expo-router';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ThemeTransition } from '../components/ThemeTransition';
-import { ThemeProvider } from '../hooks/useThemeManager'; // NOVO IMPORT
 import { auth } from '../services/firebase';
 
 export default function RootLayout() {
@@ -29,24 +28,22 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <ThemeTransition>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="home" />
-          <Stack.Screen name="login" />
-          <Stack.Screen name="register" />
-          <Stack.Screen name="modal" />
-          <Stack.Screen name="perfil" />
-          <Stack.Screen name="carros" />
-          <Stack.Screen name="cadastrar-carro" />
-          <Stack.Screen name="detalhes-carro" />
-          <Stack.Screen name="editar-carro" />
-          <Stack.Screen name="veiculosroubados" />
-          <Stack.Screen name="localizacao" />
-        </Stack>
-      </ThemeTransition>
-    </ThemeProvider>
+    <ThemeTransition>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="home" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="register" />
+        <Stack.Screen name="modal" />
+        <Stack.Screen name="perfil" />
+        <Stack.Screen name="carros" />
+        <Stack.Screen name="cadastrar-carro" />
+        <Stack.Screen name="detalhes-carro" />
+        <Stack.Screen name="editar-carro" />
+        <Stack.Screen name="veiculosroubados" />
+        <Stack.Screen name="localizacao" />
+      </Stack>
+    </ThemeTransition>
   );
 }
 
