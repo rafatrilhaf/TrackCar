@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """
-TRACKCAR - MAC GATEWAY
-Lê dados do Arduino via Serial e envia para Firebase
-+ Escuta mudanças de ignitionState no Firebase e controla relé
+TRACKCAR - MAC GATEWAY v2.2
+Arduino Nano → Firebase + Controle Relé
+Versão otimizada sem comandos repetitivos
 """
 
-import serial
 import json
+import serial
 import time
 from datetime import datetime
-from threading import Thread
+from threading import Thread, Lock
 import firebase_admin
 from firebase_admin import credentials, firestore
+import logging
+import os
 
 # ==============================================================================
 # CONFIGURAÇÕES
@@ -21,79 +23,108 @@ from firebase_admin import credentials, firestore
 SERIAL_PORT = '/dev/cu.usbserial-1140'
 SERIAL_BAUD = 9600
 
-# Firebase Config (suas credenciais)
-FIREBASE_CONFIG = {
-  "type": "service_account",
-  "project_id": "trackcar-27dbe",
-  "private_key_id": "c137f70ca946295b2de85d06b1f2ca9563626bf9",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCXvmQZt352/PzE\n6gfMhvUouMWGXEBPchDCWzYy0Jf3dMPLVw2fVDdTlm4VjfhC4pySJ9tAnYOlRbmR\ni1ubl2v98ghbH8OevjqpqHZB3TcmofoGiWY4DWhrKHKbAh7qsU20D16JxqseMtEH\nSbIwMvmXc6b+1eWT26Ivjt7ZbPiOBNUL9NfEdCz/m15jzOhb6ZxeUkEaNGbgxFkC\nNKwD2Zvt7jtrglQ9Zt4EK302oBCR/3JPKIgevt/u0adsuEmmNwFZPloK1wIoddhr\nIWXPvVEQr5aZdtAx/rO2qUia49tu/ZwD9s3rVH80o8beHmToPnubFLCJcGlpQYKq\nCPy8yFrTAgMBAAECggEAD0mQlyCr3nv1UTdMqtfL2hrnV3Zyyi4xLwt2Zd8q+DSs\nxw8RocQfwM2OcKB5au+em4Dlb1iPGzbvj5CtHXs/V3mrStbj49nBWjdNFqydMkiu\nQjtUb4A2TVlpVmF70OQk8md7/EBmG+g9s9DCYWW5TH9Lyy+sbd16NPVdUSVP0yrU\nuebdYw5RsNLH5Ebbeb63A6n5u3O96T9kABzurkYMOz6JqgPWawRVsspeepbYa39K\nXXQof98pd61Vdy3MTT0oRd4mPrtaX1OKBhbwxQiEG9mmyhOSn6L1O+kuyHahi8zc\nGH3h0v1XSossEVoTg/B2d/Ql9pJPhyeP0QeWIR6lgQKBgQDLoHPDm9eF3+0odAid\nv+M9OzcnV6tDEa6KtM7MFRq8x4C9PUA5RhtzDFq/5DB3l4DNd5b817NZVQuA0ylQ\nj6k97qHLdvDgBHiPj37ogw1DFi/0RzukyWQq4uN4cl3vAFKFnuhw9nDS49mzdl70\nG0a/1xKIXOf3Sjlw9SnP2bgjgQKBgQC+xcPB54XsE4uswTqx6qs+nHJsACqsntvo\nanr+pwGemc5o+D9CEwvhLsEfdWWTCGzuDkbPf28y0WvXrS/X/mZPqHopJtN/sX7e\n0+GoDEszNLnOzfsqqe7t6f4zgklSGSheIYOZ2tjEVw16ioCdIx9h82d0goV01jFO\nOlotWCDYUwKBgFIIR9rL052pQn+Dj10NytwGGQgOd35Dh09128G31teqf6C9Jjxs\nk+5bUcvwf94N+OPNg9REiYo5irLRXtmHpqS+mAvB1PRKmM8s/fFpqlQWgick81BF\nmcb1NLJ3UIRSWuxdwkKP5Y/wHun/i+1Hd88dM+gflYu4KT/qZHfJvDcBAoGAfl2b\nbM7Ci/zqcVVRXta19fRFarq1icB0pEAcFqBjVz5EVo3RwR/Cp7eDnyXxUXKsTQfR\n6dJcwwmraKLEZUuTU8KioK2iPRxCkLFC8UCrc1DCn3UboUgNBzUO9+meTa5yad/D\nP1+SZIPRXtFtnijMueI0Lh3i7uCOqmXGo/CTWRcCgYEAoqx+i8ZGckrW3ns/b+Pd\nfF/pKP7KCTu1VZIGsLKPtRqBtt7WnK9eVCoDUkNYZGwNWtSYsGaeEHj0lFcSoU8J\ny+z0saLdsCgU1/B2VEaGYPjNg8zESBahn/wk2ZWWx7VXKjuWNLKm1BI8PWKWBNK7\nLRZkoJV1vHF+BzloGCDSmks=\n-----END PRIVATE KEY-----\n",
-  "client_email": "firebase-adminsdk-fbsvc@trackcar-27dbe.iam.gserviceaccount.com",
-  "client_id": "108050558538244521567",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40trackcar-27dbe.iam.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
-}
-
 # ID do veículo
 CAR_ID = "N5B2e9xahFllTGASIDLE"
-
-# ID do usuário
 USER_ID = "87If5SbgxrePsQX761VTfYBz5GF2"
 
-# Serial global
+# Variáveis globais
 ser = None
+db = None
+serial_lock = Lock()
+last_heartbeat = 0
+
+# ✅ NOVO: Controle de estado para evitar comandos repetitivos
+last_ignition_state = 'unknown'
+last_command_time = 0
+COMMAND_COOLDOWN = 5  # 5 segundos entre comandos iguais
+
+# Setup de logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('trackcar.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # ==============================================================================
-# INICIALIZAÇÃO FIREBASE
+# INICIALIZAÇÃO
 # ==============================================================================
 
 def init_firebase():
-    """Inicializa Firebase Admin SDK"""
+    """Inicializa Firebase Admin SDK usando arquivo JSON"""
+    global db
     try:
         if firebase_admin._apps:
-            return firestore.client()
+            db = firestore.client()
+            return db
         
-        cred = credentials.Certificate(FIREBASE_CONFIG)
+        # Procura arquivo de credenciais
+        credential_files = [
+            'firebase-credentials.json',
+            'serviceAccountKey.json',
+            'trackcar-firebase-key.json'
+        ]
+        
+        credential_path = None
+        for file in credential_files:
+            if os.path.exists(file):
+                credential_path = file
+                break
+        
+        if not credential_path:
+            logger.error("❌ Arquivo de credenciais Firebase não encontrado!")
+            logger.info("📋 Crie um arquivo 'firebase-credentials.json' com suas credenciais")
+            logger.info("   Baixe do Firebase Console > Project Settings > Service accounts")
+            exit(1)
+        
+        cred = credentials.Certificate(credential_path)
         firebase_admin.initialize_app(cred)
+        db = firestore.client()
         
-        print("✅ Firebase inicializado com sucesso")
-        return firestore.client()
+        logger.info(f"✅ Firebase inicializado com sucesso usando {credential_path}")
+        return db
+        
     except Exception as e:
-        print(f"❌ Erro ao inicializar Firebase: {e}")
+        logger.error(f"❌ Erro ao inicializar Firebase: {e}")
+        logger.info("💡 Verifique se o arquivo de credenciais está correto")
         exit(1)
-
-# ==============================================================================
-# SERIAL
-# ==============================================================================
 
 def init_serial():
     """Inicializa conexão serial com Arduino"""
+    global ser
     try:
-        s = serial.Serial(SERIAL_PORT, SERIAL_BAUD, timeout=2)
+        ser = serial.Serial(SERIAL_PORT, SERIAL_BAUD, timeout=1)
         time.sleep(2)  # Aguarda reset do Arduino
-        print(f"✅ Serial conectada: {SERIAL_PORT}")
-        return s
+        logger.info(f"✅ Serial conectada: {SERIAL_PORT}")
+        return ser
     except Exception as e:
-        print(f"❌ Erro ao conectar serial: {e}")
-        print(f"\n⚠️  Porta esperada: {SERIAL_PORT}")
-        print("\nPortas disponíveis no Mac:")
+        logger.error(f"❌ Erro ao conectar serial: {e}")
+        logger.info(f"\n⚠️  Porta esperada: {SERIAL_PORT}")
+        logger.info("\nPortas disponíveis no Mac:")
         import glob
         ports = glob.glob('/dev/cu.*')
         for port in ports:
-            print(f"  - {port}")
-        exit(1)
+            logger.info(f"  - {port}")
+        
+        response = input("\n🤔 Continuar sem Arduino para teste? (s/N): ")
+        if response.lower() == 's':
+            logger.warning("⚠️  Modo teste: continuando sem Arduino")
+            return None
+        else:
+            exit(1)
 
 # ==============================================================================
 # FUNÇÕES FIREBASE
 # ==============================================================================
 
-def save_gps_location(db, data):
+def save_gps_location(data):
     """Salva localização no Firestore"""
     try:
         if not data.get('valid', False):
-            print("⚠️  GPS sem fix válido - ignorando")
+            logger.warning("⚠️  GPS sem fix válido - ignorando")
             return False
         
         lat = data.get('lat', 0)
@@ -102,7 +133,7 @@ def save_gps_location(db, data):
         age = data.get('age', 0)
         
         if lat == 0 and lon == 0:
-            print("⚠️  Coordenadas inválidas - ignorando")
+            logger.warning("⚠️  Coordenadas inválidas - ignorando")
             return False
         
         location_data = {
@@ -119,142 +150,261 @@ def save_gps_location(db, data):
         
         db.collection('gps_locations').add(location_data)
         
+        # ✅ CORRIGIDO: Atualiza carro mas SEM alterar ignitionState
+        # (o ignitionState só deve ser alterado pelo app)
         car_ref = db.collection('cars').document(CAR_ID)
         car_ref.update({
             'lastLatitude': lat,
             'lastLongitude': lon,
             'lastLocationUpdate': firestore.SERVER_TIMESTAMP,
             'updatedAt': firestore.SERVER_TIMESTAMP
+            # Removido: 'ignitionState': data.get('ignitionState', 'unknown'),
         })
         
-        print(f"✅ GPS salvo: {lat:.6f}, {lon:.6f} ({sats} sats)")
+        logger.info(f"✅ GPS salvo: {lat:.6f}, {lon:.6f} ({sats} sats)")
         return True
         
     except Exception as e:
-        print(f"❌ Erro ao salvar GPS: {e}")
+        logger.error(f"❌ Erro ao salvar GPS: {e}")
         return False
 
 # ==============================================================================
 # CONTROLE DO RELÉ
 # ==============================================================================
 
-def enviar_comando_rele(estado):
-    """Envia comando para Arduino via Serial"""
+def enviar_comando_arduino(comando):
+    """Envia comando para Arduino via Serial com retry"""
     global ser
     
-    try:
-        if ser is None or not ser.is_open:
-            print("⚠️  Serial não disponível")
-            return False
-        
-        if estado == 'on':
-            ser.write(b'RELE_ON\n')
-            print("🔓 Comando enviado: RELÉ LIGADO")
-        elif estado == 'off':
-            ser.write(b'RELE_OFF\n')
-            print("🔒 Comando enviado: RELÉ DESLIGADO")
-        else:
-            print(f"⚠️  Estado inválido: {estado}")
-            return False
-        
+    if ser is None:
+        logger.warning("⚠️  Modo teste: simulando comando Arduino")
+        logger.info(f"🎭 SIMULADO: {comando}")
         return True
+    
+    with serial_lock:
+        for tentativa in range(3):
+            try:
+                if not ser.is_open:
+                    logger.warning("⚠️  Serial não disponível")
+                    return False
+                
+                comando_completo = f"{comando}\n"
+                ser.write(comando_completo.encode())
+                ser.flush()
+                
+                logger.info(f"📤 Comando enviado (tentativa {tentativa + 1}): {comando}")
+                
+                time.sleep(0.5)
+                if ser.in_waiting > 0:
+                    response = ser.readline().decode('utf-8', errors='ignore').strip()
+                    logger.info(f"📥 Resposta do Arduino: {response}")
+                
+                return True
+                
+            except Exception as e:
+                logger.error(f"❌ Erro ao enviar comando (tentativa {tentativa + 1}): {e}")
+                time.sleep(1)
         
-    except Exception as e:
-        print(f"❌ Erro ao enviar comando: {e}")
         return False
 
-def escutar_ignition_state(db):
+def processar_mudanca_ignicao(new_state):
+    """Processa mudança de ignição do app"""
+    global last_ignition_state, last_command_time
+    
+    current_time = time.time()
+    
+    # ✅ NOVO: Evita comandos repetitivos
+    if (new_state == last_ignition_state and 
+        (current_time - last_command_time) < COMMAND_COOLDOWN):
+        logger.debug(f"🚫 Comando {new_state} ignorado (cooldown de {COMMAND_COOLDOWN}s)")
+        return
+    
+    logger.info(f"\n🔔 Firebase → ignitionState = {new_state}")
+    
+    if new_state == 'on':
+        success = enviar_comando_arduino('IGNITION_ON')
+        emoji = "🔓" if success else "❌"
+        logger.info(f"{emoji} Comando LIGAR ignição - {'Enviado' if success else 'Falhou'}")
+    elif new_state == 'off':
+        success = enviar_comando_arduino('IGNITION_OFF')
+        emoji = "🔒" if success else "❌"
+        logger.info(f"{emoji} Comando DESLIGAR ignição - {'Enviado' if success else 'Falhou'}")
+    else:
+        logger.warning(f"⚠️  Estado desconhecido: {new_state}")
+        return
+    
+    # ✅ NOVO: Atualiza controle de estado
+    last_ignition_state = new_state
+    last_command_time = current_time
+
+def escutar_ignition_state():
     """Thread que escuta mudanças no ignitionState do Firebase"""
     
     def on_snapshot(doc_snapshot, changes, read_time):
         for doc in doc_snapshot:
             data = doc.to_dict()
             ignition_state = data.get('ignitionState', 'unknown')
+            processar_mudanca_ignicao(ignition_state)
+    
+    try:
+        car_ref = db.collection('cars').document(CAR_ID)
+        doc_watch = car_ref.on_snapshot(on_snapshot)
+        
+        logger.info(f"👂 Escutando mudanças: cars/{CAR_ID}/ignitionState")
+        return doc_watch
+    except Exception as e:
+        logger.error(f"❌ Erro ao configurar listener: {e}")
+        return None
+
+# ==============================================================================
+# PROCESSAMENTO DE DADOS DO ARDUINO
+# ==============================================================================
+
+def processar_linha_arduino(line):
+    """Processa linha recebida do Arduino"""
+    global last_heartbeat
+    
+    if not line.strip():
+        return
+    
+    if line.startswith("TRACKCAR_READY"):
+        logger.info("✅ Arduino pronto!\n")
+        return
+    
+    try:
+        data = json.loads(line)
+        data_type = data.get('type', 'unknown')
+        
+        if data_type == 'gps':
+            save_gps_location(data)
             
-            print(f"\n🔔 Firebase atualizado: ignitionState = {ignition_state}")
+        elif data_type == 'ack':
+            ignition_state = data.get('ignitionState', 'unknown')
+            emoji = "🔓" if ignition_state == "on" else "🔒"
+            logger.info(f"{emoji} Arduino confirmou: Ignição {ignition_state.upper()}")
             
-            if ignition_state == 'on':
-                enviar_comando_rele('on')
-            elif ignition_state == 'off':
-                enviar_comando_rele('off')
-            else:
-                print(f"⚠️  Estado desconhecido: {ignition_state}")
-    
-    # Escuta em tempo real o documento do carro
-    car_ref = db.collection('cars').document(CAR_ID)
-    doc_watch = car_ref.on_snapshot(on_snapshot)
-    
-    print(f"👂 Escutando mudanças em: cars/{CAR_ID}/ignitionState")
-    
-    return doc_watch
+        elif data_type == 'heartbeat':
+            last_heartbeat = time.time()
+            uptime = data.get('uptime', 0) / 1000
+            commands = data.get('commands', 0)
+            rele = data.get('rele', 'unknown')
+            logger.info(f"💓 Heartbeat - Uptime: {uptime:.1f}s | Comandos: {commands} | Relé: {rele}")
+            
+        elif data_type == 'debug':
+            logger.debug(f"🐛 Debug: {data.get('received', 'N/A')}")
+            
+        elif data_type == 'error':
+            logger.error(f"❌ Arduino erro: {data.get('message', 'Erro desconhecido')}")
+            
+        elif data_type == 'system':
+            logger.info(f"🔧 Sistema: {data.get('message', 'Mensagem do sistema')}")
+            
+    except json.JSONDecodeError:
+        logger.warning(f"⚠️  Linha não é JSON: {line}")
+    except Exception as e:
+        logger.error(f"❌ Erro ao processar linha: {e}")
+
+# ==============================================================================
+# TESTE DE FIREBASE
+# ==============================================================================
+
+def teste_firebase():
+    """Testa conexão com Firebase"""
+    try:
+        logger.info("🧪 Testando conexão Firebase...")
+        
+        car_ref = db.collection('cars').document(CAR_ID)
+        car_doc = car_ref.get()
+        
+        # ✅ CORRIGIDO: exists sem parênteses
+        if car_doc.exists:
+            data = car_doc.to_dict()
+            logger.info(f"✅ Carro encontrado: {data.get('brand', 'N/A')} {data.get('model', 'N/A')}")
+            logger.info(f"🔧 Estado ignição: {data.get('ignitionState', 'unknown')}")
+            return True
+        else:
+            logger.warning(f"⚠️  Documento do carro não encontrado: {CAR_ID}")
+            logger.info("💡 Verifique se o CAR_ID está correto ou crie o carro no app")
+            return False
+            
+    except Exception as e:
+        logger.error(f"❌ Erro no teste Firebase: {e}")
+        return False
 
 # ==============================================================================
 # MAIN LOOP
 # ==============================================================================
 
 def main():
-    global ser
+    global ser, db, last_heartbeat, last_ignition_state
     
     print("\n" + "="*60)
-    print("  TRACKCAR - MAC GATEWAY")
+    print("  TRACKCAR - MAC GATEWAY v2.2")
     print("  Arduino Nano → Firebase + Controle Relé")
+    print("  Versão otimizada sem comandos repetitivos")
     print("="*60 + "\n")
     
     # Inicializa Firebase
     db = init_firebase()
     
+    # Testa Firebase
+    if teste_firebase():
+        # ✅ NOVO: Carrega estado inicial da ignição
+        try:
+            car_ref = db.collection('cars').document(CAR_ID)
+            car_doc = car_ref.get()
+            if car_doc.exists:
+                data = car_doc.to_dict()
+                last_ignition_state = data.get('ignitionState', 'unknown')
+                logger.info(f"🔧 Estado inicial da ignição: {last_ignition_state}")
+        except:
+            pass
+    
     # Inicializa Serial
     ser = init_serial()
     
-    # Inicia thread para escutar ignitionState
-    print(f"\n🚗 Veículo: {CAR_ID}")
+    # Inicia listener do Firebase
+    print(f"\n🚗 Veículo monitorado: {CAR_ID}")
     print(f"📡 Aguardando dados do Arduino...")
-    print(f"⏱️  Intervalo GPS: 10 segundos")
-    print(f"🔔 Escutando mudanças de ignitionState...\n")
+    print(f"🔔 Escutando mudanças de ignitionState...")
+    print(f"⏱️  Cooldown entre comandos: {COMMAND_COOLDOWN}s\n")
     
-    # Escuta Firebase em thread separada
-    listener = escutar_ignition_state(db)
+    listener = escutar_ignition_state()
+    last_heartbeat = time.time()
     
-    # Loop principal (GPS)
+    # Loop principal
     try:
+        contador = 0
         while True:
-            if ser.in_waiting > 0:
+            if ser and ser.in_waiting > 0:
                 line = ser.readline().decode('utf-8', errors='ignore').strip()
-                
-                if not line:
-                    continue
-                
-                if line == "TRACKCAR_READY":
-                    print("✅ Arduino pronto!\n")
-                    continue
-                
-                try:
-                    data = json.loads(line)
-                    
-                    if data.get('type') == 'gps':
-                        save_gps_location(db, data)
-                    
-                    elif data.get('type') == 'ack':
-                        rele_estado = data.get('rele', 'unknown')
-                        emoji = "🔓" if rele_estado == "on" else "🔒"
-                        print(f"{emoji} Arduino confirmou: Relé {rele_estado.upper()}")
-                    
-                except json.JSONDecodeError:
-                    print(f"⚠️  Linha não é JSON: {line}")
+                processar_linha_arduino(line)
+            
+            elif ser is None:
+                contador += 1
+                if contador >= 300:  # 30 segundos
+                    contador = 0
+                    logger.info("🎭 Modo teste: simulando dados GPS...")
+                    fake_gps = {
+                        'type': 'gps',
+                        'lat': -23.5505 + (time.time() % 100) * 0.0001,
+                        'lon': -46.6333 + (time.time() % 100) * 0.0001,
+                        'sats': 8,
+                        'age': 1000,
+                        'valid': True
+                    }
+                    save_gps_location(fake_gps)
             
             time.sleep(0.1)
     
     except KeyboardInterrupt:
         print("\n\n⏹️  Encerrando...")
-        listener.unsubscribe()
-        ser.close()
-        print("✅ Serial fechada")
-        print("✅ Listener Firebase fechado")
+        if listener:
+            listener.unsubscribe()
+        if ser:
+            ser.close()
+        logger.info("✅ Sistema encerrado com sucesso")
         print("Até logo! 👋\n")
-
-# ==============================================================================
-# EXECUÇÃO
-# ==============================================================================
 
 if __name__ == "__main__":
     main()
