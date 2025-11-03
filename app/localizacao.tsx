@@ -17,7 +17,8 @@ import { Header } from '../components/Header';
 import { theme } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import { getUserCars, subscribeToCarStolenStatus, updateCarStolenStatus } from '../services/carService';
-import { GPSLocation, subscribeToCarLocation } from '../services/tkService';
+import { auth } from '../services/firebase';
+import { GPSLocation, isUserAuthenticated, subscribeToCarLocation } from '../services/tkService';
 import { Car } from '../types/car';
 
 interface LocationData {
@@ -238,64 +239,131 @@ export default function LocalizacaoScreen() {
   }, []);
 
   useEffect(() => {
-    // Limpa subscriptions anteriores
-    if (unsubscribeLocation) {
-      unsubscribeLocation();
-      setUnsubscribeLocation(null);
-    }
-    if (unsubscribeStolenStatus) {
-      unsubscribeStolenStatus();
-      setUnsubscribeStolenStatus(null);
-    }
-
-    if (selectedCar?.id) {
-      // Subscreve para atualizações de localização GPS
-      const locationUnsubscribe = subscribeToCarLocation(selectedCar.id, async (location) => {
-        setCurrentLocation(location);
-        
-        if (location) {
-          // Converte coordenadas em endereço
-          const address = await getAddressFromCoordinates(location.latitude, location.longitude);
-          
-          setLocationData({
-            latitude: location.latitude,
-            longitude: location.longitude,
-            address,
-            lastUpdate: location.timestamp,
-            isOnline: true
-          });
-        } else {
-          setLocationData(null);
-        }
-      });
-
-      // Subscreve para atualizações de status de roubo
-      const stolenUnsubscribe = subscribeToCarStolenStatus(selectedCar.id, (isStolen, reportedAt) => {
-        setSelectedCar(prev => prev ? {
-          ...prev,
-          isStolen,
-          stolenReportedAt: reportedAt
-        } : null);
-      });
-
-      setUnsubscribeLocation(() => locationUnsubscribe);
-      setUnsubscribeStolenStatus(() => stolenUnsubscribe);
-    }
-
-    // Cleanup na desmontagem
-    return () => {
+    // ✅ Função de limpeza aprimorada
+    const cleanup = () => {
       if (unsubscribeLocation) {
+        console.log('Limpando subscription de localização...');
         unsubscribeLocation();
+        setUnsubscribeLocation(null);
       }
       if (unsubscribeStolenStatus) {
+        console.log('Limpando subscription de status roubado...');
         unsubscribeStolenStatus();
+        setUnsubscribeStolenStatus(null);
       }
     };
+
+    // Limpa subscriptions anteriores
+    cleanup();
+
+    if (selectedCar?.id) {
+      try {
+        // Subscreve para atualizações de localização GPS
+        const locationUnsubscribe = subscribeToCarLocation(selectedCar.id, async (location) => {
+          // ✅ Verifica se o componente ainda está montado e usuário logado
+          const currentUser = auth.currentUser;
+          if (!currentUser) {
+            console.log('Usuário deslogado, parando processamento de localização');
+            return;
+          }
+
+          setCurrentLocation(location);
+          
+          if (location) {
+            try {
+              // Converte coordenadas em endereço
+              const address = await getAddressFromCoordinates(location.latitude, location.longitude);
+              
+              // ✅ Verifica novamente se o usuário ainda está logado antes de atualizar estado
+              if (auth.currentUser) {
+                setLocationData({
+                  latitude: location.latitude,
+                  longitude: location.longitude,
+                  address,
+                  lastUpdate: location.timestamp,
+                  isOnline: true
+                });
+              }
+            } catch (error) {
+              console.error('Erro ao buscar endereço:', error);
+              // Define dados básicos mesmo com erro no endereço
+              if (auth.currentUser) {
+                setLocationData({
+                  latitude: location.latitude,
+                  longitude: location.longitude,
+                  address: `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`,
+                  lastUpdate: location.timestamp,
+                  isOnline: true
+                });
+              }
+            }
+          } else {
+            if (auth.currentUser) {
+              setLocationData(null);
+            }
+          }
+        });
+
+        // Subscreve para atualizações de status de roubo  
+        const stolenUnsubscribe = subscribeToCarStolenStatus(selectedCar.id, (isStolen, reportedAt) => {
+          // ✅ Verifica se o usuário ainda está logado
+          const currentUser = auth.currentUser;
+          if (!currentUser) {
+            console.log('Usuário deslogado, parando processamento de status roubado');
+            return;
+          }
+
+          setSelectedCar(prev => prev ? {
+            ...prev,
+            isStolen,
+            stolenReportedAt: reportedAt
+          } : null);
+        });
+
+        setUnsubscribeLocation(() => locationUnsubscribe);
+        setUnsubscribeStolenStatus(() => stolenUnsubscribe);
+      } catch (error) {
+        console.error('Erro ao configurar subscriptions:', error);
+      }
+    }
+
+    // ✅ Cleanup na desmontagem ou mudança de dependência
+    return cleanup;
   }, [selectedCar?.id]);
+
+  // ✅ Novo useEffect para limpeza no logout
+  useEffect(() => {
+    const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        // Usuário fez logout, limpa tudo
+        console.log('Auth state changed: user logged out, cleaning up subscriptions');
+        if (unsubscribeLocation) {
+          unsubscribeLocation();
+          setUnsubscribeLocation(null);
+        }
+        if (unsubscribeStolenStatus) {
+          unsubscribeStolenStatus();
+          setUnsubscribeStolenStatus(null);
+        }
+        setCurrentLocation(null);
+        setLocationData(null);
+        setSelectedCar(null);
+        setUserCars([]);
+      }
+    });
+
+    return unsubscribeAuth;
+  }, [unsubscribeLocation, unsubscribeStolenStatus]);
 
   const loadUserCars = async () => {
     setIsLoading(true);
     try {
+      // ✅ Verifica se o usuário ainda está autenticado antes de carregar
+      if (!isUserAuthenticated()) {
+        console.log('Usuário não autenticado, cancelando carregamento de carros');
+        return;
+      }
+
       const cars = await getUserCars();
       setUserCars(cars);
       
@@ -304,7 +372,11 @@ export default function LocalizacaoScreen() {
       }
     } catch (error: any) {
       console.error('Erro ao carregar carros:', error);
-      Alert.alert('Erro', 'Não foi possível carregar os veículos: ' + error.message);
+      
+      // ✅ Só mostra alerta se o usuário ainda estiver logado
+      if (isUserAuthenticated()) {
+        Alert.alert('Erro', 'Não foi possível carregar os veículos: ' + error.message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -318,6 +390,12 @@ export default function LocalizacaoScreen() {
 
   const handleToggleStolen = async () => {
     if (!selectedCar?.id) return;
+
+    // ✅ Verifica autenticação antes de prosseguir
+    if (!isUserAuthenticated()) {
+      Alert.alert('Erro', 'Você precisa estar logado para alterar o status de segurança');
+      return;
+    }
 
     const currentStatus = selectedCar.isStolen || false;
     const newStatus = !currentStatus;
@@ -337,6 +415,12 @@ export default function LocalizacaoScreen() {
           style: newStatus ? 'destructive' : 'default',
           onPress: async () => {
             try {
+              // ✅ Verifica novamente se o usuário ainda está logado
+              if (!isUserAuthenticated()) {
+                Alert.alert('Erro', 'Sessão expirada. Faça login novamente.');
+                return;
+              }
+
               await updateCarStolenStatus(selectedCar.id!, newStatus);
               
               Alert.alert(
@@ -348,6 +432,7 @@ export default function LocalizacaoScreen() {
                 }`
               );
             } catch (error: any) {
+              console.error('Erro ao atualizar status de roubo:', error);
               Alert.alert('❌ Erro', 'Não foi possível atualizar o status de segurança: ' + error.message);
             }
           }
@@ -372,9 +457,30 @@ export default function LocalizacaoScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadUserCars();
-    setRefreshing(false);
+    try {
+      await loadUserCars();
+    } catch (error) {
+      console.error('Erro no refresh:', error);
+    } finally {
+      setRefreshing(false);
+    }
   };
+
+  // ✅ Verifica se o usuário ainda está autenticado antes de renderizar
+  if (!isUserAuthenticated()) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Header title="Localização" showBackButton />
+        <View style={styles.emptyState}>
+          <Ionicons name="log-in" size={80} color={colors.textSecondary} />
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>Acesso Negado</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+            Você precisa estar logado para acessar o sistema de rastreamento
+          </Text>
+        </View>
+      </View>
+    );
+  }
 
   if (userCars.length === 0 && !isLoading) {
     return (

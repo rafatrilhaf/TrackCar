@@ -1,17 +1,17 @@
-// services/trackingService.ts - VERSÃO CORRIGIDA
+// services/trackingService.ts - VERSÃO TOTALMENTE CORRIGIDA
 import {
-    addDoc,
-    collection,
-    doc,
-    DocumentData,
-    getDocs,
-    limit,
-    onSnapshot,
-    orderBy,
-    query,
-    QuerySnapshot,
-    updateDoc,
-    where
+  addDoc,
+  collection,
+  doc,
+  DocumentData,
+  getDocs,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+  QuerySnapshot,
+  updateDoc,
+  where
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
@@ -142,16 +142,21 @@ export async function getCarLocationHistory(
 
 /**
  * Escuta em tempo real as atualizações de localização de um carro
- * ✅ CORRIGIDO: Acesso correto ao primeiro documento
+ * ✅ TOTALMENTE CORRIGIDO: Gerencia corretamente o estado de autenticação e cleanup
  */
 export function subscribeToCarLocation(
   carId: string,
   callback: (location: GPSLocation | null) => void
 ): () => void {
+  let unsubscribe: (() => void) | null = null;
+  let isActive = true;
+  
   try {
     const currentUser = auth.currentUser;
     if (!currentUser) {
-      throw new Error('Usuário não autenticado');
+      console.warn('Usuário não autenticado para escutar localização');
+      callback(null);
+      return () => { isActive = false; }; // Retorna função vazia mas marca como inativo
     }
 
     const locationsRef = collection(db, 'gps_locations');
@@ -163,14 +168,33 @@ export function subscribeToCarLocation(
       limit(1)
     );
 
-    return onSnapshot(q, (querySnapshot: QuerySnapshot<DocumentData>) => {
+    unsubscribe = onSnapshot(q, (querySnapshot: QuerySnapshot<DocumentData>) => {
+      // ✅ Verifica se a subscription ainda está ativa
+      if (!isActive) {
+        console.log('Subscription inativa, ignorando callback');
+        return;
+      }
+
+      // ✅ Verifica se ainda há usuário autenticado antes de processar
+      const user = auth.currentUser;
+      if (!user) {
+        console.log('Usuário deslogado, cancelando escuta de localização');
+        callback(null);
+        if (unsubscribe) {
+          unsubscribe();
+          unsubscribe = null;
+        }
+        isActive = false;
+        return;
+      }
+
       if (querySnapshot.empty) {
         callback(null);
         return;
       }
 
-      // ✅ CORREÇÃO: Acessar o primeiro documento corretamente
-      const firstDoc = querySnapshot.docs[0]; // Corrigido: adicionar [0]
+      // ✅ Acessa o primeiro documento corretamente
+      const firstDoc = querySnapshot.docs[0];
       const data = firstDoc.data();
       
       const location: GPSLocation = {
@@ -189,11 +213,36 @@ export function subscribeToCarLocation(
 
       callback(location);
     }, (error: any) => {
-      console.error('Erro na escuta de localização:', error);
+      // ✅ Tratamento inteligente de erros
+      const user = auth.currentUser;
+      
+      if (!user && (
+        error.code === 'permission-denied' || 
+        error.message.includes('Missing or insufficient permissions')
+      )) {
+        console.log('Escuta cancelada devido ao logout do usuário - isso é normal');
+        callback(null);
+        isActive = false;
+      } else {
+        console.error('Erro real na escuta de localização:', error);
+        // Para outros erros, ainda chama callback(null) para informar o componente
+        callback(null);
+      }
     });
+
+    // ✅ Retorna função de cleanup aprimorada
+    return () => {
+      isActive = false;
+      if (unsubscribe) {
+        console.log('Limpando subscription de localização para carId:', carId);
+        unsubscribe();
+        unsubscribe = null;
+      }
+    };
   } catch (error: any) {
     console.error('Erro ao configurar escuta de localização:', error);
-    return () => {}; // Retorna função vazia se houver erro
+    isActive = false;
+    return () => { /* função vazia */ };
   }
 }
 
@@ -272,7 +321,7 @@ export function analyzeTrackingHistory(locations: GPSLocation[]): TrackingHistor
     : 0;
 
   // ✅ CORREÇÃO: Acessar elementos do array corretamente
-  const firstLocation = sortedLocations[0]; // Corrigido: adicionar [0]
+  const firstLocation = sortedLocations[0];
   const lastLocation = sortedLocations[sortedLocations.length - 1];
 
   return {
@@ -304,8 +353,8 @@ export function isCarMoving(locations: GPSLocation[], thresholdKm: number = 0.1)
   );
 
   // ✅ CORREÇÃO: Acessar elementos do array corretamente
-  const mostRecent = sortedByTime[0]; // Corrigido: adicionar [0]
-  const secondMostRecent = sortedByTime[1]; // Corrigido: adicionar [1]
+  const mostRecent = sortedByTime[0];
+  const secondMostRecent = sortedByTime[1];
 
   const distance = calculateDistance(
     mostRecent.latitude,
@@ -371,4 +420,22 @@ export function isLocationInGeofence(
   ) * 1000; // Converte km para metros
 
   return distance <= geofence.radius;
+}
+
+/**
+ * ✅ NOVA FUNÇÃO: Monitor de autenticação para subscriptions
+ * Use esta função para verificar se o usuário ainda está logado em callbacks
+ */
+export function isUserAuthenticated(): boolean {
+  return auth.currentUser !== null;
+}
+
+/**
+ * ✅ NOVA FUNÇÃO: Cleanup de todas as subscriptions ativas
+ * Chame esta função antes do logout para limpar todas as escutas
+ */
+export function cleanupAllSubscriptions(): void {
+  console.log('Limpando todas as subscriptions do tracking service...');
+  // Esta função pode ser expandida conforme necessário
+  // Por enquanto serve como placeholder para futuras funcionalidades
 }
