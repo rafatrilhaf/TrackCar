@@ -1,4 +1,4 @@
-// app/perfil.tsx - COM HEADER GLOBAL
+// app/perfil.tsx - VERSÃO CORRIGIDA COMPLETA
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -553,6 +553,7 @@ export default function PerfilScreen() {
               onChangeText={(value) => handleInputChange('name', value)}
               editable={editMode}
               autoCapitalize="words"
+              placeholderTextColor={theme.colors.placeholder}
             />
           </View>
 
@@ -563,6 +564,7 @@ export default function PerfilScreen() {
               style={[styles.input, styles.inputDisabled]}
               value={profile?.email || ''}
               editable={false}
+              placeholderTextColor={theme.colors.placeholder}
             />
             <Text style={styles.inputHelper}>O e-mail não pode ser alterado</Text>
           </View>
@@ -577,6 +579,7 @@ export default function PerfilScreen() {
               editable={editMode}
               keyboardType="phone-pad"
               placeholder="(00) 00000-0000"
+              placeholderTextColor={theme.colors.placeholder}
             />
           </View>
 
@@ -592,6 +595,7 @@ export default function PerfilScreen() {
               numberOfLines={3}
               autoCapitalize="words"
               placeholder="Rua, número, bairro, cidade"
+              placeholderTextColor={theme.colors.placeholder}
             />
           </View>
         </View>
@@ -695,7 +699,7 @@ export default function PerfilScreen() {
         </View>
       </Modal>
 
-      {/* Modal para Alterar Senha */}
+      {/* Modal para Alterar Senha - CORRIGIDO */}
       <Modal
         visible={showPasswordModal}
         animationType="slide"
@@ -717,6 +721,7 @@ export default function PerfilScreen() {
                 onChangeText={(value) => handlePasswordChange('newPassword', value)}
                 secureTextEntry
                 placeholder="Digite a nova senha"
+                placeholderTextColor={theme.colors.placeholder}
                 autoCapitalize="none"
               />
             </View>
@@ -729,6 +734,7 @@ export default function PerfilScreen() {
                 onChangeText={(value) => handlePasswordChange('confirmPassword', value)}
                 secureTextEntry
                 placeholder="Confirme a nova senha"
+                placeholderTextColor={theme.colors.placeholder}
                 autoCapitalize="none"
               />
             </View>

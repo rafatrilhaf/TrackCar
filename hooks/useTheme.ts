@@ -1,4 +1,4 @@
-// hooks/useTheme.ts - VERSÃO SINCRONIZADA COM LOGS
+// hooks/useTheme.ts - VERSÃO CORRIGIDA
 import { Colors } from '../constants/colors';
 import { theme as baseTheme } from '../constants/theme';
 import { useThemeManager } from './useThemeManager';
@@ -12,6 +12,7 @@ export const useTheme = () => {
     isDark, 
     backgroundUsed: colors.background,
     textUsed: colors.text,
+    placeholderUsed: colors.placeholder,
     colorsType: isDark ? 'DARK' : 'LIGHT'
   });
   

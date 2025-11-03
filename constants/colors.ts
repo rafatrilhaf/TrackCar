@@ -1,5 +1,4 @@
-// constants/colors.ts
-
+// constants/colors.ts - VERSÃO CORRIGIDA FINAL
 export const Colors = {
   light: {
     primary: '#F57C00',
@@ -19,10 +18,11 @@ export const Colors = {
     inputBorder: '#DDDDDD',
     buttonDisabled: '#CCCCCC',
     textDisabled: '#999999',
+    placeholder: '#999999',
   },
   dark: {
     primary: '#F57C00',
-    secondary: '#FFFFFF',
+    secondary: '#444444', // CORRIGIDO: Mudou de '#FFFFFF' para um cinza escuro
     background: '#121212',
     surface: '#1E1E1E',
     text: '#FFFFFF',
@@ -34,9 +34,10 @@ export const Colors = {
     info: '#2196F3',
     overlay: 'rgba(0, 0, 0, 0.7)',
     primaryLight: 'rgba(245, 124, 0, 0.2)',
-    inputBackground: '#2C2C2C',
-    inputBorder: '#444444',
+    inputBackground: '#2A2A2A',
+    inputBorder: '#555555',
     buttonDisabled: '#666666',
     textDisabled: '#777777',
+    placeholder: '#888888',
   },
 };

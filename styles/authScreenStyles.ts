@@ -1,3 +1,4 @@
+// styles/authScreenStyles.ts - VERSÃO CORRIGIDA
 import { StyleSheet } from 'react-native';
 import { Colors } from '../constants/colors';
 import { theme } from '../constants/theme';
