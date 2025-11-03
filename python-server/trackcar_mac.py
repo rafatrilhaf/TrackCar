@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-TRACKCAR - WINDOWS GATEWAY v2.2
-Arduino Nano → Firebase + Controle Relé
+TRACKCAR - WINDOWS GATEWAY v2.3
+Arduino Nano → Firebase + Controle Relé + GPS Debug
 Versão adaptada para Windows
 """
 
@@ -30,8 +30,8 @@ else:  # Linux
 SERIAL_BAUD = 9600
 
 # ID do veículo
-CAR_ID = "N5B2e9xahFllTGASIDLE"
-USER_ID = "87If5SbgxrePsQX761VTfYBz5GF2"
+CAR_ID = "Ddvv3GsUr7G62kKnPepq"
+USER_ID = "27qJowctifNiM8AOlhI2Q7aw6Vn1"
 
 # Variáveis globais
 ser = None
@@ -43,6 +43,17 @@ last_heartbeat = 0
 last_ignition_state = 'unknown'
 last_command_time = 0
 COMMAND_COOLDOWN = 5  # 5 segundos entre comandos iguais
+
+# ✅ NOVO: Status GPS para atualização na tela
+gps_status = {
+    'initialized': False,
+    'satellites': 0,
+    'last_valid': 0,
+    'total_reads': 0,
+    'valid_count': 0,
+    'last_age': 999999,
+    'fix_time': None
+}
 
 # ==============================================================================
 # FUNÇÕES DE LOG PERSONALIZADAS (sem arquivo)
@@ -162,7 +173,17 @@ def save_gps_location(data):
     """Salva localização no Firestore"""
     try:
         if not data.get('valid', False):
-            log_warning("⚠️  GPS sem fix válido - ignorando")
+            # ✅ MELHORADO: Log mais detalhado
+            age = data.get('age', 999999)
+            sats = data.get('sats', 0)
+            gps_init = data.get('gpsInit', False)
+            
+            if not gps_init:
+                log_warning(f"⏳ GPS procurando satélites... ({sats} sats encontrados)")
+            elif age > 10000:
+                log_warning(f"⏰ GPS dados muito antigos - {age/1000:.1f}s ({sats} sats)")
+            else:
+                log_warning(f"❌ GPS inválido - Age: {age}ms, Sats: {sats}")
             return False
         
         lat = data.get('lat', 0)
@@ -171,7 +192,7 @@ def save_gps_location(data):
         age = data.get('age', 0)
         
         if lat == 0 and lon == 0:
-            log_warning("⚠️  Coordenadas inválidas - ignorando")
+            log_warning("⚠️  Coordenadas inválidas (0,0) - ignorando")
             return False
         
         location_data = {
@@ -188,21 +209,75 @@ def save_gps_location(data):
         
         db.collection('gps_locations').add(location_data)
         
-        # Atualiza carro mas SEM alterar ignitionState
+        # ✅ NOVO: Atualiza carro E salva status GPS no Firebase
         car_ref = db.collection('cars').document(CAR_ID)
         car_ref.update({
             'lastLatitude': lat,
             'lastLongitude': lon,
             'lastLocationUpdate': firestore.SERVER_TIMESTAMP,
-            'updatedAt': firestore.SERVER_TIMESTAMP
+            'updatedAt': firestore.SERVER_TIMESTAMP,
+            # ✅ NOVO: Status GPS para o app
+            'gpsStatus': {
+                'active': True,
+                'satellites': sats,
+                'accuracy': age,
+                'lastUpdate': firestore.SERVER_TIMESTAMP
+            }
         })
         
-        log_info(f"✅ GPS salvo: {lat:.6f}, {lon:.6f} ({sats} sats)")
+        # ✅ NOVO: Atualiza status local
+        global gps_status
+        gps_status.update({
+            'initialized': True,
+            'satellites': sats,
+            'last_valid': time.time(),
+            'last_age': age,
+            'fix_time': datetime.now().strftime('%H:%M:%S') if not gps_status['fix_time'] else gps_status['fix_time']
+        })
+        
+        log_info(f"✅ GPS salvo: {lat:.6f}, {lon:.6f} ({sats} sats, {age}ms)")
         return True
         
     except Exception as e:
         log_error(f"❌ Erro ao salvar GPS: {e}")
         return False
+
+# ✅ NOVA: Função para atualizar status GPS na tela
+def update_gps_status_in_firebase():
+    """Atualiza status do GPS no Firebase para exibir na tela"""
+    try:
+        car_ref = db.collection('cars').document(CAR_ID)
+        
+        # Calcula tempo sem GPS válido
+        time_without_gps = 0
+        if gps_status['last_valid'] > 0:
+            time_without_gps = int(time.time() - gps_status['last_valid'])
+        
+        status_text = "🔍 Procurando GPS..."
+        if gps_status['initialized']:
+            if time_without_gps <= 30:
+                status_text = f"🛰️ GPS OK ({gps_status['satellites']} sats)"
+            else:
+                status_text = f"⚠️ GPS sem sinal há {time_without_gps}s"
+        elif gps_status['satellites'] > 0:
+            status_text = f"⏳ Aguardando fix GPS ({gps_status['satellites']} sats)"
+        
+        car_ref.update({
+            'gpsStatusText': status_text,
+            'gpsStatusDetails': {
+                'initialized': gps_status['initialized'],
+                'satellites': gps_status['satellites'],
+                'lastValidSeconds': time_without_gps,
+                'totalReads': gps_status['total_reads'],
+                'validCount': gps_status['valid_count'],
+                'lastAge': gps_status['last_age'],
+                'fixTime': gps_status['fix_time']
+            },
+            'updatedAt': firestore.SERVER_TIMESTAMP
+        })
+        
+    except Exception as e:
+        log_debug(f"Erro ao atualizar status GPS: {e}")
 
 # ==============================================================================
 # CONTROLE DO RELÉ
@@ -242,6 +317,18 @@ def enviar_comando_arduino(comando):
                 time.sleep(1)
         
         return False
+
+def resetar_gps():
+    """Envia comando para resetar GPS"""
+    if enviar_comando_arduino('GPS_RESET'):
+        log_info("🔄 GPS resetado - aguardando novo fix...")
+        # Reset status local
+        global gps_status
+        gps_status.update({
+            'initialized': False,
+            'fix_time': None
+        })
+    return True
 
 def processar_mudanca_ignicao(new_state):
     """Processa mudança de ignição do app"""
@@ -298,7 +385,7 @@ def escutar_ignition_state():
 
 def processar_linha_arduino(line):
     """Processa linha recebida do Arduino"""
-    global last_heartbeat
+    global last_heartbeat, gps_status
     
     if not line.strip():
         return
@@ -312,6 +399,14 @@ def processar_linha_arduino(line):
         data_type = data.get('type', 'unknown')
         
         if data_type == 'gps':
+            # ✅ NOVO: Atualiza estatísticas GPS
+            gps_status['total_reads'] += 1
+            gps_status['satellites'] = data.get('sats', 0)
+            gps_status['last_age'] = data.get('age', 999999)
+            
+            if data.get('valid', False):
+                gps_status['valid_count'] += 1
+            
             save_gps_location(data)
             
         elif data_type == 'ack':
@@ -324,7 +419,13 @@ def processar_linha_arduino(line):
             uptime = data.get('uptime', 0) / 1000
             commands = data.get('commands', 0)
             rele = data.get('rele', 'unknown')
-            log_info(f"💓 Heartbeat - Uptime: {uptime:.1f}s | Comandos: {commands} | Relé: {rele}")
+            gps_status_text = data.get('gpsStatus', 'unknown')
+            valid_gps = data.get('validGPS', 0)
+            
+            log_info(f"💓 Heartbeat - Uptime: {uptime:.1f}s | Comandos: {commands} | Relé: {rele} | GPS: {gps_status_text} ({valid_gps} válidos)")
+            
+            # ✅ NOVO: Atualiza status na tela a cada heartbeat
+            update_gps_status_in_firebase()
             
         elif data_type == 'debug':
             log_debug(f"🐛 Debug: {data.get('received', 'N/A')}")
@@ -333,8 +434,15 @@ def processar_linha_arduino(line):
             log_error(f"❌ Arduino erro: {data.get('message', 'Erro desconhecido')}")
             
         elif data_type == 'system':
-            log_info(f"🔧 Sistema: {data.get('message', 'Mensagem do sistema')}")
+            message = data.get('message', 'Mensagem do sistema')
+            log_info(f"🔧 Sistema: {message}")
             
+            # ✅ NOVO: Detecta quando GPS consegue fix
+            if "GPS fix obtido" in message:
+                gps_status['initialized'] = True
+                gps_status['fix_time'] = datetime.now().strftime('%H:%M:%S')
+                log_info("🎉 PRIMEIRO FIX GPS OBTIDO!")
+                
     except json.JSONDecodeError:
         log_warning(f"⚠️  Linha não é JSON: {line}")
     except Exception as e:
@@ -374,8 +482,8 @@ def main():
     global ser, db, last_heartbeat, last_ignition_state
     
     print("\n" + "="*60)
-    print("  TRACKCAR - WINDOWS GATEWAY v2.2")
-    print("  Arduino Nano → Firebase + Controle Relé")
+    print("  TRACKCAR - WINDOWS GATEWAY v2.3")
+    print("  Arduino Nano → Firebase + Controle Relé + GPS Debug")
     print("  Versão adaptada para Windows")
     print("="*60 + "\n")
     
@@ -402,14 +510,37 @@ def main():
     print(f"\n🚗 Veículo monitorado: {CAR_ID}")
     print(f"📡 Aguardando dados do Arduino...")
     print(f"🔔 Escutando mudanças de ignitionState...")
-    print(f"⏱️  Cooldown entre comandos: {COMMAND_COOLDOWN}s\n")
+    print(f"⏱️  Cooldown entre comandos: {COMMAND_COOLDOWN}s")
+    print(f"🛰️  Status GPS será atualizado na tela do app automaticamente")
+    print(f"\n💡 Comandos disponíveis:")
+    print(f"   - Ctrl+C: Sair")
+    print(f"   - Digite 'GPS_RESET' + Enter: Resetar GPS")
+    print(f"   - Digite 'STATUS' + Enter: Status manual\n")
     
     listener = escutar_ignition_state()
     last_heartbeat = time.time()
     
+    # ✅ NOVO: Thread para comandos manuais
+    def input_thread():
+        while True:
+            try:
+                cmd = input().strip().upper()
+                if cmd == 'GPS_RESET':
+                    resetar_gps()
+                elif cmd == 'STATUS':
+                    enviar_comando_arduino('STATUS')
+                elif cmd:
+                    enviar_comando_arduino(cmd)
+            except:
+                break
+    
+    import threading
+    threading.Thread(target=input_thread, daemon=True).start()
+    
     # Loop principal
     try:
         contador = 0
+        status_update_counter = 0
         while True:
             if ser and ser.in_waiting > 0:
                 line = ser.readline().decode('utf-8', errors='ignore').strip()
@@ -429,6 +560,12 @@ def main():
                         'valid': True
                     }
                     save_gps_location(fake_gps)
+            
+            # ✅ NOVO: Atualiza status GPS na tela a cada 30 segundos
+            status_update_counter += 1
+            if status_update_counter >= 300:  # 30 segundos
+                status_update_counter = 0
+                update_gps_status_in_firebase()
             
             time.sleep(0.1)
     
