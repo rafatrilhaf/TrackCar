@@ -41,3 +41,22 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Firebase credentials
+firebase-credentials.json
+*firebase-adminsdk*.json
+credentials/
+*.json
+
+# Python específico
+python-server/credentials/
+python-server/*.json
+
+# Variáveis de ambiente
+.env
+.env.local
+.env.production
+
+# Logs sensíveis
+*.log
+logs/
