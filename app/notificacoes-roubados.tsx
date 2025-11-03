@@ -5,13 +5,14 @@ import {
     Alert,
     FlatList,
     Image,
+    Linking,
+    Platform,
     RefreshControl,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Header } from '../components/Header';
 import { theme } from '../constants/theme';
 import { SightingWithDetails, useSightingNotifications } from '../hooks/useSightingNotifications';
@@ -115,7 +116,7 @@ const SightingNotificationCard: React.FC<{
           onPress={() => onViewLocation(notification)}
         >
           <Ionicons name="map" size={16} color="#FFFFFF" />
-          <Text style={styles.viewLocationText}>Ver no Mapa</Text>
+          <Text style={styles.viewLocationText}>Ver no Google Maps</Text>
         </TouchableOpacity>
 
         {!notification.isRead && (
@@ -134,73 +135,6 @@ const SightingNotificationCard: React.FC<{
   );
 };
 
-const LocationModal: React.FC<{
-  visible: boolean;
-  notification: SightingWithDetails | null;
-  onClose: () => void;
-}> = ({ visible, notification, onClose }) => {
-  const { colors } = useTheme();
-
-  if (!visible || !notification?.sightingDetails?.location) return null;
-
-  const location = notification.sightingDetails.location;
-
-  return (
-    <View style={[styles.modalOverlay, { backgroundColor: colors.overlay }]}>
-      <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
-        <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.modalTitle, { color: colors.text }]}>
-            📍 Localização do Avistamento
-          </Text>
-          <TouchableOpacity onPress={onClose}>
-            <Ionicons name="close" size={24} color={colors.text} />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.modalBody}>
-          <MapView
-            provider={PROVIDER_GOOGLE}
-            style={styles.map}
-            initialRegion={{
-              latitude: location.latitude,
-              longitude: location.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }}
-          >
-            <Marker
-              coordinate={{
-                latitude: location.latitude,
-                longitude: location.longitude,
-              }}
-              title="Avistamento reportado"
-              description={location.address}
-            >
-              <View style={[styles.markerContainer, { backgroundColor: colors.error }]}>
-                <Ionicons name="eye" size={16} color="#FFFFFF" />
-              </View>
-            </Marker>
-          </MapView>
-
-          <View style={styles.locationDetails}>
-            <Text style={[styles.addressText, { color: colors.text }]}>
-              {location.address}
-            </Text>
-            <Text style={[styles.coordinatesText, { color: colors.textSecondary }]}>
-              {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
-            </Text>
-            {location.accuracy && (
-              <Text style={[styles.accuracyText, { color: colors.textSecondary }]}>
-                Precisão: ~{Math.round(location.accuracy)}m
-              </Text>
-            )}
-          </View>
-        </View>
-      </View>
-    </View>
-  );
-};
-
 export default function NotificacoesRoubadosScreen() {
   const { colors } = useTheme();
   const { 
@@ -213,8 +147,6 @@ export default function NotificacoesRoubadosScreen() {
     refresh 
   } = useSightingNotifications();
 
-  const [selectedNotification, setSelectedNotification] = useState<SightingWithDetails | null>(null);
-  const [showLocationModal, setShowLocationModal] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleMarkAsRead = async (notificationId: string) => {
@@ -234,14 +166,40 @@ export default function NotificacoesRoubadosScreen() {
     }
   };
 
+  // ✅ CORRIGIDO: Abrir no Google Maps em vez de modal
   const handleViewLocation = (notification: SightingWithDetails) => {
-    setSelectedNotification(notification);
-    setShowLocationModal(true);
-    
-    // Marca como lida ao visualizar
-    if (!notification.isRead && notification.id) {
-      handleMarkAsRead(notification.id);
+    if (!notification.sightingDetails?.location) {
+      Alert.alert('Erro', 'Localização não disponível');
+      return;
     }
+
+    const { latitude, longitude, address } = notification.sightingDetails.location;
+    
+    // ✅ NOVO: Abrir Google Maps
+    const googleMapsUrl = Platform.select({
+      ios: `maps:${latitude},${longitude}?q=${latitude},${longitude}(${encodeURIComponent(address)})`,
+      android: `geo:${latitude},${longitude}?q=${latitude},${longitude}(${encodeURIComponent(address)})`,
+      default: `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
+    });
+
+    Linking.canOpenURL(googleMapsUrl!).then(supported => {
+      if (supported) {
+        Linking.openURL(googleMapsUrl!);
+        
+        // Marca como lida ao visualizar
+        if (!notification.isRead && notification.id) {
+          handleMarkAsRead(notification.id);
+        }
+      } else {
+        // Fallback para web
+        const webUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+        Linking.openURL(webUrl);
+        
+        if (!notification.isRead && notification.id) {
+          handleMarkAsRead(notification.id);
+        }
+      }
+    });
   };
 
   const handleRefresh = async () => {
@@ -353,15 +311,6 @@ export default function NotificacoesRoubadosScreen() {
           </Text>
         </View>
       )}
-
-      <LocationModal
-        visible={showLocationModal}
-        notification={selectedNotification}
-        onClose={() => {
-          setShowLocationModal(false);
-          setSelectedNotification(null);
-        }}
-      />
     </View>
   );
 }
@@ -596,66 +545,5 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: theme.fontSize.md,
     fontWeight: theme.fontWeight.medium,
-  },
-
-  // Modal de Localização
-  modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  modalContent: {
-    width: '90%',
-    maxHeight: '80%',
-    borderRadius: theme.borderRadius.xl,
-    overflow: 'hidden',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: theme.spacing.lg,
-    borderBottomWidth: 1,
-  },
-  modalTitle: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-  },
-  modalBody: {
-    flex: 1,
-  },
-  map: {
-    width: '100%',
-    height: 300,
-  },
-  markerContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  },
-  locationDetails: {
-    padding: theme.spacing.lg,
-  },
-  addressText: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-    marginBottom: theme.spacing.xs,
-  },
-  coordinatesText: {
-    fontSize: theme.fontSize.sm,
-    fontFamily: 'monospace',
-    marginBottom: theme.spacing.xs,
-  },
-  accuracyText: {
-    fontSize: theme.fontSize.sm,
   },
 });

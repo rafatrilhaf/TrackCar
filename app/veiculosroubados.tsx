@@ -126,7 +126,8 @@ const StolenVehicleCard: React.FC<{
             <View style={styles.sightingsContainer}>
               <Ionicons name="eye" size={16} color={colors.primary} />
               <Text style={[styles.sightingsText, { color: colors.primary }]}>
-                {sightings.count} {sightings.count === 1 ? 'pessoa já viu' : 'pessoas já viram'} este veículo
+                {/* ✅ CORRIGIDO: Mudou de "pessoas" para "relatos" */}
+                {sightings.count} {sightings.count === 1 ? 'relato sobre' : 'relatos sobre'} este veículo
               </Text>
             </View>
             
@@ -149,7 +150,7 @@ const StolenVehicleCard: React.FC<{
           </View>
         )}
 
-        {/* ✅ CORRIGIDO: Última localização - SEM dados específicos */}
+        {/* ✅ CORRIGIDO: Última atividade reportada */}
         {vehicle.lastSeenLocation && (
           <View style={styles.lastSeenContainer}>
             <Ionicons name="location" size={16} color={colors.warning} />
@@ -269,7 +270,7 @@ export default function VeiculosRoubadosScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* ✅ NOVO: Header com botão de notificações */}
+      {/* ✅ CORRIGIDO: Header com botão de notificações com cor correta */}
       <Header 
         title="Veículos Roubados" 
         showBackButton 
@@ -278,7 +279,8 @@ export default function VeiculosRoubadosScreen() {
             style={styles.notificationsButton}
             onPress={() => router.push('/notificacoes-roubados')}
           >
-            <Ionicons name="notifications" size={24} color={colors.text} />
+            {/* ✅ CORRIGIDO: Cor do ícone baseada no tema */}
+            <Ionicons name="notifications" size={24} color={colors.background} />
             {unreadCount > 0 && (
               <View style={[styles.notificationBadge, { backgroundColor: colors.error }]}>
                 <Text style={styles.notificationBadgeText}>
