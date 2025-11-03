@@ -15,13 +15,13 @@ import { SightingNotification, StolenVehicle, VehicleSighting } from '../types/s
 import { auth, db } from './firebase';
 
 /**
- * Busca todos os veículos roubados ativos - VERSÃO CORRIGIDA PARA VERIFICAR isStolen
+ * ✅ FUNÇÃO PRINCIPAL: Busca todos os veículos roubados ativos
  */
 export async function getStolenVehicles(): Promise<StolenVehicle[]> {
   try {
     console.log('🔍 Buscando veículos roubados...');
     
-    // PRIMEIRA ESTRATÉGIA: Busca na coleção cars por isStolen = true
+    // Busca na coleção cars por isStolen = true
     const carsRef = collection(db, 'cars');
     const carsQuery = query(
       carsRef,
@@ -36,9 +36,20 @@ export async function getStolenVehicles(): Promise<StolenVehicle[]> {
 
     for (const carDocSnapshot of carsSnapshot.docs) {
       const carData = carDocSnapshot.data();
-      console.log(`🚗 Processando carro roubado: ${carDocSnapshot.id}`, carData);
+      console.log(`🚗 Processando carro roubado: ${carDocSnapshot.id}`, {
+        brand: carData.brand,
+        model: carData.model,
+        licensePlate: carData.licensePlate,
+        isStolen: carData.isStolen
+      });
       
       try {
+        // ✅ VERIFICAÇÃO DUPLA: Confirma que ainda está roubado
+        if (carData.isStolen !== true) {
+          console.log(`⚠️ Carro ${carDocSnapshot.id} não está mais roubado - ignorando`);
+          continue;
+        }
+
         // Busca dados do proprietário
         const ownerDocRef = doc(db, 'users', carData.userId);
         const ownerDoc = await getDoc(ownerDocRef);
@@ -46,13 +57,17 @@ export async function getStolenVehicles(): Promise<StolenVehicle[]> {
         let ownerData = null;
         if (ownerDoc.exists()) {
           ownerData = ownerDoc.data();
+          console.log(`👤 Proprietário encontrado: ${ownerData?.name || ownerData?.displayName}`);
         } else {
+          console.warn(`⚠️ Proprietário não encontrado para userId: ${carData.userId}`);
+          
           // FALLBACK: Tenta buscar por query
           const userQuery = query(collection(db, 'users'), where('uid', '==', carData.userId));
           const userQuerySnapshot = await getDocs(userQuery);
           
           if (!userQuerySnapshot.empty) {
             ownerData = userQuerySnapshot.docs[0].data();
+            console.log(`👤 Proprietário encontrado via query: ${ownerData?.name || ownerData?.displayName}`);
           }
         }
         
@@ -67,43 +82,43 @@ export async function getStolenVehicles(): Promise<StolenVehicle[]> {
         let stolenData = null;
         if (!stolenCarsSnapshot.empty) {
           stolenData = stolenCarsSnapshot.docs[0].data();
+          console.log(`📋 Dados do roubo encontrados: ${stolenCarsSnapshot.docs[0].id}`);
         }
         
-        // ✅ NOVA VERIFICAÇÃO: Só adiciona se o carro ainda está marcado como roubado
-        if (carData.isStolen === true) {
-          vehicles.push({
-            id: stolenCarsSnapshot.empty ? carDocSnapshot.id : stolenCarsSnapshot.docs[0].id,
-            carId: carDocSnapshot.id,
-            userId: carData.userId,
-            ownerName: ownerData?.name || ownerData?.displayName || 'Proprietário',
-            ownerPhone: ownerData?.phone || ownerData?.phoneNumber,
-            ownerPhotoURL: ownerData?.photoURL || ownerData?.avatar,
-            
-            // Dados do veículo
-            brand: carData.brand,
-            model: carData.model,
-            year: carData.year,
-            licensePlate: carData.licensePlate,
-            color: carData.color,
-            colorHex: carData.colorHex,
-            photoURL: carData.photoURL,
-            description: carData.description,
-            
-            // Dados do roubo
-            stolenAt: carData.stolenReportedAt?.toDate() || stolenData?.stolenAt?.toDate() || new Date(),
-            lastSeenLocation: stolenData?.lastSeenLocation ? {
-              ...stolenData.lastSeenLocation,
-              timestamp: stolenData.lastSeenLocation.timestamp?.toDate()
-            } : undefined,
-            
-            sightingsCount: stolenData?.sightingsCount || 0,
-            isActive: true,
-            createdAt: carData.createdAt?.toDate() || new Date(),
-            updatedAt: carData.updatedAt?.toDate(),
-          });
-        } else {
-          console.log(`⚠️ Carro ${carDocSnapshot.id} não está mais marcado como roubado`);
-        }
+        const vehicle: StolenVehicle = {
+          id: stolenCarsSnapshot.empty ? carDocSnapshot.id : stolenCarsSnapshot.docs[0].id,
+          carId: carDocSnapshot.id,
+          userId: carData.userId,
+          ownerName: ownerData?.name || ownerData?.displayName || 'Proprietário',
+          ownerPhone: ownerData?.phone || ownerData?.phoneNumber,
+          ownerPhotoURL: ownerData?.photoURL || ownerData?.avatar,
+          
+          // Dados do veículo
+          brand: carData.brand,
+          model: carData.model,
+          year: carData.year,
+          licensePlate: carData.licensePlate,
+          color: carData.color,
+          colorHex: carData.colorHex,
+          photoURL: carData.photoURL,
+          description: carData.description,
+          
+          // Dados do roubo
+          stolenAt: carData.stolenReportedAt?.toDate() || stolenData?.stolenAt?.toDate() || new Date(),
+          lastSeenLocation: stolenData?.lastSeenLocation ? {
+            ...stolenData.lastSeenLocation,
+            timestamp: stolenData.lastSeenLocation.timestamp?.toDate()
+          } : undefined,
+          
+          sightingsCount: stolenData?.sightingsCount || 0,
+          isActive: true,
+          createdAt: carData.createdAt?.toDate() || new Date(),
+          updatedAt: carData.updatedAt?.toDate(),
+        };
+
+        vehicles.push(vehicle);
+        console.log(`✅ Veículo adicionado: ${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})`);
+        
       } catch (error) {
         console.error(`❌ Erro ao processar carro roubado ${carDocSnapshot.id}:`, error);
       }
@@ -113,12 +128,12 @@ export async function getStolenVehicles(): Promise<StolenVehicle[]> {
     return vehicles;
   } catch (error: any) {
     console.error('❌ Erro ao buscar veículos roubados:', error);
-    throw new Error('Erro ao carregar veículos roubados');
+    throw new Error(`Erro ao carregar veículos roubados: ${error.message}`);
   }
 }
 
 /**
- * Escuta atualizações de veículos roubados em tempo real - VERSÃO CORRIGIDA
+ * ✅ Escuta atualizações de veículos roubados em tempo real
  */
 export function subscribeToStolenVehicles(
   callback: (vehicles: StolenVehicle[]) => void
@@ -126,7 +141,6 @@ export function subscribeToStolenVehicles(
   try {
     console.log('🔄 Iniciando subscription para veículos roubados...');
     
-    // ✅ CORRIGIDO: Monitora a coleção cars por isStolen = true
     const carsRef = collection(db, 'cars');
     const q = query(
       carsRef,
@@ -142,7 +156,7 @@ export function subscribeToStolenVehicles(
         const carData = carDocSnapshot.data();
         
         try {
-          // ✅ VERIFICAÇÃO ADICIONAL: Confirma que ainda está roubado
+          // Verifica se ainda está roubado
           if (carData.isStolen !== true) {
             console.log(`⚠️ Carro ${carDocSnapshot.id} não está mais roubado - ignorando`);
             continue;
@@ -214,6 +228,7 @@ export function subscribeToStolenVehicles(
       callback(vehicles);
     }, (error) => {
       console.error('❌ Erro na subscription:', error);
+      callback([]); // Retorna lista vazia em caso de erro
     });
   } catch (error: any) {
     console.error('❌ Erro ao configurar listener de veículos roubados:', error);
@@ -222,7 +237,7 @@ export function subscribeToStolenVehicles(
 }
 
 /**
- * ✅ NOVA FUNÇÃO: Marca veículo como encontrado
+ * ✅ Marca veículo como encontrado
  */
 export async function markVehicleAsFound(carId: string): Promise<void> {
   try {
@@ -235,6 +250,8 @@ export async function markVehicleAsFound(carId: string): Promise<void> {
       foundAt: new Date(),
       updatedAt: new Date(),
     });
+    
+    console.log(`✅ Carro ${carId} marcado como não roubado na coleção cars`);
     
     // Desativa registros na coleção stolen_cars (se existir)
     const stolenCarsQuery = query(
@@ -249,17 +266,18 @@ export async function markVehicleAsFound(carId: string): Promise<void> {
         foundAt: new Date(),
         updatedAt: new Date(),
       });
+      console.log(`✅ Registro ${docSnapshot.id} desativado na coleção stolen_cars`);
     }
     
-    console.log(`✅ Veículo ${carId} marcado como encontrado`);
+    console.log(`✅ Veículo ${carId} marcado como encontrado com sucesso`);
   } catch (error: any) {
     console.error('❌ Erro ao marcar veículo como encontrado:', error);
-    throw new Error('Erro ao marcar veículo como encontrado');
+    throw new Error(`Erro ao marcar veículo como encontrado: ${error.message}`);
   }
 }
 
 /**
- * ✅ NOVA FUNÇÃO: Marca veículo como roubado
+ * ✅ Marca veículo como roubado
  */
 export async function markVehicleAsStolen(
   carId: string, 
@@ -282,7 +300,9 @@ export async function markVehicleAsStolen(
       updatedAt: new Date(),
     });
     
-    // Cria/atualiza registro na coleção stolen_cars
+    console.log(`✅ Carro ${carId} marcado como roubado na coleção cars`);
+    
+    // Cria registro na coleção stolen_cars
     const stolenCarData = {
       carId,
       userId: currentUser.uid,
@@ -301,11 +321,12 @@ export async function markVehicleAsStolen(
     return stolenCarRef.id;
   } catch (error: any) {
     console.error('❌ Erro ao marcar veículo como roubado:', error);
-    throw new Error('Erro ao reportar veículo como roubado');
+    throw new Error(`Erro ao reportar veículo como roubado: ${error.message}`);
   }
 }
 
-// Mantém as outras funções existentes sem alteração...
+// ✅ Mantém as outras funções existentes...
+
 export async function reportSighting(
   stolenVehicleId: string,
   location: { latitude: number; longitude: number; address: string },
@@ -347,14 +368,13 @@ export async function reportSighting(
 
     const docRef = await addDoc(collection(db, 'vehicle_sightings'), sighting);
 
-    // ✅ CORRIGIDO: Atualiza tanto stolen_cars quanto cars
+    // Atualiza contadores em stolen_cars
     const stolenVehicleDocRef = doc(db, 'stolen_cars', stolenVehicleId);
     const stolenVehicleDoc = await getDoc(stolenVehicleDocRef);
 
     if (stolenVehicleDoc.exists()) {
       const stolenData = stolenVehicleDoc.data();
       
-      // Atualiza stolen_cars
       await updateDoc(stolenVehicleDocRef, {
         sightingsCount: increment(1),
         lastSeenLocation: {
@@ -364,7 +384,7 @@ export async function reportSighting(
         updatedAt: new Date(),
       });
       
-      // ✅ NOVO: Atualiza também na coleção cars
+      // Atualiza também na coleção cars
       const carRef = doc(db, 'cars', stolenData.carId);
       await updateDoc(carRef, {
         lastSeenLocation: {
