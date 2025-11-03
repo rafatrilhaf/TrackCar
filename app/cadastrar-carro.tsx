@@ -1,4 +1,4 @@
-// app/cadastrar-carro.tsx - COM HEADER GLOBAL (SEM BOTÃO NO HEADER)
+// app/cadastrar-carro.tsx - VERSÃO CORRIGIDA COM PLACEHOLDERS VISÍVEIS
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -246,7 +246,7 @@ export default function CadastrarCarroScreen() {
       flex: 1,
     },
     selectPlaceholder: {
-      color: theme.colors.textSecondary,
+      color: theme.colors.placeholder, // ✅ CORRIGIDO: Usando a cor correta do tema
     },
     colorPreview: {
       width: 24,
@@ -398,6 +398,7 @@ export default function CadastrarCarroScreen() {
               value={formData.model}
               onChangeText={(value) => handleInputChange('model', value)}
               placeholder="Digite o modelo do veículo"
+              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
               autoCapitalize="words"
             />
             {errors.model && <Text style={styles.errorText}>{errors.model}</Text>}
@@ -413,6 +414,7 @@ export default function CadastrarCarroScreen() {
               value={formData.year}
               onChangeText={(value) => handleInputChange('year', value)}
               placeholder="2024"
+              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
               keyboardType="numeric"
               maxLength={4}
             />
@@ -429,6 +431,7 @@ export default function CadastrarCarroScreen() {
               value={formData.licensePlate}
               onChangeText={(value) => handleInputChange('licensePlate', value)}
               placeholder="ABC-1234 ou ABC1D23"
+              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
               autoCapitalize="characters"
               maxLength={8}
             />
@@ -474,6 +477,7 @@ export default function CadastrarCarroScreen() {
               value={formData.engine}
               onChangeText={(value) => handleInputChange('engine', value)}
               placeholder="1.0, 1.6, 2.0, V6..."
+              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
             />
           </View>
 
@@ -499,6 +503,7 @@ export default function CadastrarCarroScreen() {
               value={formData.renavam}
               onChangeText={(value) => handleInputChange('renavam', value)}
               placeholder="1234.5678.901"
+              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
               keyboardType="numeric"
               maxLength={13}
             />
@@ -512,6 +517,7 @@ export default function CadastrarCarroScreen() {
               value={formData.chassi}
               onChangeText={(value) => handleInputChange('chassi', value)}
               placeholder="17 caracteres alfanuméricos"
+              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
               autoCapitalize="characters"
               maxLength={17}
             />
@@ -525,6 +531,7 @@ export default function CadastrarCarroScreen() {
               value={formData.description}
               onChangeText={(value) => handleInputChange('description', value)}
               placeholder="Acessórios, modificações, características especiais..."
+              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
               multiline
               numberOfLines={4}
               textAlignVertical="top"
