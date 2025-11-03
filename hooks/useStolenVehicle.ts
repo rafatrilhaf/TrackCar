@@ -1,94 +1,135 @@
-// hooks/useStolenVehicles.ts - VERSÃO CORRIGIDA
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
-    getStolenVehicles,
-    getStolenVehiclesFromCars,
-    reportSighting,
-    subscribeToStolenVehicles
+  getStolenVehicles,
+  markVehicleAsFound,
+  markVehicleAsStolen,
+  reportSighting,
+  subscribeToStolenVehicles
 } from '../services/stolenVehicleService';
 import { StolenVehicle } from '../types/stolenVehicle';
 
-interface UseStolenVehiclesReturn {
-  stolenVehicles: StolenVehicle[];
-  isLoading: boolean;
-  error: string | null;
-  refreshVehicles: () => Promise<void>;
-  reportVehicleSighting: (vehicleId: string, location: any, description?: string) => Promise<void>;
-}
-
-export function useStolenVehicles(): UseStolenVehiclesReturn {
+export function useStolenVehicles() {
   const [stolenVehicles, setStolenVehicles] = useState<StolenVehicle[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshVehicles = async () => {
-    setIsLoading(true);
-    setError(null);
-    
+  // ✅ CORRIGIDO: Carrega veículos roubados usando apenas getStolenVehicles
+  const loadStolenVehicles = useCallback(async () => {
     try {
-      console.log('🔄 Iniciando refresh de veículos roubados...');
+      console.log('🔄 Carregando veículos roubados...');
+      setIsLoading(true);
+      setError(null);
       
-      // Tenta primeiro a coleção stolen_cars
-      let vehicles = await getStolenVehicles();
-      console.log(`📊 Veículos da coleção stolen_cars: ${vehicles.length}`);
-      
-      // Se não encontrou nada, tenta pela coleção cars com isStolen=true
-      if (vehicles.length === 0) {
-        console.log('🔍 Tentando buscar carros marcados como roubados...');
-        vehicles = await getStolenVehiclesFromCars();
-        console.log(`📊 Veículos encontrados nos carros: ${vehicles.length}`);
-      }
+      const vehicles = await getStolenVehicles();
+      console.log(`✅ Carregados ${vehicles.length} veículos roubados`);
       
       setStolenVehicles(vehicles);
-      console.log(`✅ Total de veículos carregados: ${vehicles.length}`);
-      
-      if (vehicles.length > 0) {
-        console.log('👥 Primeiros proprietários encontrados:', vehicles.map(v => ({
-          id: v.id,
-          ownerName: v.ownerName,
-          ownerPhone: v.ownerPhone,
-          ownerPhotoURL: v.ownerPhotoURL
-        })));
-      }
-    } catch (err: any) {
-      console.error('❌ Erro no refresh:', err);
-      setError('Erro ao carregar veículos roubados');
+    } catch (error: any) {
+      console.error('❌ Erro ao carregar veículos roubados:', error);
+      setError(error.message || 'Erro ao carregar veículos roubados');
+      setStolenVehicles([]); // Limpa a lista em caso de erro
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const reportVehicleSighting = async (
-    vehicleId: string, 
-    location: any, 
+  // ✅ CORRIGIDO: Função de refresh simplificada
+  const refreshVehicles = useCallback(async () => {
+    try {
+      console.log('🔄 Fazendo refresh dos veículos roubados...');
+      await loadStolenVehicles();
+    } catch (error: any) {
+      console.error('❌ Erro no refresh:', error);
+      setError(error.message || 'Erro ao atualizar lista');
+    }
+  }, [loadStolenVehicles]);
+
+  // Reporta avistamento
+  const reportVehicleSighting = useCallback(async (
+    vehicleId: string,
+    location: { latitude: number; longitude: number; address: string },
     description?: string
   ) => {
     try {
-      await reportSighting(vehicleId, location, description);
-      await refreshVehicles(); // Atualiza a lista
-    } catch (err: any) {
-      throw new Error('Erro ao reportar avistamento');
+      console.log(`📍 Reportando avistamento do veículo ${vehicleId}...`);
+      const sightingId = await reportSighting(vehicleId, location, description);
+      console.log(`✅ Avistamento reportado: ${sightingId}`);
+      
+      // Recarrega a lista para atualizar contadores
+      await loadStolenVehicles();
+      
+      return sightingId;
+    } catch (error: any) {
+      console.error('❌ Erro ao reportar avistamento:', error);
+      throw error;
     }
-  };
+  }, [loadStolenVehicles]);
 
+  // ✅ NOVA: Marca como encontrado
+  const markAsFound = useCallback(async (carId: string) => {
+    try {
+      console.log(`🔍 Marcando veículo ${carId} como encontrado...`);
+      await markVehicleAsFound(carId);
+      console.log(`✅ Veículo ${carId} marcado como encontrado`);
+      
+      // Recarrega a lista para remover o veículo
+      await loadStolenVehicles();
+    } catch (error: any) {
+      console.error('❌ Erro ao marcar como encontrado:', error);
+      throw error;
+    }
+  }, [loadStolenVehicles]);
+
+  // ✅ NOVA: Marca como roubado
+  const markAsStolen = useCallback(async (
+    carId: string, 
+    description?: string,
+    policeReportNumber?: string
+  ) => {
+    try {
+      console.log(`🚨 Marcando veículo ${carId} como roubado...`);
+      const stolenId = await markVehicleAsStolen(carId, description, policeReportNumber);
+      console.log(`✅ Veículo ${carId} marcado como roubado: ${stolenId}`);
+      
+      // Recarrega a lista para incluir o veículo
+      await loadStolenVehicles();
+      
+      return stolenId;
+    } catch (error: any) {
+      console.error('❌ Erro ao marcar como roubado:', error);
+      throw error;
+    }
+  }, [loadStolenVehicles]);
+
+  // ✅ CORRIGIDO: Effect simplificado
   useEffect(() => {
-    console.log('🚀 Inicializando useStolenVehicles...');
-    refreshVehicles();
+    console.log('📡 Configurando hook de veículos roubados...');
     
-    // Subscreve para atualizações em tempo real
+    // Carregamento inicial
+    loadStolenVehicles();
+
+    // Configura listener em tempo real
     const unsubscribe = subscribeToStolenVehicles((vehicles) => {
-      console.log(`🔔 Atualização em tempo real: ${vehicles.length} veículos`);
+      console.log(`🔄 Recebidos ${vehicles.length} veículos via subscription`);
       setStolenVehicles(vehicles);
+      setIsLoading(false);
+      setError(null);
     });
 
-    return unsubscribe;
-  }, []);
+    return () => {
+      console.log('🔌 Desconectando listener de veículos roubados');
+      unsubscribe();
+    };
+  }, [loadStolenVehicles]);
 
   return {
     stolenVehicles,
     isLoading,
-    error,
+    error,                    // ✅ NOVO: Estado de erro
     refreshVehicles,
     reportVehicleSighting,
+    markAsFound,
+    markAsStolen,
+    loadStolenVehicles,       // ✅ NOVO: Função de carregamento manual
   };
 }

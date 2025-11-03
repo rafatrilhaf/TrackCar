@@ -1636,3 +1636,1381 @@ google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {
 2025-10-29 16:57:45,070 - INFO - 🔓 Arduino confirmou: Ignição ON
 2025-10-29 16:57:48,109 - INFO - ✅ GPS salvo: -22.999799, -46.835216 (7 sats)
 2025-10-29 16:57:50,162 - INFO - ✅ Sistema encerrado com sucesso
+2025-11-03 08:21:36,534 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:36,688 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:36,833 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:37,019 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:37,273 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:37,453 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:37,856 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:37,967 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:38,351 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:38,517 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:39,232 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:39,663 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:41,092 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:42,449 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:43,116 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:44,385 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:45,756 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:46,958 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:21:53,440 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:22:01,153 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:22:07,100 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:22:18,013 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:22:35,700 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:22:42,538 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:23:04,375 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid grant: account not found', {'error': 'invalid_grant', 'error_description': 'Invalid grant: account not found'})
+2025-11-03 08:23:40,540 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:23:56,605 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:24:09,801 - ERROR - AuthMetadataPluginCallback "<google.auth.transport.grpc.AuthMetadataPlugin object at 0x0000017F3AF870E0>" raised exception!
+Traceback (most recent call last):
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\grpc\_plugin_wrapping.py", line 106, in __call__
+    self._metadata_plugin(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        context, _AuthMetadataPluginCallback(callback_state, callback)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 95, in __call__
+    callback(self._get_authorization_headers(context), None)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\transport\grpc.py", line 81, in _get_authorization_headers
+    self._credentials.before_request(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._request, context.method_name, context.service_url, headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 228, in before_request
+    self._blocking_refresh(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 191, in _blocking_refresh
+    self.refresh(request)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\auth\credentials.py", line 365, in refresh
+    self._refresh_token(request)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\service_account.py", line 457, in _refresh_token
+    access_token, expiry, _ = _client.jwt_grant(
+                              ~~~~~~~~~~~~~~~~~^
+        request, self._token_uri, assertion
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 299, in jwt_grant
+    response_data = _token_endpoint_request(
+        request,
+    ...<5 lines>...
+        },
+    )
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 270, in _token_endpoint_request
+    _handle_error_response(response_data, retryable_error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\I2DS\AppData\Local\Programs\Python\Python313\Lib\site-packages\google\oauth2\_client.py", line 69, in _handle_error_response
+    raise exceptions.RefreshError(
+        error_details, response_data, retryable=retryable_error
+    )
+google.auth.exceptions.RefreshError: ('invalid_grant: Invalid JWT Signature.', {'error': 'invalid_grant', 'error_description': 'Invalid JWT Signature.'})
+2025-11-03 08:24:17,857 - INFO - Portas COM dispon�veis no Windows:
+2025-11-03 08:24:17,858 - INFO -   - COM8: USB-SERIAL CH340 (COM8)
+2025-11-03 08:24:17,912 - INFO -    SERIAL_PORT = 'COM8'
+2025-11-03 08:24:48,518 - INFO - Portas COM dispon�veis no Windows:
+2025-11-03 08:24:48,518 - INFO -   - COM8: USB-SERIAL CH340 (COM8)
+2025-11-03 08:24:48,522 - INFO -    SERIAL_PORT = 'COM8'

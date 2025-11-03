@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-TRACKCAR - MAC GATEWAY v2.2
+TRACKCAR - WINDOWS GATEWAY v2.2
 Arduino Nano → Firebase + Controle Relé
-Versão otimizada sem comandos repetitivos
+Versão adaptada para Windows
 """
 
 import json
@@ -14,13 +14,20 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import logging
 import os
+import platform
 
 # ==============================================================================
 # CONFIGURAÇÕES
 # ==============================================================================
 
-# Serial do Arduino
-SERIAL_PORT = '/dev/cu.usbserial-1140'
+# Serial do Arduino - Configuração multiplataforma
+if platform.system() == "Windows":
+    SERIAL_PORT = 'COM8'  # Altere conforme necessário (COM3, COM4, COM5, etc.)
+elif platform.system() == "Darwin":  # macOS
+    SERIAL_PORT = '/dev/cu.usbserial-1140'
+else:  # Linux
+    SERIAL_PORT = '/dev/ttyUSB0'
+
 SERIAL_BAUD = 9600
 
 # ID do veículo
@@ -78,6 +85,7 @@ def init_firebase():
             logger.error("❌ Arquivo de credenciais Firebase não encontrado!")
             logger.info("📋 Crie um arquivo 'firebase-credentials.json' com suas credenciais")
             logger.info("   Baixe do Firebase Console > Project Settings > Service accounts")
+            input("Pressione Enter para sair...")
             exit(1)
         
         cred = credentials.Certificate(credential_path)
@@ -90,10 +98,25 @@ def init_firebase():
     except Exception as e:
         logger.error(f"❌ Erro ao inicializar Firebase: {e}")
         logger.info("💡 Verifique se o arquivo de credenciais está correto")
+        input("Pressione Enter para sair...")
         exit(1)
 
+def listar_portas_disponiveis():
+    """Lista portas seriais disponíveis no Windows"""
+    import serial.tools.list_ports
+    
+    portas = list(serial.tools.list_ports.comports())
+    if portas:
+        logger.info("Portas COM disponíveis no Windows:")
+        for porta in portas:
+            logger.info(f"  - {porta.device}: {porta.description}")
+        return [porta.device for porta in portas]
+    else:
+        logger.warning("Nenhuma porta COM encontrada")
+        return []
+
 def init_serial():
-    """Inicializa conexão serial com Arduino"""
+    """Inicializa conexão serial com Arduino - Versão Windows"""
     global ser
     try:
         ser = serial.Serial(SERIAL_PORT, SERIAL_BAUD, timeout=1)
@@ -103,21 +126,25 @@ def init_serial():
     except Exception as e:
         logger.error(f"❌ Erro ao conectar serial: {e}")
         logger.info(f"\n⚠️  Porta esperada: {SERIAL_PORT}")
-        logger.info("\nPortas disponíveis no Mac:")
-        import glob
-        ports = glob.glob('/dev/cu.*')
-        for port in ports:
-            logger.info(f"  - {port}")
+        
+        # Lista portas disponíveis no Windows
+        portas_disponiveis = listar_portas_disponiveis()
+        
+        if portas_disponiveis:
+            logger.info(f"\n💡 Tente alterar SERIAL_PORT para uma dessas portas:")
+            for porta in portas_disponiveis:
+                logger.info(f"   SERIAL_PORT = '{porta}'")
         
         response = input("\n🤔 Continuar sem Arduino para teste? (s/N): ")
         if response.lower() == 's':
             logger.warning("⚠️  Modo teste: continuando sem Arduino")
             return None
         else:
+            input("Pressione Enter para sair...")
             exit(1)
 
 # ==============================================================================
-# FUNÇÕES FIREBASE
+# FUNÇÕES FIREBASE (mantidas iguais)
 # ==============================================================================
 
 def save_gps_location(data):
@@ -150,15 +177,13 @@ def save_gps_location(data):
         
         db.collection('gps_locations').add(location_data)
         
-        # ✅ CORRIGIDO: Atualiza carro mas SEM alterar ignitionState
-        # (o ignitionState só deve ser alterado pelo app)
+        # Atualiza carro mas SEM alterar ignitionState
         car_ref = db.collection('cars').document(CAR_ID)
         car_ref.update({
             'lastLatitude': lat,
             'lastLongitude': lon,
             'lastLocationUpdate': firestore.SERVER_TIMESTAMP,
             'updatedAt': firestore.SERVER_TIMESTAMP
-            # Removido: 'ignitionState': data.get('ignitionState', 'unknown'),
         })
         
         logger.info(f"✅ GPS salvo: {lat:.6f}, {lon:.6f} ({sats} sats)")
@@ -169,7 +194,7 @@ def save_gps_location(data):
         return False
 
 # ==============================================================================
-# CONTROLE DO RELÉ
+# CONTROLE DO RELÉ (mantidas iguais)
 # ==============================================================================
 
 def enviar_comando_arduino(comando):
@@ -213,7 +238,7 @@ def processar_mudanca_ignicao(new_state):
     
     current_time = time.time()
     
-    # ✅ NOVO: Evita comandos repetitivos
+    # Evita comandos repetitivos
     if (new_state == last_ignition_state and 
         (current_time - last_command_time) < COMMAND_COOLDOWN):
         logger.debug(f"🚫 Comando {new_state} ignorado (cooldown de {COMMAND_COOLDOWN}s)")
@@ -233,7 +258,7 @@ def processar_mudanca_ignicao(new_state):
         logger.warning(f"⚠️  Estado desconhecido: {new_state}")
         return
     
-    # ✅ NOVO: Atualiza controle de estado
+    # Atualiza controle de estado
     last_ignition_state = new_state
     last_command_time = current_time
 
@@ -257,7 +282,7 @@ def escutar_ignition_state():
         return None
 
 # ==============================================================================
-# PROCESSAMENTO DE DADOS DO ARDUINO
+# PROCESSAMENTO DE DADOS DO ARDUINO (mantidas iguais)
 # ==============================================================================
 
 def processar_linha_arduino(line):
@@ -305,7 +330,7 @@ def processar_linha_arduino(line):
         logger.error(f"❌ Erro ao processar linha: {e}")
 
 # ==============================================================================
-# TESTE DE FIREBASE
+# TESTE DE FIREBASE (mantidas iguais)
 # ==============================================================================
 
 def teste_firebase():
@@ -316,7 +341,6 @@ def teste_firebase():
         car_ref = db.collection('cars').document(CAR_ID)
         car_doc = car_ref.get()
         
-        # ✅ CORRIGIDO: exists sem parênteses
         if car_doc.exists:
             data = car_doc.to_dict()
             logger.info(f"✅ Carro encontrado: {data.get('brand', 'N/A')} {data.get('model', 'N/A')}")
@@ -332,16 +356,16 @@ def teste_firebase():
         return False
 
 # ==============================================================================
-# MAIN LOOP
+# MAIN LOOP (mantidas iguais)
 # ==============================================================================
 
 def main():
     global ser, db, last_heartbeat, last_ignition_state
     
     print("\n" + "="*60)
-    print("  TRACKCAR - MAC GATEWAY v2.2")
+    print("  TRACKCAR - WINDOWS GATEWAY v2.2")
     print("  Arduino Nano → Firebase + Controle Relé")
-    print("  Versão otimizada sem comandos repetitivos")
+    print("  Versão adaptada para Windows")
     print("="*60 + "\n")
     
     # Inicializa Firebase
@@ -349,7 +373,7 @@ def main():
     
     # Testa Firebase
     if teste_firebase():
-        # ✅ NOVO: Carrega estado inicial da ignição
+        # Carrega estado inicial da ignição
         try:
             car_ref = db.collection('cars').document(CAR_ID)
             car_doc = car_ref.get()
@@ -405,6 +429,7 @@ def main():
             ser.close()
         logger.info("✅ Sistema encerrado com sucesso")
         print("Até logo! 👋\n")
+        input("Pressione Enter para sair...")
 
 if __name__ == "__main__":
     main()
