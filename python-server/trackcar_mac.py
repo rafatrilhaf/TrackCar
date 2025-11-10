@@ -30,8 +30,8 @@ else:  # Linux
 SERIAL_BAUD = 9600
 
 # ID do veículo
-CAR_ID = "Ddvv3GsUr7G62kKnPepq"
-USER_ID = "27qJowctifNiM8AOlhI2Q7aw6Vn1"
+CAR_ID = "I3d6lzJ2aMzvantGyYXz"
+USER_ID = "87If5SbgxrePsQX761VTfYBz5GF2"
 
 # Variáveis globais
 ser = None
