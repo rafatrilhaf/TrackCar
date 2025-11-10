@@ -1,23 +1,31 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   FlatList,
   Image,
+  KeyboardAvoidingView,
   Linking,
   Modal,
+  Platform,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { Header } from '../components/Header';
 import { theme } from '../constants/theme';
+import { usePublicSightings } from '../hooks/usePublicSightings';
+import { useSightingNotifications } from '../hooks/useSightingNotifications';
 import { useStolenVehicles } from '../hooks/useStolenVehicle';
 import { useTheme } from '../hooks/useTheme';
+import { auth } from '../services/firebase';
 import { getCurrentLocation } from '../services/stolenVehicleService';
 import { StolenVehicle } from '../types/stolenVehicle';
 
@@ -26,6 +34,13 @@ const StolenVehicleCard: React.FC<{
   onReportSighting: (vehicle: StolenVehicle) => void;
 }> = ({ vehicle, onReportSighting }) => {
   const { colors } = useTheme();
+  
+  // ✅ NOVO: Hook para avistamentos públicos
+  const { sightings } = usePublicSightings(vehicle.id);
+  
+  // ✅ NOVO: Verificar se é o próprio usuário
+  const currentUser = auth.currentUser;
+  const isOwnVehicle = currentUser && vehicle.userId === currentUser.uid;
   
   const getTimeAgo = (date: Date) => {
     const now = new Date();
@@ -105,12 +120,42 @@ const StolenVehicleCard: React.FC<{
           </Text>
         )}
 
-        {/* Última localização vista */}
+        {/* ✅ CORRIGIDO: Contador de Avistamentos e Descrições Públicas */}
+        {sightings.count > 0 && (
+          <View style={styles.sightingsSection}>
+            <View style={styles.sightingsContainer}>
+              <Ionicons name="eye" size={16} color={colors.primary} />
+              <Text style={[styles.sightingsText, { color: colors.primary }]}>
+                {/* ✅ CORRIGIDO: Mudou de "pessoas" para "relatos" */}
+                {sightings.count} {sightings.count === 1 ? 'relato sobre' : 'relatos sobre'} este veículo
+              </Text>
+            </View>
+            
+            {/* ✅ NOVO: Descrições públicas dos avistamentos */}
+            {sightings.descriptions.length > 0 && (
+              <View style={styles.publicDescriptions}>
+                <Text style={[styles.publicDescriptionsTitle, { color: colors.textSecondary }]}>
+                  Relatos da comunidade:
+                </Text>
+                {sightings.descriptions.map((description, index) => (
+                  <View key={index} style={styles.publicDescriptionItem}>
+                    <Ionicons name="chatbubble-ellipses" size={12} color={colors.textSecondary} />
+                    <Text style={[styles.publicDescriptionText, { color: colors.text }]} numberOfLines={2}>
+                      "{description}"
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* ✅ CORRIGIDO: Última atividade reportada */}
         {vehicle.lastSeenLocation && (
           <View style={styles.lastSeenContainer}>
             <Ionicons name="location" size={16} color={colors.warning} />
             <Text style={[styles.lastSeenText, { color: colors.textSecondary }]}>
-              Visto pela última vez: {vehicle.lastSeenLocation.address}
+              Última atividade reportada há {getTimeAgo(vehicle.lastSeenLocation.timestamp)}
             </Text>
           </View>
         )}
@@ -118,15 +163,19 @@ const StolenVehicleCard: React.FC<{
 
       {/* Botões de Ação */}
       <View style={styles.actionButtons}>
-        <TouchableOpacity
-          style={[styles.sightingButton, { backgroundColor: colors.primary }]}
-          onPress={() => onReportSighting(vehicle)}
-        >
-          <Ionicons name="eye" size={18} color="#FFFFFF" />
-          <Text style={styles.sightingButtonText}>Vi Este Carro!</Text>
-        </TouchableOpacity>
+        {/* ✅ CORRIGIDO: Botão "Vi Este Carro" só se NÃO for o próprio veículo */}
+        {!isOwnVehicle && (
+          <TouchableOpacity
+            style={[styles.sightingButton, { backgroundColor: colors.primary }]}
+            onPress={() => onReportSighting(vehicle)}
+          >
+            <Ionicons name="eye" size={18} color="#FFFFFF" />
+            <Text style={styles.sightingButtonText}>Vi Este Carro!</Text>
+          </TouchableOpacity>
+        )}
 
-        {vehicle.ownerPhone && (
+        {/* ✅ CORRIGIDO: Botão contatar só se NÃO for o próprio veículo */}
+        {vehicle.ownerPhone && !isOwnVehicle && (
           <TouchableOpacity
             style={[styles.contactButton, { backgroundColor: colors.success }]}
             onPress={handleContactOwner}
@@ -134,6 +183,16 @@ const StolenVehicleCard: React.FC<{
             <Ionicons name="logo-whatsapp" size={18} color="#FFFFFF" />
             <Text style={styles.contactButtonText}>Contatar</Text>
           </TouchableOpacity>
+        )}
+
+        {/* ✅ NOVO: Mensagem para o próprio veículo */}
+        {isOwnVehicle && (
+          <View style={[styles.ownVehicleMessage, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Ionicons name="information-circle" size={16} color={colors.textSecondary} />
+            <Text style={[styles.ownVehicleMessageText, { color: colors.textSecondary }]}>
+              Este é o seu veículo roubado
+            </Text>
+          </View>
         )}
       </View>
     </View>
@@ -143,6 +202,10 @@ const StolenVehicleCard: React.FC<{
 export default function VeiculosRoubadosScreen() {
   const { colors } = useTheme();
   const { stolenVehicles, isLoading, refreshVehicles, reportVehicleSighting } = useStolenVehicles();
+  
+  // ✅ NOVO: Hook para notificações
+  const { unreadCount } = useSightingNotifications();
+  
   const [showSightingModal, setShowSightingModal] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<StolenVehicle | null>(null);
   const [sightingDescription, setSightingDescription] = useState('');
@@ -207,7 +270,27 @@ export default function VeiculosRoubadosScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Header title="Veículos Roubados" showBackButton />
+      {/* ✅ CORRIGIDO: Header com botão de notificações com cor correta */}
+      <Header 
+        title="Veículos Roubados" 
+        showBackButton 
+        rightComponent={
+          <TouchableOpacity
+            style={styles.notificationsButton}
+            onPress={() => router.push('/notificacoes-roubados')}
+          >
+            {/* ✅ CORRIGIDO: Cor do ícone baseada no tema */}
+            <Ionicons name="notifications" size={24} color={colors.background} />
+            {unreadCount > 0 && (
+              <View style={[styles.notificationBadge, { backgroundColor: colors.error }]}>
+                <Text style={styles.notificationBadgeText}>
+                  {unreadCount > 99 ? '99+' : unreadCount.toString()}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        }
+      />
       
       <FlatList
         data={stolenVehicles}
@@ -240,85 +323,117 @@ export default function VeiculosRoubadosScreen() {
         }
       />
 
-      {/* Modal de Reportar Avistamento */}
+      {/* Modal de Reportar Avistamento - ✅ CORRIGIDO SEM MARGEM BRANCA */}
       <Modal
         visible={showSightingModal}
         animationType="slide"
         transparent={true}
+        presentationStyle={Platform.OS === 'ios' ? 'overFullScreen' : 'fullScreen'}
         onRequestClose={() => setShowSightingModal(false)}
       >
         <View style={[styles.modalOverlay, { backgroundColor: colors.overlay }]}>
-          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
-            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>
-                🚗 Reportar Avistamento
-              </Text>
-              <TouchableOpacity onPress={() => setShowSightingModal(false)}>
-                <Ionicons name="close" size={24} color={colors.text} />
-              </TouchableOpacity>
-            </View>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0}
+            style={styles.keyboardAvoidingContainer}
+          >
+            <TouchableWithoutFeedback onPress={() => setShowSightingModal(false)}>
+              <View style={styles.modalBackdrop}>
+                <TouchableWithoutFeedback onPress={() => { /* evita fechar ao tocar dentro */ }}>
+                  <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+                    <ScrollView
+                      contentContainerStyle={styles.scrollContent}
+                      keyboardShouldPersistTaps="handled"
+                      showsVerticalScrollIndicator={false}
+                    >
+                      <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>
+                          🚗 Reportar Avistamento
+                        </Text>
+                        <TouchableOpacity onPress={() => setShowSightingModal(false)}>
+                          <Ionicons name="close" size={24} color={colors.text} />
+                        </TouchableOpacity>
+                      </View>
 
-            {selectedVehicle && (
-              <View style={styles.modalBody}>
-                <View style={styles.vehicleSummary}>
-                  <Text style={[styles.vehicleSummaryText, { color: colors.text }]}>
-                    {selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year}
-                  </Text>
-                  <Text style={[styles.vehicleSummaryPlate, { color: colors.textSecondary }]}>
-                    {selectedVehicle.licensePlate} • {selectedVehicle.color}
-                  </Text>
-                </View>
+                      {selectedVehicle && (
+                        <View style={styles.modalBody}>
+                          <View style={[styles.vehicleSummary, { backgroundColor: colors.surface }]}>
+                            <Text style={[styles.vehicleSummaryText, { color: colors.text }]}>
+                              {selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year}
+                            </Text>
+                            <Text style={[styles.vehicleSummaryPlate, { color: colors.textSecondary }]}>
+                              {selectedVehicle.licensePlate} • {selectedVehicle.color}
+                            </Text>
+                          </View>
 
-                <Text style={[styles.inputLabel, { color: colors.text }]}>
-                  Descrição do Avistamento (opcional)
-                </Text>
-                <TextInput
-                  style={[
-                    styles.descriptionInput,
-                    { 
-                      backgroundColor: colors.inputBackground,
-                      borderColor: colors.inputBorder,
-                      color: colors.text
-                    }
-                  ]}
-                  value={sightingDescription}
-                  onChangeText={setSightingDescription}
-                  placeholder="Ex: Parado em estacionamento, duas pessoas dentro do carro..."
-                  placeholderTextColor={colors.textSecondary}
-                  multiline
-                  numberOfLines={3}
-                  maxLength={200}
-                />
+                          {/* ✅ NOVO: Aviso sobre descrição pública */}
+                          <View style={[styles.publicWarning, { backgroundColor: colors.warning + '20', borderColor: colors.warning }]}>
+                            <Ionicons name="warning" size={16} color={colors.warning} />
+                            <Text style={[styles.publicWarningText, { color: colors.warning }]}>
+                              Sua descrição será pública para ajudar a comunidade. Não inclua informações pessoais.
+                            </Text>
+                          </View>
 
-                <View style={styles.privacyNote}>
-                  <Ionicons name="location" size={16} color={colors.info} />
-                  <Text style={[styles.privacyText, { color: colors.textSecondary }]}>
-                    Sua localização atual será enviada para o proprietário
-                  </Text>
-                </View>
+                          <Text style={[styles.inputLabel, { color: colors.text }]}>
+                            Descrição do Avistamento (opcional)
+                          </Text>
+                          <TextInput
+                            style={[
+                              styles.descriptionInput,
+                              { 
+                                backgroundColor: colors.inputBackground,
+                                borderColor: colors.inputBorder,
+                                color: colors.text
+                              }
+                            ]}
+                            value={sightingDescription}
+                            onChangeText={setSightingDescription}
+                            placeholder="Ex: Parado em estacionamento, duas pessoas dentro do carro..."
+                            placeholderTextColor={colors.placeholder}
+                            multiline
+                            numberOfLines={3}
+                            maxLength={200}
+                            textAlignVertical="top"
+                            returnKeyType="done"
+                            blurOnSubmit
+                          />
 
-                <TouchableOpacity
-                  style={[
-                    styles.confirmButton,
-                    { backgroundColor: reportingLocation ? colors.textSecondary : colors.primary }
-                  ]}
-                  onPress={confirmSighting}
-                  disabled={reportingLocation}
-                >
-                  {reportingLocation ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <Ionicons name="send" size={18} color="#FFFFFF" />
-                  )}
-                  <Text style={styles.confirmButtonText}>
-                    {reportingLocation ? 'Enviando...' : 'Confirmar Avistamento'}
-                  </Text>
-                </TouchableOpacity>
+                          <View style={styles.privacyNote}>
+                            <Ionicons name="location" size={16} color={colors.info} />
+                            <Text style={[styles.privacyText, { color: colors.textSecondary }]}>
+                              Sua localização exata será enviada apenas para o proprietário
+                            </Text>
+                          </View>
+
+                          <TouchableOpacity
+                            style={[
+                              styles.confirmButton,
+                              { backgroundColor: reportingLocation ? colors.textSecondary : colors.primary }
+                            ]}
+                            onPress={confirmSighting}
+                            disabled={reportingLocation}
+                            activeOpacity={0.9}
+                          >
+                            {reportingLocation ? (
+                              <ActivityIndicator size="small" color="#FFFFFF" />
+                            ) : (
+                              <Ionicons name="send" size={18} color="#FFFFFF" />
+                            )}
+                            <Text style={styles.confirmButtonText}>
+                              {reportingLocation ? 'Enviando...' : 'Confirmar Avistamento'}
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </ScrollView>
+                  </View>
+                </TouchableWithoutFeedback>
               </View>
-            )}
-          </View>
+            </TouchableWithoutFeedback>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
+
     </View>
   );
 }
@@ -360,6 +475,29 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     lineHeight: 16,
   },
+
+  // ✅ NOVO: Botão de notificações no header
+  notificationsButton: {
+    position: 'relative',
+    padding: theme.spacing.xs,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  notificationBadgeText: {
+    color: '#FFFFFF',
+    fontSize: theme.fontSize.xs,
+    fontWeight: theme.fontWeight.bold,
+  },
+
   vehicleCard: {
     margin: theme.spacing.md,
     marginBottom: theme.spacing.sm,
@@ -458,6 +596,46 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginBottom: theme.spacing.sm,
   },
+
+  // ✅ NOVO: Estilos para avistamentos públicos
+  sightingsSection: {
+    marginBottom: theme.spacing.sm,
+  },
+  sightingsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: theme.spacing.sm,
+    gap: theme.spacing.xs,
+  },
+  sightingsText: {
+    fontSize: theme.fontSize.sm,
+    fontWeight: theme.fontWeight.medium,
+  },
+  publicDescriptions: {
+    marginTop: theme.spacing.sm,
+    paddingTop: theme.spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.1)',
+  },
+  publicDescriptionsTitle: {
+    fontSize: theme.fontSize.xs,
+    fontWeight: theme.fontWeight.medium,
+    marginBottom: theme.spacing.xs,
+    textTransform: 'uppercase',
+  },
+  publicDescriptionItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: theme.spacing.xs,
+    gap: theme.spacing.xs,
+  },
+  publicDescriptionText: {
+    fontSize: theme.fontSize.sm,
+    flex: 1,
+    lineHeight: 16,
+    fontStyle: 'italic',
+  },
+
   lastSeenContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -502,6 +680,23 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     fontWeight: theme.fontWeight.medium,
   },
+
+  // ✅ NOVO: Estilos para mensagem do próprio veículo
+  ownVehicleMessage: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    gap: theme.spacing.xs,
+  },
+  ownVehicleMessageText: {
+    fontSize: theme.fontSize.sm,
+    fontStyle: 'italic',
+  },
+
   emptyState: {
     flex: 1,
     justifyContent: 'center',
@@ -520,14 +715,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
   },
+
+  // Modal
   modalOverlay: {
+    flex: 1,
+  },
+  keyboardAvoidingContainer: {
+    flex: 1,
+  },
+  modalBackdrop: {
     flex: 1,
     justifyContent: 'flex-end',
   },
   modalContent: {
     borderTopLeftRadius: theme.borderRadius.xl,
     borderTopRightRadius: theme.borderRadius.xl,
-    maxHeight: '70%',
+    maxHeight: '85%',
+    minHeight: '50%',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 0,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -548,7 +756,6 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
-    backgroundColor: '#F8F8F8',
   },
   vehicleSummaryText: {
     fontSize: theme.fontSize.lg,
@@ -558,6 +765,23 @@ const styles = StyleSheet.create({
   vehicleSummaryPlate: {
     fontSize: theme.fontSize.md,
   },
+
+  // ✅ NOVO: Aviso sobre descrição pública
+  publicWarning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    marginBottom: theme.spacing.lg,
+    gap: theme.spacing.xs,
+  },
+  publicWarningText: {
+    flex: 1,
+    fontSize: theme.fontSize.sm,
+    lineHeight: 16,
+  },
+
   inputLabel: {
     fontSize: theme.fontSize.md,
     fontWeight: theme.fontWeight.medium,
