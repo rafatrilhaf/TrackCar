@@ -1,7 +1,7 @@
 // hooks/useCarTracking.ts - Hook para gerenciar tracking do carro
 import { useEffect, useState } from 'react';
 import { subscribeToIgnitionState } from '../services/carService';
-import { GPSLocation, subscribeToCarLocation } from '../services/TrackingService';
+import { GPSLocation, subscribeToCarLocation } from '../services/tkService';
 import { Car } from '../types/car';
 
 interface UseCarTrackingReturn {
