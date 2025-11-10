@@ -1,42 +1,42 @@
-// app/editar-carro.tsx - COM HEADER GLOBAL E BOTÕES AJUSTADOS
+// app/editar-carro.tsx - CORRIGIDO: Campo de placa com auto-maiúscula e formatação
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { CarPhotoSelector } from '../components/CarPhotoSelector';
 import { Header } from '../components/Header';
 import { useTheme } from '../hooks/useTheme';
 import {
-    checkLicensePlateExists,
-    deleteCarPhoto,
-    getUserCars,
-    updateCar,
-    uploadAndSaveCarPhoto,
+  checkLicensePlateExists,
+  deleteCarPhoto,
+  getUserCars,
+  updateCar,
+  uploadAndSaveCarPhoto,
 } from '../services/carService';
 import {
-    Car,
-    CAR_BRANDS,
-    CAR_COLORS,
-    CarFormData,
-    CarValidationErrors,
-    formatLicensePlate,
-    formatRenavam,
-    FUEL_TYPES,
-    validateCarForm,
+  Car,
+  CAR_BRANDS,
+  CAR_COLORS,
+  CarFormData,
+  CarValidationErrors,
+  formatRenavam,
+  FUEL_TYPES,
+  validateCarForm
 } from '../types/car';
+
 
 export default function EditarCarroScreen() {
   const theme = useTheme();
@@ -57,6 +57,7 @@ export default function EditarCarroScreen() {
     description: '',
   });
 
+
   const [photoURI, setPhotoURI] = useState<string>('');
   const [originalPhotoURL, setOriginalPhotoURL] = useState<string>('');
   const [photoChanged, setPhotoChanged] = useState(false);
@@ -66,14 +67,17 @@ export default function EditarCarroScreen() {
   const [photoLoading, setPhotoLoading] = useState(false);
   const [errors, setErrors] = useState<CarValidationErrors>({});
 
+
   // Estados dos modais
   const [showBrandModal, setShowBrandModal] = useState(false);
   const [showFuelModal, setShowFuelModal] = useState(false);
   const [showColorModal, setShowColorModal] = useState(false);
 
+
   useEffect(() => {
     loadCarData();
   }, [id]);
+
 
   const loadCarData = async () => {
     try {
@@ -114,12 +118,52 @@ export default function EditarCarroScreen() {
     }
   };
 
+
+  // ✅ NOVA: Função melhorada para formatar placa automaticamente
+  const formatLicensePlateInput = (value: string): string => {
+    // Remove tudo que não é letra ou número
+    const cleanValue = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    
+    // Se estiver vazio, retorna vazio
+    if (!cleanValue) return '';
+    
+    // Limita a 7 caracteres (sem o hífen)
+    const limitedValue = cleanValue.slice(0, 7);
+    
+    // Formato antigo: ABC1234 → ABC-1234
+    // Formato Mercosul: ABC1D23 → ABC1D23
+    if (limitedValue.length <= 3) {
+      // Primeiras 3 letras
+      return limitedValue;
+    } else if (limitedValue.length === 4) {
+      // ABC + hífen + primeiro número
+      return `${limitedValue.slice(0, 3)}-${limitedValue.slice(3)}`;
+    } else if (limitedValue.length <= 7) {
+      // Verifica se é Mercosul (5º caractere é letra)
+      const fifthChar = limitedValue.charAt(4);
+      const isMercosul = /[A-Z]/.test(fifthChar);
+      
+      if (isMercosul) {
+        // Mercosul: ABC1D23 (sem hífen visual, mas mantém formatação)
+        return `${limitedValue.slice(0, 3)}-${limitedValue.slice(3)}`;
+      } else {
+        // Antigo: ABC-1234
+        return `${limitedValue.slice(0, 3)}-${limitedValue.slice(3)}`;
+      }
+    }
+    
+    return limitedValue;
+  };
+
+
   const handleInputChange = (field: keyof CarFormData, value: string) => {
     let formattedValue = value;
 
+
     // Formatação específica para alguns campos
     if (field === 'licensePlate') {
-      formattedValue = formatLicensePlate(value);
+      // ✅ CORRIGIDO: Usa a nova função de formatação
+      formattedValue = formatLicensePlateInput(value);
     } else if (field === 'renavam') {
       formattedValue = formatRenavam(value);
     } else if (field === 'year') {
@@ -128,6 +172,7 @@ export default function EditarCarroScreen() {
       formattedValue = value.toUpperCase().slice(0, 17);
     }
 
+
     setFormData(prev => ({ ...prev, [field]: formattedValue }));
     
     // Limpa erro do campo quando o usuário começar a digitar (apenas campos obrigatórios)
@@ -135,6 +180,7 @@ export default function EditarCarroScreen() {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
+
 
   const handlePhotoChange = async (uri: string) => {
     try {
@@ -149,6 +195,7 @@ export default function EditarCarroScreen() {
     }
   };
 
+
   const handlePhotoRemove = async () => {
     try {
       setPhotoURI('');
@@ -157,6 +204,7 @@ export default function EditarCarroScreen() {
       console.error('Erro ao remover foto:', error);
     }
   };
+
 
   const handleSave = async () => {
     try {
@@ -169,6 +217,7 @@ export default function EditarCarroScreen() {
         return;
       }
 
+
       // Verifica se a placa já existe (excluindo o próprio carro)
       if (formData.licensePlate !== originalCar?.licensePlate) {
         const plateExists = await checkLicensePlateExists(formData.licensePlate, originalCar?.id);
@@ -178,7 +227,9 @@ export default function EditarCarroScreen() {
         }
       }
 
+
       setSaving(true);
+
 
       let newPhotoURL: string | undefined = originalPhotoURL;
       
@@ -192,6 +243,7 @@ export default function EditarCarroScreen() {
             console.warn('Erro ao remover foto antiga:', photoError);
           }
         }
+
 
         // Upload nova foto se houver
         if (photoURI && photoURI !== originalPhotoURL) {
@@ -210,6 +262,7 @@ export default function EditarCarroScreen() {
         }
       }
 
+
       // Atualiza o carro
       if (originalCar?.id) {
         await updateCar(originalCar.id, formData, newPhotoURL);
@@ -225,6 +278,7 @@ export default function EditarCarroScreen() {
         );
       }
 
+
     } catch (error: any) {
       console.error('Erro ao atualizar veículo:', error);
       Alert.alert('Erro', error.message || 'Erro ao atualizar veículo');
@@ -232,6 +286,7 @@ export default function EditarCarroScreen() {
       setSaving(false);
     }
   };
+
 
   const handleCancel = () => {
     Alert.alert(
@@ -251,15 +306,18 @@ export default function EditarCarroScreen() {
     );
   };
 
+
   const selectBrand = (brand: string) => {
     handleInputChange('brand', brand);
     setShowBrandModal(false);
   };
 
+
   const selectFuel = (fuel: string) => {
     handleInputChange('fuel', fuel);
     setShowFuelModal(false);
   };
+
 
   const selectColor = (colorName: string, colorHex: string) => {
     handleInputChange('color', colorName);
@@ -267,8 +325,10 @@ export default function EditarCarroScreen() {
     setShowColorModal(false);
   };
 
+
   const handleDelete = () => {
     if (!originalCar) return;
+
 
     Alert.alert(
       'Remover Veículo',
@@ -299,6 +359,7 @@ export default function EditarCarroScreen() {
     );
   };
 
+
   const renderSaveButton = () => (
     <TouchableOpacity
       style={[styles.headerSaveButton, saving && styles.headerSaveButtonDisabled]}
@@ -316,6 +377,7 @@ export default function EditarCarroScreen() {
       )}
     </TouchableOpacity>
   );
+
 
   const styles = StyleSheet.create({
     container: {
@@ -352,7 +414,7 @@ export default function EditarCarroScreen() {
     scrollContainer: {
       flexGrow: 1,
       padding: theme.spacing.lg,
-      paddingBottom: 120, // ALTERADO: Espaço para os botões
+      paddingBottom: 120,
     },
     section: {
       marginBottom: theme.spacing.xl,
@@ -433,7 +495,13 @@ export default function EditarCarroScreen() {
       color: theme.colors.error,
       marginTop: theme.spacing.xs,
     },
-    // ALTERADO: Novos estilos para os botões de ação
+    // ✅ NOVO: Estilo para o helper text da placa
+    helperText: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textSecondary,
+      marginTop: theme.spacing.xs,
+      fontStyle: 'italic',
+    },
     actionButtonsContainer: {
       position: 'absolute',
       bottom: 0,
@@ -535,6 +603,7 @@ export default function EditarCarroScreen() {
     },
   });
 
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -546,6 +615,7 @@ export default function EditarCarroScreen() {
       </View>
     );
   }
+
 
   return (
     <KeyboardAvoidingView
@@ -559,6 +629,7 @@ export default function EditarCarroScreen() {
         onBackPress={handleCancel}
         rightComponent={renderSaveButton()}
       />
+
 
       <ScrollView 
         style={styles.scrollContainer}
@@ -577,6 +648,7 @@ export default function EditarCarroScreen() {
           />
         </View>
 
+
         {/* SEÇÃO 1: Informações Essenciais - OBRIGATÓRIAS */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Informações Essenciais</Text>
@@ -584,6 +656,7 @@ export default function EditarCarroScreen() {
             Estas informações são obrigatórias e serão visíveis para outros usuários 
             na busca por veículos roubados
           </Text>
+
 
           {/* Marca */}
           <View style={styles.inputContainer}>
@@ -602,6 +675,7 @@ export default function EditarCarroScreen() {
             {errors.brand && <Text style={styles.errorText}>{errors.brand}</Text>}
           </View>
 
+
           {/* Modelo */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>
@@ -616,6 +690,7 @@ export default function EditarCarroScreen() {
             />
             {errors.model && <Text style={styles.errorText}>{errors.model}</Text>}
           </View>
+
 
           {/* Ano */}
           <View style={styles.inputContainer}>
@@ -633,7 +708,8 @@ export default function EditarCarroScreen() {
             {errors.year && <Text style={styles.errorText}>{errors.year}</Text>}
           </View>
 
-          {/* Placa */}
+
+          {/* ✅ CORRIGIDO: Placa com auto-maiúscula e formatação automática */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>
               Placa <Text style={styles.requiredAsterisk}>*</Text>
@@ -644,10 +720,17 @@ export default function EditarCarroScreen() {
               onChangeText={(value) => handleInputChange('licensePlate', value)}
               placeholder="ABC-1234 ou ABC1D23"
               autoCapitalize="characters"
+              autoCorrect={false}
               maxLength={8}
             />
             {errors.licensePlate && <Text style={styles.errorText}>{errors.licensePlate}</Text>}
+            {!errors.licensePlate && (
+              <Text style={styles.helperText}>
+                Digite letras e números. A formatação será automática.
+              </Text>
+            )}
           </View>
+
 
           {/* Cor */}
           <View style={styles.inputContainer}>
@@ -672,6 +755,7 @@ export default function EditarCarroScreen() {
           </View>
         </View>
 
+
         {/* SEÇÃO 2: Informações Gerais - OPCIONAIS */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Informações Gerais</Text>
@@ -679,6 +763,7 @@ export default function EditarCarroScreen() {
             Informações opcionais para sua organização pessoal e fácil acesso 
             aos documentos do veículo
           </Text>
+
 
           {/* Motorização */}
           <View style={styles.inputContainer}>
@@ -690,6 +775,7 @@ export default function EditarCarroScreen() {
               placeholder="1.0, 1.6, 2.0, V6..."
             />
           </View>
+
 
           {/* Combustível */}
           <View style={styles.inputContainer}>
@@ -705,6 +791,7 @@ export default function EditarCarroScreen() {
             </TouchableOpacity>
           </View>
 
+
           {/* RENAVAM */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>RENAVAM</Text>
@@ -718,6 +805,7 @@ export default function EditarCarroScreen() {
             />
           </View>
 
+
           {/* Chassi */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Chassi</Text>
@@ -727,9 +815,11 @@ export default function EditarCarroScreen() {
               onChangeText={(value) => handleInputChange('chassi', value)}
               placeholder="17 caracteres alfanuméricos"
               autoCapitalize="characters"
+              autoCorrect={false}
               maxLength={17}
             />
           </View>
+
 
           {/* Observações */}
           <View style={styles.inputContainer}>
@@ -747,7 +837,8 @@ export default function EditarCarroScreen() {
         </View>
       </ScrollView>
 
-      {/* ALTERADO: Botões de Ação Fixos */}
+
+      {/* Botões de Ação Fixos */}
       <View style={styles.actionButtonsContainer}>
         <View style={styles.actionButtons}>
           <TouchableOpacity style={styles.editButton} onPress={handleSave} activeOpacity={0.8}>
@@ -755,12 +846,14 @@ export default function EditarCarroScreen() {
             <Text style={styles.buttonText}>Salvar</Text>
           </TouchableOpacity>
 
+
           <TouchableOpacity style={styles.deleteButton} onPress={handleDelete} activeOpacity={0.8}>
             <Ionicons name="trash-outline" size={18} color="#FFFFFF" />
             <Text style={styles.buttonText}>Remover</Text>
           </TouchableOpacity>
         </View>
       </View>
+
 
       {/* Modais */}
       {/* Modal de Marcas */}
@@ -785,6 +878,7 @@ export default function EditarCarroScreen() {
         </View>
       </Modal>
 
+
       {/* Modal de Combustíveis */}
       <Modal visible={showFuelModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
@@ -806,6 +900,7 @@ export default function EditarCarroScreen() {
           </View>
         </View>
       </Modal>
+
 
       {/* Modal de Cores */}
       <Modal visible={showColorModal} animationType="slide" transparent>
