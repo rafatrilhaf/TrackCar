@@ -1,4 +1,4 @@
-// components/GPSTracker.tsx - Componente para rastreamento GPS
+// components/GPSTracker.tsx - VERSÃO RESPONSIVA COMPLETA
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
@@ -16,8 +16,9 @@ import {
   GPSLocation,
   isCarMoving,
   subscribeToCarLocation,
-} from '../services/tkService'; // ✅ CORRIGIDO: Caminho e nome do arquivo
+} from '../services/tkService';
 import { Car } from '../types/car';
+import { scaleFont, scaleHeight, scaleIcon } from '../utils/responsive';
 
 const colors = Colors.light;
 
@@ -34,20 +35,15 @@ export default function GPSTracker({ car, onLocationUpdate }: Props) {
   useEffect(() => {
     if (!car.id) return;
 
-    // Subscreve para atualizações de localização em tempo real
     const unsubscribe = subscribeToCarLocation(car.id, (location) => {
       setCurrentLocation(location);
       onLocationUpdate?.(location);
 
       if (location) {
-        // Atualiza histórico de localizações
         setLastLocations(prev => {
-          const updated = [location, ...prev.slice(0, 9)]; // Mantém últimas 10
-          
-          // Verifica se está em movimento
+          const updated = [location, ...prev.slice(0, 9)];
           const moving = isCarMoving(updated);
           setIsMoving(moving);
-          
           return updated;
         });
       }
@@ -86,6 +82,106 @@ export default function GPSTracker({ car, onLocationUpdate }: Props) {
     return `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: colors.surface,
+      borderRadius: theme.borderRadius.lg,
+      padding: theme.spacing.lg,
+      margin: theme.spacing.sm,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: theme.spacing.md,
+    },
+    title: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.bold,
+      color: colors.text,
+    },
+    statusBadge: {
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xs,
+      borderRadius: theme.borderRadius.lg,
+      minHeight: scaleHeight(24),
+      justifyContent: 'center',
+    },
+    statusBadgeText: {
+      color: '#fff',
+      fontSize: theme.fontSize.sm,
+      fontWeight: theme.fontWeight.bold,
+    },
+    locationInfo: {
+      marginBottom: theme.spacing.lg,
+    },
+    coordinatesRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.spacing.sm,
+      flexWrap: 'wrap',
+    },
+    coordinates: {
+      fontSize: theme.fontSize.md,
+      fontFamily: 'monospace',
+      marginLeft: theme.spacing.sm,
+      color: colors.text,
+    },
+    detailsRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      flexWrap: 'wrap',
+      gap: theme.spacing.sm,
+    },
+    detail: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    detailText: {
+      fontSize: theme.fontSize.sm,
+      color: colors.textSecondary,
+      marginLeft: theme.spacing.xs,
+    },
+    mapButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.info,
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      minHeight: scaleHeight(48),
+    },
+    mapButtonText: {
+      color: '#fff',
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.bold,
+      marginLeft: theme.spacing.sm,
+    },
+    noLocationContainer: {
+      alignItems: 'center',
+      padding: theme.spacing.xl,
+    },
+    noLocationText: {
+      fontSize: theme.fontSize.md,
+      color: colors.textSecondary,
+      marginTop: theme.spacing.md,
+      textAlign: 'center',
+      lineHeight: scaleFont(20),
+    },
+    noLocationSubtext: {
+      fontSize: theme.fontSize.sm,
+      color: colors.textSecondary,
+      marginTop: theme.spacing.xs,
+      textAlign: 'center',
+      lineHeight: scaleFont(18),
+    },
+  });
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -101,7 +197,7 @@ export default function GPSTracker({ car, onLocationUpdate }: Props) {
         <>
           <View style={styles.locationInfo}>
             <View style={styles.coordinatesRow}>
-              <Ionicons name="location" size={20} color={colors.info} />
+              <Ionicons name="location" size={scaleIcon(20)} color={colors.info} />
               <Text style={styles.coordinates}>
                 {formatCoordinates(currentLocation.latitude, currentLocation.longitude)}
               </Text>
@@ -109,20 +205,20 @@ export default function GPSTracker({ car, onLocationUpdate }: Props) {
             
             <View style={styles.detailsRow}>
               <View style={styles.detail}>
-                <Ionicons name="time" size={16} color={colors.textSecondary} />
+                <Ionicons name="time" size={scaleIcon(16)} color={colors.textSecondary} />
                 <Text style={styles.detailText}>{getLocationAge()}</Text>
               </View>
               
               {currentLocation.speed !== undefined && (
                 <View style={styles.detail}>
-                  <Ionicons name="speedometer" size={16} color={colors.textSecondary} />
+                  <Ionicons name="speedometer" size={scaleIcon(16)} color={colors.textSecondary} />
                   <Text style={styles.detailText}>{currentLocation.speed.toFixed(0)} km/h</Text>
                 </View>
               )}
               
               {currentLocation.accuracy !== undefined && (
                 <View style={styles.detail}>
-                  <Ionicons name="radio" size={16} color={colors.textSecondary} />
+                  <Ionicons name="radio" size={scaleIcon(16)} color={colors.textSecondary} />
                   <Text style={styles.detailText}>±{currentLocation.accuracy.toFixed(0)}m</Text>
                 </View>
               )}
@@ -130,13 +226,13 @@ export default function GPSTracker({ car, onLocationUpdate }: Props) {
           </View>
 
           <TouchableOpacity style={styles.mapButton} onPress={handleOpenInMaps}>
-            <Ionicons name="map" size={20} color="#fff" />
+            <Ionicons name="map" size={scaleIcon(20)} color="#fff" />
             <Text style={styles.mapButtonText}>Ver no Mapa</Text>
           </TouchableOpacity>
         </>
       ) : (
         <View style={styles.noLocationContainer}>
-          <Ionicons name="location-outline" size={48} color={colors.textSecondary} />
+          <Ionicons name="location-outline" size={scaleIcon(48)} color={colors.textSecondary} />
           <Text style={styles.noLocationText}>
             Aguardando sinal GPS...
           </Text>
@@ -148,95 +244,3 @@ export default function GPSTracker({ car, onLocationUpdate }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.surface,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.lg,
-    margin: theme.spacing.sm,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.md,
-  },
-  title: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-    color: colors.text,
-  },
-  statusBadge: {
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.borderRadius.lg,
-  },
-  statusBadgeText: {
-    color: '#fff',
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.bold,
-  },
-  locationInfo: {
-    marginBottom: theme.spacing.lg,
-  },
-  coordinatesRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: theme.spacing.sm,
-  },
-  coordinates: {
-    fontSize: theme.fontSize.md,
-    fontFamily: 'monospace',
-    marginLeft: theme.spacing.sm,
-    color: colors.text,
-  },
-  detailsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  detail: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  detailText: {
-    fontSize: theme.fontSize.sm,
-    color: colors.textSecondary,
-    marginLeft: theme.spacing.xs,
-  },
-  mapButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.info,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-  },
-  mapButtonText: {
-    color: '#fff',
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.bold,
-    marginLeft: theme.spacing.sm,
-  },
-  noLocationContainer: {
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-  },
-  noLocationText: {
-    fontSize: theme.fontSize.md,
-    color: colors.textSecondary,
-    marginTop: theme.spacing.md,
-    textAlign: 'center',
-  },
-  noLocationSubtext: {
-    fontSize: theme.fontSize.sm,
-    color: colors.textSecondary,
-    marginTop: theme.spacing.xs,
-    textAlign: 'center',
-  },
-});

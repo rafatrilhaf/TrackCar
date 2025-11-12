@@ -1,15 +1,16 @@
-// app/forgot-password.tsx - VERSÃO CORRIGIDA
+// app/forgot-password.tsx - VERSÃO RESPONSIVA COMPLETA
 import { router } from 'expo-router';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import React, { useState } from 'react';
 import {
-    Alert, Image, KeyboardAvoidingView, Platform, ScrollView,
-    StyleSheet,
-    Text, TextInput, TouchableOpacity, View
+  Alert, Image, KeyboardAvoidingView, Platform, ScrollView,
+  StyleSheet,
+  Text, TextInput, TouchableOpacity, View
 } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
 import { auth } from '../services/firebase';
 import styles from '../styles/authScreenStyles';
+import { scaleHeight } from '../utils/responsive';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
@@ -22,7 +23,6 @@ export default function ForgotPasswordScreen() {
       return;
     }
 
-    // Validação básica de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       Alert.alert('Erro', 'Por favor, digite um e-mail válido');
@@ -64,7 +64,6 @@ export default function ForgotPasswordScreen() {
     }
   };
 
-  // Estilos dinâmicos usando o tema atual
   const dynamicStyles = StyleSheet.create({
     input: {
       backgroundColor: theme.colors.inputBackground,
@@ -74,6 +73,38 @@ export default function ForgotPasswordScreen() {
       padding: theme.spacing.md,
       fontSize: theme.fontSize.md,
       color: theme.colors.text,
+      minHeight: scaleHeight(48),
+    },
+    button: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.borderRadius.md,
+      padding: theme.spacing.md,
+      alignItems: 'center',
+      marginBottom: theme.spacing.lg,
+      marginTop: theme.spacing.lg,
+      minHeight: scaleHeight(48),
+      justifyContent: 'center',
+    },
+    buttonDisabled: {
+      backgroundColor: theme.colors.buttonDisabled,
+    },
+  });
+
+  const localStyles = StyleSheet.create({
+    backButton: {
+      alignItems: 'center',
+      padding: 16,
+      marginTop: 12,
+      borderWidth: 1,
+      borderRadius: 8,
+      backgroundColor: 'transparent',
+      minHeight: scaleHeight(48),
+      justifyContent: 'center',
+    },
+    
+    backButtonText: {
+      fontSize: 16,
+      fontWeight: '500',
     },
   });
 
@@ -113,8 +144,8 @@ export default function ForgotPasswordScreen() {
 
           <TouchableOpacity
             style={[
-              { backgroundColor: theme.colors.primary, borderRadius: theme.borderRadius.md, padding: theme.spacing.md, alignItems: 'center', marginBottom: theme.spacing.lg, marginTop: theme.spacing.lg },
-              loading && { backgroundColor: theme.colors.buttonDisabled }
+              dynamicStyles.button,
+              loading && dynamicStyles.buttonDisabled
             ]}
             onPress={handlePasswordReset}
             disabled={loading}
@@ -138,20 +169,3 @@ export default function ForgotPasswordScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-// Estilos locais para essa tela
-const localStyles = StyleSheet.create({
-  backButton: {
-    alignItems: 'center',
-    padding: 16,
-    marginTop: 12,
-    borderWidth: 1,
-    borderRadius: 8,
-    backgroundColor: 'transparent',
-  },
-  
-  backButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-});

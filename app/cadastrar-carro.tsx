@@ -1,4 +1,4 @@
-// app/cadastrar-carro.tsx - VERSÃO CORRIGIDA COM PLACEHOLDERS VISÍVEIS
+// app/cadastrar-carro.tsx - VERSÃO RESPONSIVA COMPLETA
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -34,6 +34,7 @@ import {
   FUEL_TYPES,
   validateCarForm,
 } from '../types/car';
+import { scaleFont, scaleHeight, scaleIcon, scaleModerate } from '../utils/responsive';
 
 export default function CadastrarCarroScreen() {
   const theme = useTheme();
@@ -200,11 +201,11 @@ export default function CadastrarCarroScreen() {
       marginBottom: theme.spacing.sm,
     },
     sectionSubtitle: {
-      fontSize: theme.fontSize.md,
+      fontSize: scaleFont(14),
       color: theme.colors.textSecondary,
       marginBottom: theme.spacing.lg,
       fontStyle: 'italic',
-      lineHeight: 20,
+      lineHeight: scaleFont(20),
     },
     inputContainer: {
       marginBottom: theme.spacing.lg,
@@ -226,6 +227,7 @@ export default function CadastrarCarroScreen() {
       padding: theme.spacing.md,
       fontSize: theme.fontSize.md,
       color: theme.colors.text,
+      minHeight: scaleHeight(48),
     },
     inputError: {
       borderColor: theme.colors.error,
@@ -239,6 +241,7 @@ export default function CadastrarCarroScreen() {
       borderColor: theme.colors.inputBorder,
       borderRadius: theme.borderRadius.md,
       padding: theme.spacing.md,
+      minHeight: scaleHeight(48),
     },
     selectText: {
       fontSize: theme.fontSize.md,
@@ -246,12 +249,12 @@ export default function CadastrarCarroScreen() {
       flex: 1,
     },
     selectPlaceholder: {
-      color: theme.colors.placeholder, // ✅ CORRIGIDO: Usando a cor correta do tema
+      color: theme.colors.placeholder,
     },
     colorPreview: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
+      width: scaleModerate(24),
+      height: scaleModerate(24),
+      borderRadius: scaleModerate(12),
       marginRight: theme.spacing.sm,
       borderWidth: 1,
       borderColor: theme.colors.border,
@@ -261,8 +264,9 @@ export default function CadastrarCarroScreen() {
       alignItems: 'center',
     },
     textArea: {
-      height: 80,
+      height: scaleHeight(80),
       textAlignVertical: 'top',
+      paddingTop: theme.spacing.md,
     },
     errorText: {
       fontSize: theme.fontSize.sm,
@@ -284,6 +288,8 @@ export default function CadastrarCarroScreen() {
       },
       shadowOpacity: 0.3,
       shadowRadius: 4,
+      minHeight: scaleHeight(52),
+      justifyContent: 'center',
     },
     submitButtonDisabled: {
       backgroundColor: theme.colors.buttonDisabled,
@@ -314,7 +320,7 @@ export default function CadastrarCarroScreen() {
       marginBottom: theme.spacing.lg,
     },
     modalItem: {
-      paddingVertical: theme.spacing.md,
+      paddingVertical: scaleHeight(12),
       paddingHorizontal: theme.spacing.sm,
       borderBottomWidth: 1,
       borderBottomColor: theme.colors.border,
@@ -340,7 +346,7 @@ export default function CadastrarCarroScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      {/* Header Global - Sem botão direito */}
+      {/* Header Global */}
       <Header 
         title="Cadastrar Veículo" 
         showBackButton 
@@ -367,8 +373,7 @@ export default function CadastrarCarroScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Informações Essenciais</Text>
           <Text style={styles.sectionSubtitle}>
-            Estas informações são obrigatórias e serão visíveis para outros usuários 
-            na busca por veículos roubados
+            Estas informações são obrigatórias e serão visíveis para outros usuários na busca por veículos roubados
           </Text>
 
           {/* Marca */}
@@ -383,7 +388,7 @@ export default function CadastrarCarroScreen() {
               <Text style={[styles.selectText, !formData.brand && styles.selectPlaceholder]}>
                 {formData.brand || 'Selecione a marca'}
               </Text>
-              <Ionicons name="chevron-down" size={20} color={theme.colors.textSecondary} />
+              <Ionicons name="chevron-down" size={scaleIcon(20)} color={theme.colors.textSecondary} />
             </TouchableOpacity>
             {errors.brand && <Text style={styles.errorText}>{errors.brand}</Text>}
           </View>
@@ -398,7 +403,7 @@ export default function CadastrarCarroScreen() {
               value={formData.model}
               onChangeText={(value) => handleInputChange('model', value)}
               placeholder="Digite o modelo do veículo"
-              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
+              placeholderTextColor={theme.colors.placeholder}
               autoCapitalize="words"
             />
             {errors.model && <Text style={styles.errorText}>{errors.model}</Text>}
@@ -414,7 +419,7 @@ export default function CadastrarCarroScreen() {
               value={formData.year}
               onChangeText={(value) => handleInputChange('year', value)}
               placeholder="2024"
-              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
+              placeholderTextColor={theme.colors.placeholder}
               keyboardType="numeric"
               maxLength={4}
             />
@@ -431,7 +436,7 @@ export default function CadastrarCarroScreen() {
               value={formData.licensePlate}
               onChangeText={(value) => handleInputChange('licensePlate', value)}
               placeholder="ABC-1234 ou ABC1D23"
-              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
+              placeholderTextColor={theme.colors.placeholder}
               autoCapitalize="characters"
               maxLength={8}
             />
@@ -455,7 +460,7 @@ export default function CadastrarCarroScreen() {
                   {formData.color || 'Selecione a cor'}
                 </Text>
               </View>
-              <Ionicons name="chevron-down" size={20} color={theme.colors.textSecondary} />
+              <Ionicons name="chevron-down" size={scaleIcon(20)} color={theme.colors.textSecondary} />
             </TouchableOpacity>
             {errors.color && <Text style={styles.errorText}>{errors.color}</Text>}
           </View>
@@ -465,8 +470,7 @@ export default function CadastrarCarroScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Informações Gerais</Text>
           <Text style={styles.sectionSubtitle}>
-            Informações opcionais para sua organização pessoal e fácil acesso 
-            aos documentos do veículo
+            Informações opcionais para sua organização pessoal e fácil acesso aos documentos do veículo
           </Text>
 
           {/* Motorização */}
@@ -477,7 +481,7 @@ export default function CadastrarCarroScreen() {
               value={formData.engine}
               onChangeText={(value) => handleInputChange('engine', value)}
               placeholder="1.0, 1.6, 2.0, V6..."
-              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
+              placeholderTextColor={theme.colors.placeholder}
             />
           </View>
 
@@ -491,7 +495,7 @@ export default function CadastrarCarroScreen() {
               <Text style={[styles.selectText, !formData.fuel && styles.selectPlaceholder]}>
                 {FUEL_TYPES.find(f => f.value === formData.fuel)?.label || 'Selecione o combustível'}
               </Text>
-              <Ionicons name="chevron-down" size={20} color={theme.colors.textSecondary} />
+              <Ionicons name="chevron-down" size={scaleIcon(20)} color={theme.colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -503,7 +507,7 @@ export default function CadastrarCarroScreen() {
               value={formData.renavam}
               onChangeText={(value) => handleInputChange('renavam', value)}
               placeholder="1234.5678.901"
-              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
+              placeholderTextColor={theme.colors.placeholder}
               keyboardType="numeric"
               maxLength={13}
             />
@@ -517,7 +521,7 @@ export default function CadastrarCarroScreen() {
               value={formData.chassi}
               onChangeText={(value) => handleInputChange('chassi', value)}
               placeholder="17 caracteres alfanuméricos"
-              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
+              placeholderTextColor={theme.colors.placeholder}
               autoCapitalize="characters"
               maxLength={17}
             />
@@ -531,7 +535,7 @@ export default function CadastrarCarroScreen() {
               value={formData.description}
               onChangeText={(value) => handleInputChange('description', value)}
               placeholder="Acessórios, modificações, características especiais..."
-              placeholderTextColor={theme.colors.placeholder} // ✅ CORRIGIDO
+              placeholderTextColor={theme.colors.placeholder}
               multiline
               numberOfLines={4}
               textAlignVertical="top"

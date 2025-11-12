@@ -1,4 +1,4 @@
-// app/perfil.tsx - VERSÃO CORRIGIDA COMPLETA
+// app/perfil.tsx - VERSÃO RESPONSIVA COMPLETA
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -27,6 +27,7 @@ import {
   validatePasswordForm,
   validateProfileForm,
 } from '../types/profile';
+import { scaleHeight, scaleIcon, scaleModerate, scaleWidth } from '../utils/responsive';
 
 export default function PerfilScreen() {
   const theme = useTheme();
@@ -41,7 +42,6 @@ export default function PerfilScreen() {
     signOut,
   } = useUserProfile();
 
-  // Estados para os formulários
   const [formData, setFormData] = useState<ProfileFormData>({
     name: '',
     phone: '',
@@ -59,7 +59,6 @@ export default function PerfilScreen() {
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Atualiza o formulário quando o perfil carrega
   React.useEffect(() => {
     if (profile) {
       setFormData({
@@ -239,11 +238,10 @@ export default function PerfilScreen() {
       onPress={handleSignOut}
       activeOpacity={0.7}
     >
-      <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
+      <Ionicons name="log-out-outline" size={scaleIcon(20)} color="#FFFFFF" />
     </TouchableOpacity>
   );
 
-  // Styles usando o hook useTheme
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -298,16 +296,16 @@ export default function PerfilScreen() {
       position: 'relative',
     },
     profilePhoto: {
-      width: 120,
-      height: 120,
-      borderRadius: theme.borderRadius.full,
+      width: scaleModerate(120),
+      height: scaleModerate(120),
+      borderRadius: scaleModerate(60),
       borderWidth: 3,
       borderColor: theme.colors.primary,
     },
     photoPlaceholder: {
-      width: 120,
-      height: 120,
-      borderRadius: theme.borderRadius.full,
+      width: scaleModerate(120),
+      height: scaleModerate(120),
+      borderRadius: scaleModerate(60),
       backgroundColor: theme.colors.surface,
       justifyContent: 'center',
       alignItems: 'center',
@@ -320,8 +318,8 @@ export default function PerfilScreen() {
       right: 0,
       backgroundColor: theme.colors.primary,
       borderRadius: theme.borderRadius.full,
-      width: 32,
-      height: 32,
+      width: scaleModerate(32),
+      height: scaleModerate(32),
       justifyContent: 'center',
       alignItems: 'center',
       borderWidth: 3,
@@ -333,7 +331,7 @@ export default function PerfilScreen() {
       left: 0,
       right: 0,
       bottom: 0,
-      borderRadius: theme.borderRadius.full,
+      borderRadius: scaleModerate(60),
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
       justifyContent: 'center',
       alignItems: 'center',
@@ -358,6 +356,7 @@ export default function PerfilScreen() {
       padding: theme.spacing.md,
       fontSize: theme.fontSize.md,
       color: theme.colors.text,
+      minHeight: scaleHeight(48),
     },
     inputDisabled: {
       backgroundColor: theme.colors.surface,
@@ -370,8 +369,9 @@ export default function PerfilScreen() {
       fontStyle: 'italic',
     },
     textArea: {
-      height: 80,
+      height: scaleHeight(80),
       textAlignVertical: 'top',
+      paddingTop: theme.spacing.md,
     },
     actionButtons: {
       padding: theme.spacing.lg,
@@ -390,7 +390,7 @@ export default function PerfilScreen() {
       justifyContent: 'center',
       flexDirection: 'row',
       marginBottom: theme.spacing.md,
-      minHeight: 48,
+      minHeight: scaleHeight(48),
       elevation: 3,
       shadowColor: theme.colors.primary,
       shadowOffset: {
@@ -437,14 +437,14 @@ export default function PerfilScreen() {
       borderRadius: theme.borderRadius.lg,
       padding: theme.spacing.xl,
       width: '80%',
-      maxWidth: 300,
+      maxWidth: scaleWidth(300),
     },
     passwordModalContent: {
       backgroundColor: theme.colors.background,
       borderRadius: theme.borderRadius.lg,
       padding: theme.spacing.xl,
       width: '90%',
-      maxWidth: 400,
+      maxWidth: scaleWidth(400),
     },
     modalTitle: {
       fontSize: theme.fontSize.lg,
@@ -459,6 +459,7 @@ export default function PerfilScreen() {
       padding: theme.spacing.md,
       borderRadius: theme.borderRadius.md,
       marginBottom: theme.spacing.sm,
+      minHeight: scaleHeight(48),
     },
     modalOptionText: {
       fontSize: theme.fontSize.md,
@@ -494,7 +495,7 @@ export default function PerfilScreen() {
       <View style={styles.container}>
         <Header title="Meu Perfil" showBackButton />
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle" size={64} color={theme.colors.error} />
+          <Ionicons name="alert-circle" size={scaleIcon(64)} color={theme.colors.error} />
           <Text style={styles.errorText}>Erro ao carregar perfil</Text>
           <Text style={styles.errorSubtext}>{error}</Text>
         </View>
@@ -507,7 +508,6 @@ export default function PerfilScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      {/* Header Global */}
       <Header 
         title="Meu Perfil" 
         showBackButton 
@@ -515,7 +515,6 @@ export default function PerfilScreen() {
       />
 
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        {/* Foto de Perfil */}
         <View style={styles.photoSection}>
           <TouchableOpacity
             style={styles.photoContainer}
@@ -526,7 +525,7 @@ export default function PerfilScreen() {
               <Image source={{ uri: profile.photoURL }} style={styles.profilePhoto} />
             ) : (
               <View style={styles.photoPlaceholder}>
-                <Ionicons name="person" size={50} color={theme.colors.textSecondary} />
+                <Ionicons name="person" size={scaleIcon(50)} color={theme.colors.textSecondary} />
               </View>
             )}
             
@@ -537,14 +536,12 @@ export default function PerfilScreen() {
             )}
             
             <View style={styles.photoEditIcon}>
-              <Ionicons name="camera" size={16} color={theme.colors.background} />
+              <Ionicons name="camera" size={scaleIcon(16)} color={theme.colors.background} />
             </View>
           </TouchableOpacity>
         </View>
 
-        {/* Informações do Usuário */}
         <View style={styles.infoSection}>
-          {/* Nome */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Nome</Text>
             <TextInput
@@ -557,7 +554,6 @@ export default function PerfilScreen() {
             />
           </View>
 
-          {/* Email (não editável) */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>E-mail</Text>
             <TextInput
@@ -569,7 +565,6 @@ export default function PerfilScreen() {
             <Text style={styles.inputHelper}>O e-mail não pode ser alterado</Text>
           </View>
 
-          {/* Telefone */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Telefone</Text>
             <TextInput
@@ -583,7 +578,6 @@ export default function PerfilScreen() {
             />
           </View>
 
-          {/* Endereço */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Endereço</Text>
             <TextInput
@@ -600,7 +594,6 @@ export default function PerfilScreen() {
           </View>
         </View>
 
-        {/* Botões de Ação */}
         <View style={styles.actionButtons}>
           {editMode ? (
             <View style={styles.editButtons}>
@@ -639,7 +632,7 @@ export default function PerfilScreen() {
               onPress={() => setEditMode(true)}
               disabled={isUpdating}
             >
-              <Ionicons name="create-outline" size={20} color="#FFFFFF" />
+              <Ionicons name="create-outline" size={scaleIcon(20)} color="#FFFFFF" />
               <Text style={[styles.buttonText, { marginLeft: theme.spacing.sm }]}>
                 Editar Perfil
               </Text>
@@ -651,7 +644,7 @@ export default function PerfilScreen() {
             onPress={() => setShowPasswordModal(true)}
             disabled={isUpdating}
           >
-            <Ionicons name="lock-closed-outline" size={20} color="#FFFFFF" />
+            <Ionicons name="lock-closed-outline" size={scaleIcon(20)} color="#FFFFFF" />
             <Text style={[styles.buttonText, { marginLeft: theme.spacing.sm }]}>
               Alterar Senha
             </Text>
@@ -659,7 +652,6 @@ export default function PerfilScreen() {
         </View>
       </ScrollView>
 
-      {/* Modal para Opções da Foto */}
       <Modal
         visible={showPhotoOptions}
         animationType="slide"
@@ -671,18 +663,18 @@ export default function PerfilScreen() {
             <Text style={styles.modalTitle}>Foto de Perfil</Text>
             
             <TouchableOpacity style={styles.modalOption} onPress={handleTakePhoto}>
-              <Ionicons name="camera" size={24} color={theme.colors.primary} />
+              <Ionicons name="camera" size={scaleIcon(24)} color={theme.colors.primary} />
               <Text style={styles.modalOptionText}>Tirar Foto</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.modalOption} onPress={handlePickImage}>
-              <Ionicons name="image" size={24} color={theme.colors.primary} />
+              <Ionicons name="image" size={scaleIcon(24)} color={theme.colors.primary} />
               <Text style={styles.modalOptionText}>Escolher da Galeria</Text>
             </TouchableOpacity>
             
             {profile?.photoURL && (
               <TouchableOpacity style={styles.modalOption} onPress={handleRemovePhoto}>
-                <Ionicons name="trash" size={24} color={theme.colors.error} />
+                <Ionicons name="trash" size={scaleIcon(24)} color={theme.colors.error} />
                 <Text style={[styles.modalOptionText, { color: theme.colors.error }]}>
                   Remover Foto
                 </Text>
@@ -699,7 +691,6 @@ export default function PerfilScreen() {
         </View>
       </Modal>
 
-      {/* Modal para Alterar Senha - CORRIGIDO */}
       <Modal
         visible={showPasswordModal}
         animationType="slide"

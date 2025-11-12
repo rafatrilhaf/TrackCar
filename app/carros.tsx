@@ -1,4 +1,4 @@
-// app/carros.tsx - COM HEADER GLOBAL, DESIGN ATUALIZADO E BOTÃO DE IGNIÇÃO
+// app/carros.tsx - VERSÃO RESPONSIVA
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
@@ -18,6 +18,7 @@ import { IgnitionButton } from '../components/IgnitionButton';
 import { useTheme } from '../hooks/useTheme';
 import { deleteCar, getUserCars, toggleCarIgnition } from '../services/carService';
 import { Car } from '../types/car';
+import { scaleHeight, scaleIcon, scaleModerate, scaleWidth } from '../utils/responsive';
 
 export default function CarrosScreen() {
   const theme = useTheme();
@@ -25,7 +26,6 @@ export default function CarrosScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Carrega os carros quando a tela ganha foco
   useFocusEffect(
     useCallback(() => {
       loadCars();
@@ -72,7 +72,7 @@ export default function CarrosScreen() {
             try {
               if (car.id) {
                 await deleteCar(car.id, car.photoURL);
-                await loadCars(); // Recarrega a lista
+                await loadCars();
                 Alert.alert('Sucesso', 'Veículo removido com sucesso');
               }
             } catch (error: any) {
@@ -84,11 +84,9 @@ export default function CarrosScreen() {
     );
   };
 
-  // NOVA FUNÇÃO: Lidar com ignição
   const handleIgnitionToggle = async (carId: string, newState: 'on' | 'off') => {
     try {
       await toggleCarIgnition(carId, newState);
-      // Recarrega a lista para mostrar o estado atualizado
       await loadCars();
       
       const actionText = newState === 'on' ? 'ligada' : 'desligada';
@@ -104,7 +102,7 @@ export default function CarrosScreen() {
       onPress={() => router.push('/cadastrar-carro')}
       activeOpacity={0.7}
     >
-      <Ionicons name="add" size={20} color="#FFFFFF" />
+      <Ionicons name="add" size={scaleIcon(20)} color="#FFFFFF" />
     </TouchableOpacity>
   );
 
@@ -114,40 +112,36 @@ export default function CarrosScreen() {
       onPress={() => router.push(`/detalhes-carro?id=${car.id}` as any)}
       activeOpacity={0.7}
     >
-      {/* Foto do Carro */}
       <View style={styles.carImageContainer}>
         {car.photoURL ? (
           <Image source={{ uri: car.photoURL }} style={styles.carImage} />
         ) : (
           <View style={styles.carImagePlaceholder}>
-            <Ionicons name="car" size={40} color={theme.colors.textSecondary} />
+            <Ionicons name="car" size={scaleIcon(40)} color={theme.colors.textSecondary} />
           </View>
         )}
       </View>
 
-      {/* Informações do Carro */}
       <View style={styles.carInfo}>
-        <Text style={styles.carTitle}>{car.brand} {car.model}</Text>
+        <Text style={styles.carTitle} numberOfLines={1} ellipsizeMode="tail">
+          {car.brand} {car.model}
+        </Text>
         <Text style={styles.carSubtitle}>Ano {car.year}</Text>
         <Text style={styles.carPlate}>{car.licensePlate}</Text>
         
-        {/* Preview da Cor */}
         <View style={styles.carColorContainer}>
           <View style={[styles.carColorPreview, { backgroundColor: car.colorHex }]} />
-          <Text style={styles.carColorText}>{car.color}</Text>
+          <Text style={styles.carColorText} numberOfLines={1}>{car.color}</Text>
         </View>
       </View>
 
-      {/* NOVA SEÇÃO: Controles do Carro */}
       <View style={styles.carControls}>
-        {/* Botão de Ignição */}
         <IgnitionButton
           carId={car.id!}
           ignitionState={car.ignitionState || 'unknown'}
           onToggle={handleIgnitionToggle}
         />
 
-        {/* Botão de Opções */}
         <TouchableOpacity
           style={styles.optionsButton}
           onPress={(e) => {
@@ -177,7 +171,7 @@ export default function CarrosScreen() {
             );
           }}
         >
-          <Ionicons name="ellipsis-vertical" size={20} color={theme.colors.textSecondary} />
+          <Ionicons name="ellipsis-vertical" size={scaleIcon(20)} color={theme.colors.textSecondary} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -186,18 +180,18 @@ export default function CarrosScreen() {
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <View style={styles.emptyIconContainer}>
-        <Ionicons name="car" size={80} color={theme.colors.primary} />
+        <Ionicons name="car" size={scaleIcon(80)} color={theme.colors.primary} />
       </View>
-      <Text style={styles.emptyTitle}>Nenhum veículo cadastrado</Text>
+      <Text style={styles.emptyTitle}>Nenhum veículo{'\n'}cadastrado</Text>
       <Text style={styles.emptySubtitle}>
-        Cadastre seu primeiro veículo para começar a monitorá-lo
+        Cadastre seu primeiro veículo para{'\n'}começar a monitorá-lo
       </Text>
       <TouchableOpacity
         style={styles.emptyButton}
         onPress={() => router.push('/cadastrar-carro')}
         activeOpacity={0.8}
       >
-        <Ionicons name="add" size={20} color="#FFFFFF" />
+        <Ionicons name="add" size={scaleIcon(20)} color="#FFFFFF" />
         <Text style={styles.emptyButtonText}>Cadastrar Veículo</Text>
       </TouchableOpacity>
     </View>
@@ -233,7 +227,7 @@ export default function CarrosScreen() {
       flexDirection: 'row',
       backgroundColor: theme.colors.surface,
       borderRadius: theme.borderRadius.lg,
-      padding: theme.spacing.lg,
+      padding: theme.spacing.md,
       marginBottom: theme.spacing.md,
       shadowColor: '#000',
       shadowOffset: {
@@ -247,16 +241,16 @@ export default function CarrosScreen() {
       borderLeftColor: theme.colors.primary,
     },
     carImageContainer: {
-      marginRight: theme.spacing.lg,
+      marginRight: theme.spacing.md,
     },
     carImage: {
-      width: 80,
-      height: 60,
+      width: scaleWidth(70),
+      height: scaleHeight(52),
       borderRadius: theme.borderRadius.md,
     },
     carImagePlaceholder: {
-      width: 80,
-      height: 60,
+      width: scaleWidth(70),
+      height: scaleHeight(52),
       borderRadius: theme.borderRadius.md,
       backgroundColor: theme.colors.border,
       justifyContent: 'center',
@@ -265,51 +259,52 @@ export default function CarrosScreen() {
     carInfo: {
       flex: 1,
       justifyContent: 'space-between',
+      minWidth: 0, // Importante para permitir ellipsizeMode funcionar
     },
     carTitle: {
       fontSize: theme.fontSize.lg,
       fontWeight: theme.fontWeight.semibold,
       color: theme.colors.text,
-      marginBottom: theme.spacing.xs,
+      marginBottom: 2,
     },
     carSubtitle: {
-      fontSize: theme.fontSize.md,
+      fontSize: theme.fontSize.sm,
       color: theme.colors.textSecondary,
-      marginBottom: theme.spacing.xs,
+      marginBottom: 2,
     },
     carPlate: {
-      fontSize: theme.fontSize.md,
+      fontSize: theme.fontSize.sm,
       color: theme.colors.primary,
       fontWeight: theme.fontWeight.bold,
-      marginBottom: theme.spacing.xs,
+      marginBottom: 2,
     },
     carColorContainer: {
       flexDirection: 'row',
       alignItems: 'center',
     },
     carColorPreview: {
-      width: 16,
-      height: 16,
-      borderRadius: 8,
-      marginRight: theme.spacing.sm,
+      width: scaleWidth(14),
+      height: scaleWidth(14),
+      borderRadius: scaleWidth(7),
+      marginRight: theme.spacing.xs,
       borderWidth: 1,
       borderColor: theme.colors.border,
     },
     carColorText: {
-      fontSize: theme.fontSize.sm,
+      fontSize: theme.fontSize.xs,
       color: theme.colors.textSecondary,
+      flex: 1,
     },
-    // NOVOS ESTILOS: Controles do carro
     carControls: {
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingLeft: theme.spacing.sm,
-      minWidth: 90,
+      paddingLeft: theme.spacing.xs,
+      minWidth: scaleWidth(75),
     },
     optionsButton: {
-      padding: theme.spacing.sm,
+      padding: theme.spacing.xs,
       justifyContent: 'center',
-      marginTop: theme.spacing.sm,
+      marginTop: theme.spacing.xs,
     },
     emptyContainer: {
       flex: 1,
@@ -320,7 +315,7 @@ export default function CarrosScreen() {
     emptyIconContainer: {
       backgroundColor: theme.colors.primaryLight,
       borderRadius: theme.borderRadius.full,
-      padding: theme.spacing.xl,
+      padding: scaleModerate(30),
       marginBottom: theme.spacing.lg,
     },
     emptyTitle: {
@@ -334,7 +329,7 @@ export default function CarrosScreen() {
       fontSize: theme.fontSize.md,
       color: theme.colors.textSecondary,
       textAlign: 'center',
-      lineHeight: 22,
+      lineHeight: scaleModerate(22),
       marginBottom: theme.spacing.xxl,
     },
     emptyButton: {
@@ -379,7 +374,6 @@ export default function CarrosScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header Global */}
       <Header 
         title="Meus Carros" 
         showBackButton 
@@ -387,7 +381,6 @@ export default function CarrosScreen() {
         rightComponent={renderAddButton()}
       />
 
-      {/* Lista de Carros */}
       <FlatList
         data={cars}
         renderItem={renderCarCard}

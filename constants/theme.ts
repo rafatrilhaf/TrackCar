@@ -1,32 +1,33 @@
 // constants/theme.ts
+import { scaleFont, scaleSpacing } from '../utils/responsive';
 
 export const theme = {
   spacing: {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
-    xxl: 48,
+    xs: scaleSpacing(4),
+    sm: scaleSpacing(8),
+    md: scaleSpacing(16),
+    lg: scaleSpacing(24),
+    xl: scaleSpacing(32),
+    xxl: scaleSpacing(48),
   },
   
   borderRadius: {
-    sm: 4,
-    md: 8,
-    lg: 12,
-    xl: 20,
+    sm: scaleSpacing(4),
+    md: scaleSpacing(8),
+    lg: scaleSpacing(12),
+    xl: scaleSpacing(20),
     full: 999,
   },
 
   fontSize: {
-    xs: 12,
-    sm: 14,
-    md: 16,
-    lg: 18,
-    xl: 20,
-    xxl: 24,
-    title: 28,
-    header: 32,
+    xs: scaleFont(12),
+    sm: scaleFont(14),
+    md: scaleFont(16),
+    lg: scaleFont(18),
+    xl: scaleFont(20),
+    xxl: scaleFont(24),
+    title: scaleFont(28),
+    header: scaleFont(32),
   },
 
   fontWeight: {

@@ -1,4 +1,4 @@
-// app/detalhes-carro.tsx - COM HEADER GLOBAL
+// app/detalhes-carro.tsx - VERSÃO RESPONSIVA COMPLETA
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -16,6 +16,7 @@ import { Header } from '../components/Header';
 import { useTheme } from '../hooks/useTheme';
 import { deleteCar, getUserCars } from '../services/carService';
 import { Car, FUEL_TYPES } from '../types/car';
+import { scaleHeight, scaleIcon, scaleModerate } from '../utils/responsive';
 
 export default function DetalhesCarroScreen() {
   const theme = useTheme();
@@ -126,7 +127,7 @@ export default function DetalhesCarroScreen() {
       }}
       activeOpacity={0.7}
     >
-      <Ionicons name="ellipsis-vertical" size={20} color="#FFFFFF" />
+      <Ionicons name="ellipsis-vertical" size={scaleIcon(20)} color="#FFFFFF" />
     </TouchableOpacity>
   );
 
@@ -162,13 +163,13 @@ export default function DetalhesCarroScreen() {
     },
     carPhoto: {
       width: '100%',
-      height: 200,
+      height: scaleHeight(200),
       borderRadius: theme.borderRadius.lg,
       marginBottom: theme.spacing.md,
     },
     photoPlaceholder: {
       width: '100%',
-      height: 200,
+      height: scaleHeight(200),
       borderRadius: theme.borderRadius.lg,
       backgroundColor: theme.colors.surface,
       justifyContent: 'center',
@@ -195,10 +196,11 @@ export default function DetalhesCarroScreen() {
     infoRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingVertical: theme.spacing.sm,
+      alignItems: 'flex-start',
+      paddingVertical: scaleModerate(10),
       borderBottomWidth: 1,
       borderBottomColor: theme.colors.border,
+      minHeight: scaleHeight(40),
     },
     infoRowLast: {
       borderBottomWidth: 0,
@@ -207,24 +209,25 @@ export default function DetalhesCarroScreen() {
       fontSize: theme.fontSize.md,
       color: theme.colors.textSecondary,
       flex: 1,
+      paddingRight: theme.spacing.sm,
     },
     infoValue: {
       fontSize: theme.fontSize.md,
       color: theme.colors.text,
       fontWeight: theme.fontWeight.medium,
-      flex: 2,
+      flex: 1.5,
       textAlign: 'right',
     },
     colorContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-end',
-      flex: 2,
+      flex: 1.5,
     },
     colorPreview: {
-      width: 20,
-      height: 20,
-      borderRadius: 10,
+      width: scaleModerate(20),
+      height: scaleModerate(20),
+      borderRadius: scaleModerate(10),
       marginLeft: theme.spacing.sm,
       borderWidth: 1,
       borderColor: theme.colors.border,
@@ -232,14 +235,15 @@ export default function DetalhesCarroScreen() {
     descriptionText: {
       fontSize: theme.fontSize.md,
       color: theme.colors.text,
-      lineHeight: 22,
+      lineHeight: scaleModerate(22),
       marginTop: theme.spacing.sm,
+      textAlign: 'left',
     },
     actionButtons: {
       flexDirection: 'row',
       gap: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
-      paddingBottom: theme.spacing.xxl,
+      paddingBottom: scaleHeight(30),
     },
     editButton: {
       flex: 1,
@@ -257,6 +261,7 @@ export default function DetalhesCarroScreen() {
       },
       shadowOpacity: 0.3,
       shadowRadius: 4,
+      minHeight: scaleHeight(48),
     },
     deleteButton: {
       flex: 1,
@@ -274,6 +279,7 @@ export default function DetalhesCarroScreen() {
       },
       shadowOpacity: 0.3,
       shadowRadius: 4,
+      minHeight: scaleHeight(48),
     },
     buttonText: {
       color: '#FFFFFF',
@@ -319,7 +325,7 @@ export default function DetalhesCarroScreen() {
             <Image source={{ uri: car.photoURL }} style={styles.carPhoto} />
           ) : (
             <View style={styles.photoPlaceholder}>
-              <Ionicons name="car" size={80} color={theme.colors.primary} />
+              <Ionicons name="car" size={scaleIcon(80)} color={theme.colors.primary} />
             </View>
           )}
         </View>
@@ -335,7 +341,7 @@ export default function DetalhesCarroScreen() {
 
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Modelo</Text>
-            <Text style={styles.infoValue}>{car.model}</Text>
+            <Text style={styles.infoValue} numberOfLines={2}>{car.model}</Text>
           </View>
 
           <View style={styles.infoRow}>
@@ -368,7 +374,7 @@ export default function DetalhesCarroScreen() {
 
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Combustível</Text>
-            <Text style={styles.infoValue}>{getFuelLabel(car.fuel)}</Text>
+            <Text style={styles.infoValue} numberOfLines={2}>{getFuelLabel(car.fuel)}</Text>
           </View>
 
           <View style={styles.infoRow}>
@@ -378,13 +384,15 @@ export default function DetalhesCarroScreen() {
 
           <View style={[styles.infoRow, car.description ? {} : styles.infoRowLast]}>
             <Text style={styles.infoLabel}>Chassi</Text>
-            <Text style={styles.infoValue}>{car.chassi || 'Não informado'}</Text>
+            <Text style={styles.infoValue} numberOfLines={2}>{car.chassi || 'Não informado'}</Text>
           </View>
 
           {car.description && (
             <View style={[styles.infoRow, styles.infoRowLast]}>
-              <Text style={styles.infoLabel}>Observações</Text>
-              <Text style={styles.descriptionText}>{car.description}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.infoLabel}>Observações</Text>
+                <Text style={styles.descriptionText}>{car.description}</Text>
+              </View>
             </View>
           )}
         </View>
@@ -395,12 +403,12 @@ export default function DetalhesCarroScreen() {
           
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Cadastrado em</Text>
-            <Text style={styles.infoValue}>{formatDate(car.createdAt)}</Text>
+            <Text style={styles.infoValue} numberOfLines={2}>{formatDate(car.createdAt)}</Text>
           </View>
 
           <View style={[styles.infoRow, styles.infoRowLast]}>
             <Text style={styles.infoLabel}>Última atualização</Text>
-            <Text style={styles.infoValue}>
+            <Text style={styles.infoValue} numberOfLines={2}>
               {car.updatedAt ? formatDate(car.updatedAt) : formatDate(car.createdAt)}
             </Text>
           </View>
@@ -410,12 +418,12 @@ export default function DetalhesCarroScreen() {
       {/* Botões de Ação */}
       <View style={styles.actionButtons}>
         <TouchableOpacity style={styles.editButton} onPress={handleEdit} activeOpacity={0.8}>
-          <Ionicons name="create-outline" size={20} color="#FFFFFF" />
+          <Ionicons name="create-outline" size={scaleIcon(20)} color="#FFFFFF" />
           <Text style={styles.buttonText}>Editar</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.deleteButton} onPress={handleDelete} activeOpacity={0.8}>
-          <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
+          <Ionicons name="trash-outline" size={scaleIcon(20)} color="#FFFFFF" />
           <Text style={styles.buttonText}>Remover</Text>
         </TouchableOpacity>
       </View>

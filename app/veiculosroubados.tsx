@@ -1,3 +1,4 @@
+// app/veiculosroubados.tsx - VERSÃO RESPONSIVA COMPLETA
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -28,17 +29,15 @@ import { useTheme } from '../hooks/useTheme';
 import { auth } from '../services/firebase';
 import { getCurrentLocation } from '../services/stolenVehicleService';
 import { StolenVehicle } from '../types/stolenVehicle';
+import { scaleFont, scaleHeight, scaleIcon, scaleModerate } from '../utils/responsive';
 
 const StolenVehicleCard: React.FC<{
   vehicle: StolenVehicle;
   onReportSighting: (vehicle: StolenVehicle) => void;
 }> = ({ vehicle, onReportSighting }) => {
   const { colors } = useTheme();
-  
-  // ✅ NOVO: Hook para avistamentos públicos
   const { sightings } = usePublicSightings(vehicle.id);
   
-  // ✅ NOVO: Verificar se é o próprio usuário
   const currentUser = auth.currentUser;
   const isOwnVehicle = currentUser && vehicle.userId === currentUser.uid;
   
@@ -70,20 +69,223 @@ const StolenVehicleCard: React.FC<{
     }
   };
 
+  const styles = StyleSheet.create({
+    vehicleCard: {
+      margin: theme.spacing.md,
+      marginBottom: theme.spacing.sm,
+      borderRadius: theme.borderRadius.lg,
+      elevation: 3,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    cardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: theme.spacing.md,
+      paddingBottom: theme.spacing.sm,
+    },
+    ownerInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    ownerPhoto: {
+      width: scaleModerate(40),
+      height: scaleModerate(40),
+      borderRadius: scaleModerate(20),
+    },
+    ownerPhotoPlaceholder: {
+      width: scaleModerate(40),
+      height: scaleModerate(40),
+      borderRadius: scaleModerate(20),
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    ownerDetails: {
+      marginLeft: theme.spacing.sm,
+      flex: 1,
+    },
+    ownerName: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.medium,
+    },
+    postTime: {
+      fontSize: theme.fontSize.sm,
+    },
+    urgencyBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xs,
+      borderRadius: theme.borderRadius.sm,
+      gap: theme.spacing.xs,
+      minHeight: scaleHeight(24),
+    },
+    urgencyText: {
+      color: '#FFFFFF',
+      fontSize: theme.fontSize.xs,
+      fontWeight: theme.fontWeight.bold,
+    },
+    vehicleImage: {
+      width: '100%',
+      height: scaleHeight(200),
+      marginBottom: theme.spacing.md,
+    },
+    vehicleInfo: {
+      padding: theme.spacing.md,
+      paddingTop: 0,
+    },
+    vehicleMainInfo: {
+      marginBottom: theme.spacing.sm,
+    },
+    vehicleName: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.bold,
+      marginBottom: theme.spacing.xs,
+    },
+    plateContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.xs,
+      flexWrap: 'wrap',
+    },
+    colorDot: {
+      width: scaleModerate(12),
+      height: scaleModerate(12),
+      borderRadius: scaleModerate(6),
+      borderWidth: 1,
+      borderColor: '#DDD',
+    },
+    vehiclePlate: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.medium,
+      fontFamily: 'monospace',
+    },
+    vehicleColor: {
+      fontSize: theme.fontSize.sm,
+    },
+    vehicleDescription: {
+      fontSize: theme.fontSize.sm,
+      lineHeight: scaleFont(18),
+      marginBottom: theme.spacing.sm,
+    },
+    sightingsSection: {
+      marginBottom: theme.spacing.sm,
+    },
+    sightingsContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.spacing.sm,
+      gap: theme.spacing.xs,
+    },
+    sightingsText: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: theme.fontWeight.medium,
+      flex: 1,
+    },
+    publicDescriptions: {
+      marginTop: theme.spacing.sm,
+      paddingTop: theme.spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: 'rgba(0,0,0,0.1)',
+    },
+    publicDescriptionsTitle: {
+      fontSize: theme.fontSize.xs,
+      fontWeight: theme.fontWeight.medium,
+      marginBottom: theme.spacing.xs,
+      textTransform: 'uppercase',
+    },
+    publicDescriptionItem: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginBottom: theme.spacing.xs,
+      gap: theme.spacing.xs,
+    },
+    publicDescriptionText: {
+      fontSize: theme.fontSize.sm,
+      flex: 1,
+      lineHeight: scaleFont(16),
+      fontStyle: 'italic',
+    },
+    lastSeenContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.spacing.md,
+      gap: theme.spacing.xs,
+    },
+    lastSeenText: {
+      fontSize: theme.fontSize.sm,
+      flex: 1,
+    },
+    actionButtons: {
+      flexDirection: 'row',
+      gap: theme.spacing.sm,
+      padding: theme.spacing.md,
+      paddingTop: 0,
+    },
+    sightingButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      gap: theme.spacing.xs,
+      minHeight: scaleHeight(44),
+    },
+    sightingButtonText: {
+      color: '#FFFFFF',
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.medium,
+    },
+    contactButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      gap: theme.spacing.xs,
+      minHeight: scaleHeight(44),
+    },
+    contactButtonText: {
+      color: '#FFFFFF',
+      fontSize: theme.fontSize.sm,
+      fontWeight: theme.fontWeight.medium,
+    },
+    ownVehicleMessage: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      borderWidth: 1,
+      gap: theme.spacing.xs,
+      minHeight: scaleHeight(44),
+    },
+    ownVehicleMessageText: {
+      fontSize: theme.fontSize.sm,
+      fontStyle: 'italic',
+    },
+  });
+
   return (
     <View style={[styles.vehicleCard, { backgroundColor: colors.surface }]}>
-      {/* Header do Post */}
       <View style={styles.cardHeader}>
         <View style={styles.ownerInfo}>
           {vehicle.ownerPhotoURL ? (
             <Image source={{ uri: vehicle.ownerPhotoURL }} style={styles.ownerPhoto} />
           ) : (
             <View style={[styles.ownerPhotoPlaceholder, { backgroundColor: colors.border }]}>
-              <Ionicons name="person" size={20} color={colors.textSecondary} />
+              <Ionicons name="person" size={scaleIcon(20)} color={colors.textSecondary} />
             </View>
           )}
           <View style={styles.ownerDetails}>
-            <Text style={[styles.ownerName, { color: colors.text }]}>{vehicle.ownerName}</Text>
+            <Text style={[styles.ownerName, { color: colors.text }]} numberOfLines={1}>{vehicle.ownerName}</Text>
             <Text style={[styles.postTime, { color: colors.textSecondary }]}>
               Roubado há {getTimeAgo(vehicle.stolenAt)}
             </Text>
@@ -91,20 +293,18 @@ const StolenVehicleCard: React.FC<{
         </View>
         
         <View style={[styles.urgencyBadge, { backgroundColor: colors.error }]}>
-          <Ionicons name="warning" size={14} color="#FFFFFF" />
+          <Ionicons name="warning" size={scaleIcon(14)} color="#FFFFFF" />
           <Text style={styles.urgencyText}>ROUBADO</Text>
         </View>
       </View>
 
-      {/* Imagem do Veículo */}
       {vehicle.photoURL && (
         <Image source={{ uri: vehicle.photoURL }} style={styles.vehicleImage} />
       )}
 
-      {/* Informações do Veículo */}
       <View style={styles.vehicleInfo}>
         <View style={styles.vehicleMainInfo}>
-          <Text style={[styles.vehicleName, { color: colors.text }]}>
+          <Text style={[styles.vehicleName, { color: colors.text }]} numberOfLines={1}>
             {vehicle.brand} {vehicle.model} {vehicle.year}
           </Text>
           <View style={styles.plateContainer}>
@@ -115,23 +315,20 @@ const StolenVehicleCard: React.FC<{
         </View>
 
         {vehicle.description && (
-          <Text style={[styles.vehicleDescription, { color: colors.textSecondary }]}>
+          <Text style={[styles.vehicleDescription, { color: colors.textSecondary }]} numberOfLines={3}>
             {vehicle.description}
           </Text>
         )}
 
-        {/* ✅ CORRIGIDO: Contador de Avistamentos e Descrições Públicas */}
         {sightings.count > 0 && (
           <View style={styles.sightingsSection}>
             <View style={styles.sightingsContainer}>
-              <Ionicons name="eye" size={16} color={colors.primary} />
+              <Ionicons name="eye" size={scaleIcon(16)} color={colors.primary} />
               <Text style={[styles.sightingsText, { color: colors.primary }]}>
-                {/* ✅ CORRIGIDO: Mudou de "pessoas" para "relatos" */}
                 {sightings.count} {sightings.count === 1 ? 'relato sobre' : 'relatos sobre'} este veículo
               </Text>
             </View>
             
-            {/* ✅ NOVO: Descrições públicas dos avistamentos */}
             {sightings.descriptions.length > 0 && (
               <View style={styles.publicDescriptions}>
                 <Text style={[styles.publicDescriptionsTitle, { color: colors.textSecondary }]}>
@@ -139,7 +336,7 @@ const StolenVehicleCard: React.FC<{
                 </Text>
                 {sightings.descriptions.map((description, index) => (
                   <View key={index} style={styles.publicDescriptionItem}>
-                    <Ionicons name="chatbubble-ellipses" size={12} color={colors.textSecondary} />
+                    <Ionicons name="chatbubble-ellipses" size={scaleIcon(12)} color={colors.textSecondary} />
                     <Text style={[styles.publicDescriptionText, { color: colors.text }]} numberOfLines={2}>
                       "{description}"
                     </Text>
@@ -150,10 +347,9 @@ const StolenVehicleCard: React.FC<{
           </View>
         )}
 
-        {/* ✅ CORRIGIDO: Última atividade reportada */}
         {vehicle.lastSeenLocation && (
           <View style={styles.lastSeenContainer}>
-            <Ionicons name="location" size={16} color={colors.warning} />
+            <Ionicons name="location" size={scaleIcon(16)} color={colors.warning} />
             <Text style={[styles.lastSeenText, { color: colors.textSecondary }]}>
               Última atividade reportada há {getTimeAgo(vehicle.lastSeenLocation.timestamp)}
             </Text>
@@ -161,34 +357,30 @@ const StolenVehicleCard: React.FC<{
         )}
       </View>
 
-      {/* Botões de Ação */}
       <View style={styles.actionButtons}>
-        {/* ✅ CORRIGIDO: Botão "Vi Este Carro" só se NÃO for o próprio veículo */}
         {!isOwnVehicle && (
           <TouchableOpacity
             style={[styles.sightingButton, { backgroundColor: colors.primary }]}
             onPress={() => onReportSighting(vehicle)}
           >
-            <Ionicons name="eye" size={18} color="#FFFFFF" />
+            <Ionicons name="eye" size={scaleIcon(18)} color="#FFFFFF" />
             <Text style={styles.sightingButtonText}>Vi Este Carro!</Text>
           </TouchableOpacity>
         )}
 
-        {/* ✅ CORRIGIDO: Botão contatar só se NÃO for o próprio veículo */}
         {vehicle.ownerPhone && !isOwnVehicle && (
           <TouchableOpacity
             style={[styles.contactButton, { backgroundColor: colors.success }]}
             onPress={handleContactOwner}
           >
-            <Ionicons name="logo-whatsapp" size={18} color="#FFFFFF" />
+            <Ionicons name="logo-whatsapp" size={scaleIcon(18)} color="#FFFFFF" />
             <Text style={styles.contactButtonText}>Contatar</Text>
           </TouchableOpacity>
         )}
 
-        {/* ✅ NOVO: Mensagem para o próprio veículo */}
         {isOwnVehicle && (
           <View style={[styles.ownVehicleMessage, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <Ionicons name="information-circle" size={16} color={colors.textSecondary} />
+            <Ionicons name="information-circle" size={scaleIcon(16)} color={colors.textSecondary} />
             <Text style={[styles.ownVehicleMessageText, { color: colors.textSecondary }]}>
               Este é o seu veículo roubado
             </Text>
@@ -202,8 +394,6 @@ const StolenVehicleCard: React.FC<{
 export default function VeiculosRoubadosScreen() {
   const { colors } = useTheme();
   const { stolenVehicles, isLoading, refreshVehicles, reportVehicleSighting } = useStolenVehicles();
-  
-  // ✅ NOVO: Hook para notificações
   const { unreadCount } = useSightingNotifications();
   
   const [showSightingModal, setShowSightingModal] = useState(false);
@@ -223,10 +413,7 @@ export default function VeiculosRoubadosScreen() {
     setReportingLocation(true);
     
     try {
-      // Obtém localização atual
       const currentLocation = await getCurrentLocation();
-      
-      // Reporta o avistamento
       await reportVehicleSighting(
         selectedVehicle.id,
         currentLocation,
@@ -258,7 +445,7 @@ export default function VeiculosRoubadosScreen() {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Ionicons name="shield-checkmark" size={80} color={colors.success} />
+      <Ionicons name="shield-checkmark" size={scaleIcon(80)} color={colors.success} />
       <Text style={[styles.emptyTitle, { color: colors.text }]}>
         🎉 Ótimas Notícias!
       </Text>
@@ -268,9 +455,187 @@ export default function VeiculosRoubadosScreen() {
     </View>
   );
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    feedList: {
+      flex: 1,
+    },
+    emptyContainer: {
+      flexGrow: 1,
+    },
+    feedHeader: {
+      padding: theme.spacing.lg,
+      paddingBottom: theme.spacing.md,
+    },
+    feedTitle: {
+      fontSize: scaleFont(22),
+      fontWeight: theme.fontWeight.bold,
+      marginBottom: theme.spacing.xs,
+    },
+    feedSubtitle: {
+      fontSize: theme.fontSize.md,
+      lineHeight: scaleFont(20),
+      marginBottom: theme.spacing.md,
+    },
+    alertBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: theme.spacing.sm,
+      borderRadius: theme.borderRadius.md,
+      borderWidth: 1,
+      gap: theme.spacing.xs,
+    },
+    alertText: {
+      flex: 1,
+      fontSize: theme.fontSize.sm,
+      lineHeight: scaleFont(16),
+    },
+    notificationsButton: {
+      position: 'relative',
+      padding: theme.spacing.xs,
+    },
+    notificationBadge: {
+      position: 'absolute',
+      top: -2,
+      right: -2,
+      minWidth: scaleModerate(18),
+      height: scaleModerate(18),
+      borderRadius: scaleModerate(9),
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 4,
+    },
+    notificationBadgeText: {
+      color: '#FFFFFF',
+      fontSize: theme.fontSize.xs,
+      fontWeight: theme.fontWeight.bold,
+    },
+    emptyState: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: theme.spacing.xl,
+    },
+    emptyTitle: {
+      fontSize: theme.fontSize.xl,
+      fontWeight: theme.fontWeight.bold,
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.sm,
+      textAlign: 'center',
+    },
+    emptySubtitle: {
+      fontSize: theme.fontSize.md,
+      textAlign: 'center',
+      lineHeight: scaleFont(22),
+    },
+    modalOverlay: {
+      flex: 1,
+    },
+    keyboardAvoidingContainer: {
+      flex: 1,
+    },
+    modalBackdrop: {
+      flex: 1,
+      justifyContent: 'flex-end',
+    },
+    modalContent: {
+      borderTopLeftRadius: theme.borderRadius.xl,
+      borderTopRightRadius: theme.borderRadius.xl,
+      maxHeight: '85%',
+      minHeight: '50%',
+    },
+    scrollContent: {
+      flexGrow: 1,
+      paddingBottom: 0,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: theme.spacing.lg,
+      borderBottomWidth: 1,
+    },
+    modalTitle: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.bold,
+    },
+    modalBody: {
+      padding: theme.spacing.lg,
+    },
+    vehicleSummary: {
+      alignItems: 'center',
+      marginBottom: theme.spacing.lg,
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+    },
+    vehicleSummaryText: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.bold,
+      marginBottom: theme.spacing.xs,
+      textAlign: 'center',
+    },
+    vehicleSummaryPlate: {
+      fontSize: theme.fontSize.md,
+    },
+    publicWarning: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: theme.spacing.sm,
+      borderRadius: theme.borderRadius.md,
+      borderWidth: 1,
+      marginBottom: theme.spacing.lg,
+      gap: theme.spacing.xs,
+    },
+    publicWarningText: {
+      flex: 1,
+      fontSize: theme.fontSize.sm,
+      lineHeight: scaleFont(16),
+    },
+    inputLabel: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.medium,
+      marginBottom: theme.spacing.sm,
+    },
+    descriptionInput: {
+      borderWidth: 1,
+      borderRadius: theme.borderRadius.md,
+      padding: theme.spacing.md,
+      fontSize: theme.fontSize.md,
+      textAlignVertical: 'top',
+      marginBottom: theme.spacing.md,
+      minHeight: scaleHeight(80),
+    },
+    privacyNote: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.spacing.lg,
+      gap: theme.spacing.xs,
+    },
+    privacyText: {
+      fontSize: theme.fontSize.sm,
+      flex: 1,
+      lineHeight: scaleFont(18),
+    },
+    confirmButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: theme.spacing.lg,
+      borderRadius: theme.borderRadius.md,
+      gap: theme.spacing.sm,
+      minHeight: scaleHeight(52),
+    },
+    confirmButtonText: {
+      color: '#FFFFFF',
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.bold,
+    },
+  });
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* ✅ CORRIGIDO: Header com botão de notificações com cor correta */}
       <Header 
         title="Veículos Roubados" 
         showBackButton 
@@ -279,8 +644,7 @@ export default function VeiculosRoubadosScreen() {
             style={styles.notificationsButton}
             onPress={() => router.push('/notificacoes-roubados')}
           >
-            {/* ✅ CORRIGIDO: Cor do ícone baseada no tema */}
-            <Ionicons name="notifications" size={24} color={colors.background} />
+            <Ionicons name="notifications" size={scaleIcon(24)} color="#FFFFFF" />
             {unreadCount > 0 && (
               <View style={[styles.notificationBadge, { backgroundColor: colors.error }]}>
                 <Text style={styles.notificationBadgeText}>
@@ -307,13 +671,13 @@ export default function VeiculosRoubadosScreen() {
           stolenVehicles.length > 0 ? (
             <View style={styles.feedHeader}>
               <Text style={[styles.feedTitle, { color: colors.text }]}>
-                🚨 Feed de Segurança Comunitária
+                🚨 Feed de Segurança{'\n'}Comunitária
               </Text>
               <Text style={[styles.feedSubtitle, { color: colors.textSecondary }]}>
                 Ajude a comunidade reportando avistamentos de veículos roubados
               </Text>
               <View style={[styles.alertBanner, { backgroundColor: colors.warning + '20', borderColor: colors.warning }]}>
-                <Ionicons name="information-circle" size={16} color={colors.warning} />
+                <Ionicons name="information-circle" size={scaleIcon(16)} color={colors.warning} />
                 <Text style={[styles.alertText, { color: colors.warning }]}>
                   Sua localização será compartilhada apenas com o proprietário do veículo
                 </Text>
@@ -323,7 +687,6 @@ export default function VeiculosRoubadosScreen() {
         }
       />
 
-      {/* Modal de Reportar Avistamento - ✅ CORRIGIDO SEM MARGEM BRANCA */}
       <Modal
         visible={showSightingModal}
         animationType="slide"
@@ -339,7 +702,7 @@ export default function VeiculosRoubadosScreen() {
           >
             <TouchableWithoutFeedback onPress={() => setShowSightingModal(false)}>
               <View style={styles.modalBackdrop}>
-                <TouchableWithoutFeedback onPress={() => { /* evita fechar ao tocar dentro */ }}>
+                <TouchableWithoutFeedback onPress={() => {}}>
                   <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
                     <ScrollView
                       contentContainerStyle={styles.scrollContent}
@@ -351,7 +714,7 @@ export default function VeiculosRoubadosScreen() {
                           🚗 Reportar Avistamento
                         </Text>
                         <TouchableOpacity onPress={() => setShowSightingModal(false)}>
-                          <Ionicons name="close" size={24} color={colors.text} />
+                          <Ionicons name="close" size={scaleIcon(24)} color={colors.text} />
                         </TouchableOpacity>
                       </View>
 
@@ -366,9 +729,8 @@ export default function VeiculosRoubadosScreen() {
                             </Text>
                           </View>
 
-                          {/* ✅ NOVO: Aviso sobre descrição pública */}
                           <View style={[styles.publicWarning, { backgroundColor: colors.warning + '20', borderColor: colors.warning }]}>
-                            <Ionicons name="warning" size={16} color={colors.warning} />
+                            <Ionicons name="warning" size={scaleIcon(16)} color={colors.warning} />
                             <Text style={[styles.publicWarningText, { color: colors.warning }]}>
                               Sua descrição será pública para ajudar a comunidade. Não inclua informações pessoais.
                             </Text>
@@ -399,7 +761,7 @@ export default function VeiculosRoubadosScreen() {
                           />
 
                           <View style={styles.privacyNote}>
-                            <Ionicons name="location" size={16} color={colors.info} />
+                            <Ionicons name="location" size={scaleIcon(16)} color={colors.info} />
                             <Text style={[styles.privacyText, { color: colors.textSecondary }]}>
                               Sua localização exata será enviada apenas para o proprietário
                             </Text>
@@ -417,7 +779,7 @@ export default function VeiculosRoubadosScreen() {
                             {reportingLocation ? (
                               <ActivityIndicator size="small" color="#FFFFFF" />
                             ) : (
-                              <Ionicons name="send" size={18} color="#FFFFFF" />
+                              <Ionicons name="send" size={scaleIcon(18)} color="#FFFFFF" />
                             )}
                             <Text style={styles.confirmButtonText}>
                               {reportingLocation ? 'Enviando...' : 'Confirmar Avistamento'}
@@ -433,390 +795,6 @@ export default function VeiculosRoubadosScreen() {
           </KeyboardAvoidingView>
         </View>
       </Modal>
-
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  feedList: {
-    flex: 1,
-  },
-  emptyContainer: {
-    flexGrow: 1,
-  },
-  feedHeader: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.md,
-  },
-  feedTitle: {
-    fontSize: theme.fontSize.title,
-    fontWeight: theme.fontWeight.bold,
-    marginBottom: theme.spacing.xs,
-  },
-  feedSubtitle: {
-    fontSize: theme.fontSize.md,
-    lineHeight: 20,
-    marginBottom: theme.spacing.md,
-  },
-  alertBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    gap: theme.spacing.xs,
-  },
-  alertText: {
-    flex: 1,
-    fontSize: theme.fontSize.sm,
-    lineHeight: 16,
-  },
-
-  // ✅ NOVO: Botão de notificações no header
-  notificationsButton: {
-    position: 'relative',
-    padding: theme.spacing.xs,
-  },
-  notificationBadge: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 4,
-  },
-  notificationBadgeText: {
-    color: '#FFFFFF',
-    fontSize: theme.fontSize.xs,
-    fontWeight: theme.fontWeight.bold,
-  },
-
-  vehicleCard: {
-    margin: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
-    borderRadius: theme.borderRadius.lg,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: theme.spacing.md,
-    paddingBottom: theme.spacing.sm,
-  },
-  ownerInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  ownerPhoto: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  ownerPhotoPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  ownerDetails: {
-    marginLeft: theme.spacing.sm,
-  },
-  ownerName: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-  },
-  postTime: {
-    fontSize: theme.fontSize.sm,
-  },
-  urgencyBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.borderRadius.sm,
-    gap: theme.spacing.xs,
-  },
-  urgencyText: {
-    color: '#FFFFFF',
-    fontSize: theme.fontSize.xs,
-    fontWeight: theme.fontWeight.bold,
-  },
-  vehicleImage: {
-    width: '100%',
-    height: 200,
-    marginBottom: theme.spacing.md,
-  },
-  vehicleInfo: {
-    padding: theme.spacing.md,
-    paddingTop: 0,
-  },
-  vehicleMainInfo: {
-    marginBottom: theme.spacing.sm,
-  },
-  vehicleName: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-    marginBottom: theme.spacing.xs,
-  },
-  plateContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.xs,
-  },
-  colorDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#DDD',
-  },
-  vehiclePlate: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-    fontFamily: 'monospace',
-  },
-  vehicleColor: {
-    fontSize: theme.fontSize.sm,
-  },
-  vehicleDescription: {
-    fontSize: theme.fontSize.sm,
-    lineHeight: 18,
-    marginBottom: theme.spacing.sm,
-  },
-
-  // ✅ NOVO: Estilos para avistamentos públicos
-  sightingsSection: {
-    marginBottom: theme.spacing.sm,
-  },
-  sightingsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: theme.spacing.sm,
-    gap: theme.spacing.xs,
-  },
-  sightingsText: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.medium,
-  },
-  publicDescriptions: {
-    marginTop: theme.spacing.sm,
-    paddingTop: theme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.1)',
-  },
-  publicDescriptionsTitle: {
-    fontSize: theme.fontSize.xs,
-    fontWeight: theme.fontWeight.medium,
-    marginBottom: theme.spacing.xs,
-    textTransform: 'uppercase',
-  },
-  publicDescriptionItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing.xs,
-    gap: theme.spacing.xs,
-  },
-  publicDescriptionText: {
-    fontSize: theme.fontSize.sm,
-    flex: 1,
-    lineHeight: 16,
-    fontStyle: 'italic',
-  },
-
-  lastSeenContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: theme.spacing.md,
-    gap: theme.spacing.xs,
-  },
-  lastSeenText: {
-    fontSize: theme.fontSize.sm,
-    flex: 1,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    padding: theme.spacing.md,
-    paddingTop: 0,
-  },
-  sightingButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    gap: theme.spacing.xs,
-  },
-  sightingButtonText: {
-    color: '#FFFFFF',
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-  },
-  contactButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    gap: theme.spacing.xs,
-  },
-  contactButtonText: {
-    color: '#FFFFFF',
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.medium,
-  },
-
-  // ✅ NOVO: Estilos para mensagem do próprio veículo
-  ownVehicleMessage: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    gap: theme.spacing.xs,
-  },
-  ownVehicleMessageText: {
-    fontSize: theme.fontSize.sm,
-    fontStyle: 'italic',
-  },
-
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-  },
-  emptyTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    marginTop: theme.spacing.lg,
-    marginBottom: theme.spacing.sm,
-    textAlign: 'center',
-  },
-  emptySubtitle: {
-    fontSize: theme.fontSize.md,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-
-  // Modal
-  modalOverlay: {
-    flex: 1,
-  },
-  keyboardAvoidingContainer: {
-    flex: 1,
-  },
-  modalBackdrop: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    borderTopLeftRadius: theme.borderRadius.xl,
-    borderTopRightRadius: theme.borderRadius.xl,
-    maxHeight: '85%',
-    minHeight: '50%',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 0,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: theme.spacing.lg,
-    borderBottomWidth: 1,
-  },
-  modalTitle: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-  },
-  modalBody: {
-    padding: theme.spacing.lg,
-  },
-  vehicleSummary: {
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-  },
-  vehicleSummaryText: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-    marginBottom: theme.spacing.xs,
-  },
-  vehicleSummaryPlate: {
-    fontSize: theme.fontSize.md,
-  },
-
-  // ✅ NOVO: Aviso sobre descrição pública
-  publicWarning: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    marginBottom: theme.spacing.lg,
-    gap: theme.spacing.xs,
-  },
-  publicWarningText: {
-    flex: 1,
-    fontSize: theme.fontSize.sm,
-    lineHeight: 16,
-  },
-
-  inputLabel: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-    marginBottom: theme.spacing.sm,
-  },
-  descriptionInput: {
-    borderWidth: 1,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    fontSize: theme.fontSize.md,
-    textAlignVertical: 'top',
-    marginBottom: theme.spacing.md,
-    minHeight: 80,
-  },
-  privacyNote: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-    gap: theme.spacing.xs,
-  },
-  privacyText: {
-    fontSize: theme.fontSize.sm,
-    flex: 1,
-  },
-  confirmButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.md,
-    gap: theme.spacing.sm,
-  },
-  confirmButtonText: {
-    color: '#FFFFFF',
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.bold,
-  },
-});

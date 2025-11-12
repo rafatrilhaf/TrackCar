@@ -1,9 +1,10 @@
-// components/Header.tsx
+// components/Header.tsx - VERSÃO RESPONSIVA COMPLETA
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
+import { scaleFont, scaleHeight, scaleIcon } from '../utils/responsive';
 
 interface HeaderProps {
   title: string;
@@ -36,7 +37,7 @@ export const Header: React.FC<HeaderProps> = ({
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.xxl,
+      paddingTop: scaleHeight(Platform.OS === 'ios' ? 48 : 40),
       paddingBottom: theme.spacing.lg,
       backgroundColor: backgroundColor || theme.colors.primary,
       borderBottomWidth: 0,
@@ -48,6 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
       },
       shadowOpacity: 0.15,
       shadowRadius: 3.84,
+      minHeight: scaleHeight(88),
     },
     leftSection: {
       flex: 1,
@@ -63,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
       alignItems: 'center',
     },
     title: {
-      fontSize: theme.fontSize.xl,
+      fontSize: scaleFont(18),
       fontWeight: theme.fontWeight.bold,
       color: '#FFFFFF',
       textAlign: 'center',
@@ -73,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({
       alignItems: 'flex-end',
     },
     spacer: {
-      width: 40,
+      width: scaleIcon(40),
     },
   });
 
@@ -86,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
             onPress={handleBackPress}
             activeOpacity={0.7}
           >
-            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+            <Ionicons name="arrow-back" size={scaleIcon(24)} color="#FFFFFF" />
           </TouchableOpacity>
         )}
       </View>

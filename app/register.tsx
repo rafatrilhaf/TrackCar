@@ -1,4 +1,4 @@
-// app/register.tsx - VERSÃO CORRIGIDA SEM ERRO
+// app/register.tsx - VERSÃO RESPONSIVA COMPLETA
 import { router } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -11,6 +11,7 @@ import {
 import { useTheme } from '../hooks/useTheme';
 import { auth, db } from '../services/firebase';
 import styles from '../styles/authScreenStyles';
+import { scaleHeight } from '../utils/responsive';
 
 export default function RegisterScreen() {
   const [form, setForm] = useState({ 
@@ -26,7 +27,6 @@ export default function RegisterScreen() {
 
   const handleInputChange = (field: string, value: string) => {
     if (field === 'phone') {
-      // Formatação básica de telefone
       const formattedPhone = formatPhoneNumber(value);
       setForm(prev => ({ ...prev, [field]: formattedPhone }));
     } else {
@@ -34,12 +34,9 @@ export default function RegisterScreen() {
     }
   };
 
-  // Função para formatar telefone
   const formatPhoneNumber = (value: string): string => {
-    // Remove todos os caracteres não numéricos
     const cleaned = value.replace(/\D/g, '');
     
-    // Aplica a máscara (XX) XXXXX-XXXX
     if (cleaned.length <= 2) {
       return cleaned;
     } else if (cleaned.length <= 7) {
@@ -50,7 +47,6 @@ export default function RegisterScreen() {
   };
 
   const handleRegister = async () => {
-    // Validações
     if (!form.name || !form.email || !form.password || !form.confirmPassword) {
       Alert.alert('Erro', 'Preencha todos os campos obrigatórios');
       return;
@@ -66,14 +62,12 @@ export default function RegisterScreen() {
       return;
     }
 
-    // Validação de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email)) {
       Alert.alert('Erro', 'Por favor, digite um e-mail válido');
       return;
     }
 
-    // Validação de telefone (se preenchido)
     if (form.phone && form.phone.replace(/\D/g, '').length < 10) {
       Alert.alert('Erro', 'Por favor, digite um telefone válido');
       return;
@@ -81,16 +75,13 @@ export default function RegisterScreen() {
 
     setLoading(true);
     try {
-      // Criar conta no Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
       const user = userCredential.user;
 
-      // Atualizar o nome no perfil do usuário
       await updateProfile(user, {
         displayName: form.name
       });
 
-      // Salvar dados adicionais no Firestore
       await setDoc(doc(db, 'users', user.uid), {
         name: form.name,
         email: form.email,
@@ -119,7 +110,6 @@ export default function RegisterScreen() {
     }
   };
 
-  // Estilos dinâmicos usando o tema atual
   const dynamicStyles = StyleSheet.create({
     input: {
       backgroundColor: theme.colors.inputBackground,
@@ -129,17 +119,31 @@ export default function RegisterScreen() {
       padding: theme.spacing.md,
       fontSize: theme.fontSize.md,
       color: theme.colors.text,
+      minHeight: scaleHeight(48),
     },
     textArea: {
-      height: 80,
+      height: scaleHeight(80),
       textAlignVertical: 'top',
+      paddingTop: theme.spacing.md,
     },
-    // Estilo local para inputHelper
     inputHelper: {
       fontSize: theme.fontSize.sm,
       color: theme.colors.textSecondary,
       marginTop: theme.spacing.xs,
       fontStyle: 'italic',
+    },
+    button: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.borderRadius.md,
+      padding: theme.spacing.md,
+      alignItems: 'center',
+      marginBottom: theme.spacing.lg,
+      marginTop: theme.spacing.md,
+      minHeight: scaleHeight(48),
+      justifyContent: 'center',
+    },
+    buttonDisabled: {
+      backgroundColor: theme.colors.buttonDisabled,
     },
   });
 
@@ -159,7 +163,6 @@ export default function RegisterScreen() {
         </View>
         
         <View style={styles.form}>
-          {/* Nome */}
           <View style={styles.inputContainer}>
             <Text style={[styles.inputLabel, { color: theme.colors.text }]}>
               Nome *
@@ -175,7 +178,6 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* E-mail */}
           <View style={styles.inputContainer}>
             <Text style={[styles.inputLabel, { color: theme.colors.text }]}>
               E-mail *
@@ -192,7 +194,6 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* Telefone */}
           <View style={styles.inputContainer}>
             <Text style={[styles.inputLabel, { color: theme.colors.text }]}>
               Telefone
@@ -208,7 +209,6 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* Endereço */}
           <View style={styles.inputContainer}>
             <Text style={[styles.inputLabel, { color: theme.colors.text }]}>
               Endereço
@@ -225,7 +225,6 @@ export default function RegisterScreen() {
             />
           </View>
           
-          {/* Senha */}
           <View style={styles.inputContainer}>
             <Text style={[styles.inputLabel, { color: theme.colors.text }]}>
               Senha *
@@ -241,7 +240,6 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* Confirmar Senha */}
           <View style={styles.inputContainer}>
             <Text style={[styles.inputLabel, { color: theme.colors.text }]}>
               Confirmar Senha *
@@ -257,23 +255,14 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* Texto de campos obrigatórios */}
           <Text style={[dynamicStyles.inputHelper, { marginBottom: theme.spacing.md }]}>
             * Campos obrigatórios
           </Text>
 
-          {/* Botão Criar Conta */}
           <TouchableOpacity
             style={[
-              { 
-                backgroundColor: theme.colors.primary, 
-                borderRadius: theme.borderRadius.md, 
-                padding: theme.spacing.md, 
-                alignItems: 'center', 
-                marginBottom: theme.spacing.lg, 
-                marginTop: theme.spacing.md 
-              },
-              loading && { backgroundColor: theme.colors.buttonDisabled }
+              dynamicStyles.button,
+              loading && dynamicStyles.buttonDisabled
             ]}
             onPress={handleRegister}
             disabled={loading}
@@ -283,7 +272,6 @@ export default function RegisterScreen() {
             </Text>
           </TouchableOpacity>
           
-          {/* Link para Login */}
           <TouchableOpacity
             style={styles.switchButton}
             onPress={() => router.back()}

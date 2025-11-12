@@ -1,4 +1,4 @@
-// app/login.tsx - VERSÃO CORRIGIDA
+// app/login.tsx - VERSÃO RESPONSIVA COMPLETA
 import { router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
@@ -10,6 +10,7 @@ import {
 import { useTheme } from '../hooks/useTheme';
 import { auth } from '../services/firebase';
 import styles from '../styles/authScreenStyles';
+import { scaleHeight } from '../utils/responsive';
 
 export default function LoginScreen() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -46,7 +47,6 @@ export default function LoginScreen() {
     }
   };
 
-  // Estilos dinâmicos usando o tema atual
   const dynamicStyles = StyleSheet.create({
     input: {
       backgroundColor: theme.colors.inputBackground,
@@ -56,6 +56,38 @@ export default function LoginScreen() {
       padding: theme.spacing.md,
       fontSize: theme.fontSize.md,
       color: theme.colors.text,
+      minHeight: scaleHeight(48),
+    },
+    button: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.borderRadius.md,
+      padding: theme.spacing.md,
+      alignItems: 'center',
+      marginBottom: theme.spacing.lg,
+      marginTop: theme.spacing.lg,
+      minHeight: scaleHeight(48),
+      justifyContent: 'center',
+    },
+    buttonDisabled: {
+      backgroundColor: theme.colors.buttonDisabled,
+    },
+  });
+
+  const localStyles = StyleSheet.create({
+    forgotPasswordButton: {
+      alignSelf: 'flex-end',
+      marginBottom: 20,
+      marginTop: -5,
+      paddingVertical: 8,
+      paddingHorizontal: 4,
+      minHeight: scaleHeight(32),
+      justifyContent: 'center',
+    },
+    
+    forgotPasswordText: {
+      fontSize: 14,
+      fontWeight: '500',
+      textDecorationLine: 'underline',
     },
   });
 
@@ -100,7 +132,6 @@ export default function LoginScreen() {
             />
           </View>
 
-          {/* Link "Esqueci minha senha" */}
           <TouchableOpacity
             style={localStyles.forgotPasswordButton}
             onPress={() => router.push('/forgot-password')}
@@ -113,8 +144,8 @@ export default function LoginScreen() {
 
           <TouchableOpacity
             style={[
-              { backgroundColor: theme.colors.primary, borderRadius: theme.borderRadius.md, padding: theme.spacing.md, alignItems: 'center', marginBottom: theme.spacing.lg, marginTop: theme.spacing.lg },
-              loading && { backgroundColor: theme.colors.buttonDisabled }
+              dynamicStyles.button,
+              loading && dynamicStyles.buttonDisabled
             ]}
             onPress={handleLogin}
             disabled={loading}>
@@ -136,20 +167,3 @@ export default function LoginScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-// Estilos locais para essa tela
-const localStyles = StyleSheet.create({
-  forgotPasswordButton: {
-    alignSelf: 'flex-end',
-    marginBottom: 20,
-    marginTop: -5,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-  },
-  
-  forgotPasswordText: {
-    fontSize: 14,
-    fontWeight: '500',
-    textDecorationLine: 'underline',
-  },
-});

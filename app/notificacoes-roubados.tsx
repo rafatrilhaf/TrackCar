@@ -1,22 +1,24 @@
+// app/notificacoes-roubados.tsx - VERSÃO RESPONSIVA COMPLETA
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    Image,
-    Linking,
-    Platform,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  Linking,
+  Platform,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Header } from '../components/Header';
 import { theme } from '../constants/theme';
 import { SightingWithDetails, useSightingNotifications } from '../hooks/useSightingNotifications';
 import { useTheme } from '../hooks/useTheme';
+import { scaleFont, scaleHeight, scaleIcon, scaleModerate } from '../utils/responsive';
 
 const SightingNotificationCard: React.FC<{
   notification: SightingWithDetails;
@@ -36,13 +38,149 @@ const SightingNotificationCard: React.FC<{
     return 'Agora mesmo';
   };
 
+  const styles = StyleSheet.create({
+    notificationCard: {
+      margin: theme.spacing.md,
+      marginBottom: theme.spacing.sm,
+      borderRadius: theme.borderRadius.lg,
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+    },
+    notificationHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: theme.spacing.md,
+      paddingBottom: theme.spacing.sm,
+    },
+    vehicleInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    vehiclePhoto: {
+      width: scaleModerate(40),
+      height: scaleModerate(40),
+      borderRadius: theme.borderRadius.md,
+    },
+    vehiclePhotoPlaceholder: {
+      width: scaleModerate(40),
+      height: scaleModerate(40),
+      borderRadius: theme.borderRadius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    vehicleDetails: {
+      marginLeft: theme.spacing.sm,
+      flex: 1,
+    },
+    vehicleName: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.medium,
+    },
+    vehiclePlate: {
+      fontSize: theme.fontSize.sm,
+      fontFamily: 'monospace',
+    },
+    notificationMeta: {
+      alignItems: 'flex-end',
+    },
+    timeText: {
+      fontSize: theme.fontSize.xs,
+    },
+    unreadBadge: {
+      width: scaleModerate(8),
+      height: scaleModerate(8),
+      borderRadius: scaleModerate(4),
+      marginTop: theme.spacing.xs,
+    },
+    sightingInfo: {
+      paddingHorizontal: theme.spacing.md,
+      paddingBottom: theme.spacing.sm,
+    },
+    reporterInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.spacing.sm,
+      gap: theme.spacing.xs,
+      flexWrap: 'wrap',
+    },
+    reporterName: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: theme.fontWeight.medium,
+    },
+    reportedText: {
+      fontSize: theme.fontSize.sm,
+    },
+    locationInfo: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginBottom: theme.spacing.sm,
+      gap: theme.spacing.xs,
+    },
+    locationText: {
+      fontSize: theme.fontSize.sm,
+      flex: 1,
+      lineHeight: scaleFont(18),
+    },
+    descriptionContainer: {
+      marginBottom: theme.spacing.sm,
+    },
+    descriptionLabel: {
+      fontSize: theme.fontSize.xs,
+      fontWeight: theme.fontWeight.medium,
+      marginBottom: theme.spacing.xs,
+    },
+    descriptionText: {
+      fontSize: theme.fontSize.sm,
+      lineHeight: scaleFont(18),
+    },
+    actionButtons: {
+      flexDirection: 'row',
+      gap: theme.spacing.sm,
+      padding: theme.spacing.md,
+      paddingTop: 0,
+    },
+    viewLocationButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: theme.spacing.sm,
+      borderRadius: theme.borderRadius.md,
+      gap: theme.spacing.xs,
+      minHeight: scaleHeight(40),
+    },
+    viewLocationText: {
+      color: '#FFFFFF',
+      fontSize: theme.fontSize.sm,
+      fontWeight: theme.fontWeight.medium,
+    },
+    markReadButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: theme.spacing.sm,
+      borderRadius: theme.borderRadius.md,
+      borderWidth: 1,
+      gap: theme.spacing.xs,
+      minHeight: scaleHeight(40),
+    },
+    markReadText: {
+      fontSize: theme.fontSize.xs,
+      fontWeight: theme.fontWeight.medium,
+    },
+  });
+
   return (
     <View style={[
       styles.notificationCard, 
       { backgroundColor: colors.surface },
       !notification.isRead && { borderLeftColor: colors.primary, borderLeftWidth: 4 }
     ]}>
-      {/* Header da Notificação */}
       <View style={styles.notificationHeader}>
         <View style={styles.vehicleInfo}>
           {notification.vehicleDetails?.photoURL ? (
@@ -52,12 +190,12 @@ const SightingNotificationCard: React.FC<{
             />
           ) : (
             <View style={[styles.vehiclePhotoPlaceholder, { backgroundColor: colors.border }]}>
-              <Ionicons name="car" size={20} color={colors.textSecondary} />
+              <Ionicons name="car" size={scaleIcon(20)} color={colors.textSecondary} />
             </View>
           )}
           
           <View style={styles.vehicleDetails}>
-            <Text style={[styles.vehicleName, { color: colors.text }]}>
+            <Text style={[styles.vehicleName, { color: colors.text }]} numberOfLines={1}>
               {notification.vehicleDetails?.brand} {notification.vehicleDetails?.model}
             </Text>
             <Text style={[styles.vehiclePlate, { color: colors.textSecondary }]}>
@@ -76,10 +214,9 @@ const SightingNotificationCard: React.FC<{
         </View>
       </View>
 
-      {/* Informações do Avistamento */}
       <View style={styles.sightingInfo}>
         <View style={styles.reporterInfo}>
-          <Ionicons name="person" size={16} color={colors.textSecondary} />
+          <Ionicons name="person" size={scaleIcon(16)} color={colors.textSecondary} />
           <Text style={[styles.reporterName, { color: colors.text }]}>
             {notification.reportedBy.name}
           </Text>
@@ -90,7 +227,7 @@ const SightingNotificationCard: React.FC<{
 
         {notification.sightingDetails?.location && (
           <View style={styles.locationInfo}>
-            <Ionicons name="location" size={16} color={colors.warning} />
+            <Ionicons name="location" size={scaleIcon(16)} color={colors.warning} />
             <Text style={[styles.locationText, { color: colors.text }]} numberOfLines={2}>
               {notification.sightingDetails.location.address}
             </Text>
@@ -102,20 +239,19 @@ const SightingNotificationCard: React.FC<{
             <Text style={[styles.descriptionLabel, { color: colors.textSecondary }]}>
               Descrição:
             </Text>
-            <Text style={[styles.descriptionText, { color: colors.text }]}>
+            <Text style={[styles.descriptionText, { color: colors.text }]} numberOfLines={3}>
               {notification.sightingDetails.description}
             </Text>
           </View>
         )}
       </View>
 
-      {/* Botões de Ação */}
       <View style={styles.actionButtons}>
         <TouchableOpacity
           style={[styles.viewLocationButton, { backgroundColor: colors.primary }]}
           onPress={() => onViewLocation(notification)}
         >
-          <Ionicons name="map" size={16} color="#FFFFFF" />
+          <Ionicons name="map" size={scaleIcon(16)} color="#FFFFFF" />
           <Text style={styles.viewLocationText}>Ver no Google Maps</Text>
         </TouchableOpacity>
 
@@ -124,7 +260,7 @@ const SightingNotificationCard: React.FC<{
             style={[styles.markReadButton, { borderColor: colors.border }]}
             onPress={() => notification.id && onMarkAsRead(notification.id)}
           >
-            <Ionicons name="checkmark" size={16} color={colors.textSecondary} />
+            <Ionicons name="checkmark" size={scaleIcon(16)} color={colors.textSecondary} />
             <Text style={[styles.markReadText, { color: colors.textSecondary }]}>
               Marcar como lida
             </Text>
@@ -166,7 +302,6 @@ export default function NotificacoesRoubadosScreen() {
     }
   };
 
-  // ✅ CORRIGIDO: Abrir no Google Maps em vez de modal
   const handleViewLocation = (notification: SightingWithDetails) => {
     if (!notification.sightingDetails?.location) {
       Alert.alert('Erro', 'Localização não disponível');
@@ -175,7 +310,6 @@ export default function NotificacoesRoubadosScreen() {
 
     const { latitude, longitude, address } = notification.sightingDetails.location;
     
-    // ✅ NOVO: Abrir Google Maps
     const googleMapsUrl = Platform.select({
       ios: `maps:${latitude},${longitude}?q=${latitude},${longitude}(${encodeURIComponent(address)})`,
       android: `geo:${latitude},${longitude}?q=${latitude},${longitude}(${encodeURIComponent(address)})`,
@@ -186,12 +320,10 @@ export default function NotificacoesRoubadosScreen() {
       if (supported) {
         Linking.openURL(googleMapsUrl!);
         
-        // Marca como lida ao visualizar
         if (!notification.isRead && notification.id) {
           handleMarkAsRead(notification.id);
         }
       } else {
-        // Fallback para web
         const webUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
         Linking.openURL(webUrl);
         
@@ -222,7 +354,7 @@ export default function NotificacoesRoubadosScreen() {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Ionicons name="notifications-off" size={80} color={colors.textSecondary} />
+      <Ionicons name="notifications-off" size={scaleIcon(80)} color={colors.textSecondary} />
       <Text style={[styles.emptyTitle, { color: colors.text }]}>
         Nenhuma Notificação
       </Text>
@@ -260,6 +392,113 @@ export default function NotificacoesRoubadosScreen() {
     </View>
   );
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    notificationsList: {
+      flex: 1,
+    },
+    emptyContainer: {
+      flexGrow: 1,
+    },
+    listHeader: {
+      padding: theme.spacing.lg,
+      paddingBottom: theme.spacing.md,
+    },
+    headerStats: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.spacing.sm,
+      flexWrap: 'wrap',
+    },
+    statsText: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.medium,
+    },
+    unreadStats: {
+      fontSize: theme.fontSize.sm,
+      marginLeft: theme.spacing.xs,
+    },
+    markAllButton: {
+      borderWidth: 1,
+      borderRadius: theme.borderRadius.md,
+      paddingVertical: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.md,
+      alignSelf: 'flex-start',
+      minHeight: scaleHeight(36),
+      justifyContent: 'center',
+    },
+    markAllText: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: theme.fontWeight.medium,
+    },
+    headerBadge: {
+      minWidth: scaleModerate(20),
+      height: scaleModerate(20),
+      borderRadius: scaleModerate(10),
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 6,
+    },
+    headerBadgeText: {
+      color: '#FFFFFF',
+      fontSize: theme.fontSize.xs,
+      fontWeight: theme.fontWeight.bold,
+    },
+    emptyState: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: theme.spacing.xl,
+    },
+    emptyTitle: {
+      fontSize: theme.fontSize.xl,
+      fontWeight: theme.fontWeight.bold,
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.sm,
+      textAlign: 'center',
+    },
+    emptySubtitle: {
+      fontSize: theme.fontSize.md,
+      textAlign: 'center',
+      lineHeight: scaleFont(22),
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: theme.spacing.xl,
+    },
+    loadingText: {
+      fontSize: theme.fontSize.md,
+      marginTop: theme.spacing.md,
+    },
+    errorContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: theme.spacing.xl,
+    },
+    errorText: {
+      fontSize: theme.fontSize.md,
+      textAlign: 'center',
+      marginVertical: theme.spacing.md,
+    },
+    retryButton: {
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
+      borderRadius: theme.borderRadius.md,
+      minHeight: scaleHeight(44),
+      justifyContent: 'center',
+    },
+    retryButtonText: {
+      color: '#FFFFFF',
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.medium,
+    },
+  });
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Header 
@@ -276,7 +515,7 @@ export default function NotificacoesRoubadosScreen() {
 
       {error ? (
         <View style={styles.errorContainer}>
-          <Ionicons name="warning" size={48} color={colors.error} />
+          <Ionicons name="warning" size={scaleIcon(48)} color={colors.error} />
           <Text style={[styles.errorText, { color: colors.error }]}>
             {error}
           </Text>
@@ -314,236 +553,3 @@ export default function NotificacoesRoubadosScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  notificationsList: {
-    flex: 1,
-  },
-  emptyContainer: {
-    flexGrow: 1,
-  },
-  listHeader: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.md,
-  },
-  headerStats: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: theme.spacing.sm,
-  },
-  statsText: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-  },
-  unreadStats: {
-    fontSize: theme.fontSize.sm,
-    marginLeft: theme.spacing.xs,
-  },
-  markAllButton: {
-    borderWidth: 1,
-    borderRadius: theme.borderRadius.md,
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.md,
-    alignSelf: 'flex-start',
-  },
-  markAllText: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.medium,
-  },
-  headerBadge: {
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 6,
-  },
-  headerBadgeText: {
-    color: '#FFFFFF',
-    fontSize: theme.fontSize.xs,
-    fontWeight: theme.fontWeight.bold,
-  },
-  notificationCard: {
-    margin: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
-    borderRadius: theme.borderRadius.lg,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  notificationHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: theme.spacing.md,
-    paddingBottom: theme.spacing.sm,
-  },
-  vehicleInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  vehiclePhoto: {
-    width: 40,
-    height: 40,
-    borderRadius: theme.borderRadius.md,
-  },
-  vehiclePhotoPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: theme.borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  vehicleDetails: {
-    marginLeft: theme.spacing.sm,
-    flex: 1,
-  },
-  vehicleName: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-  },
-  vehiclePlate: {
-    fontSize: theme.fontSize.sm,
-    fontFamily: 'monospace',
-  },
-  notificationMeta: {
-    alignItems: 'flex-end',
-  },
-  timeText: {
-    fontSize: theme.fontSize.xs,
-  },
-  unreadBadge: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginTop: theme.spacing.xs,
-  },
-  sightingInfo: {
-    paddingHorizontal: theme.spacing.md,
-    paddingBottom: theme.spacing.sm,
-  },
-  reporterInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: theme.spacing.sm,
-    gap: theme.spacing.xs,
-  },
-  reporterName: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.medium,
-  },
-  reportedText: {
-    fontSize: theme.fontSize.sm,
-  },
-  locationInfo: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing.sm,
-    gap: theme.spacing.xs,
-  },
-  locationText: {
-    fontSize: theme.fontSize.sm,
-    flex: 1,
-    lineHeight: 18,
-  },
-  descriptionContainer: {
-    marginBottom: theme.spacing.sm,
-  },
-  descriptionLabel: {
-    fontSize: theme.fontSize.xs,
-    fontWeight: theme.fontWeight.medium,
-    marginBottom: theme.spacing.xs,
-  },
-  descriptionText: {
-    fontSize: theme.fontSize.sm,
-    lineHeight: 18,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    padding: theme.spacing.md,
-    paddingTop: 0,
-  },
-  viewLocationButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-    gap: theme.spacing.xs,
-  },
-  viewLocationText: {
-    color: '#FFFFFF',
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.medium,
-  },
-  markReadButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    gap: theme.spacing.xs,
-  },
-  markReadText: {
-    fontSize: theme.fontSize.xs,
-    fontWeight: theme.fontWeight.medium,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-  },
-  emptyTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    marginTop: theme.spacing.lg,
-    marginBottom: theme.spacing.sm,
-    textAlign: 'center',
-  },
-  emptySubtitle: {
-    fontSize: theme.fontSize.md,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-  },
-  loadingText: {
-    fontSize: theme.fontSize.md,
-    marginTop: theme.spacing.md,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-  },
-  errorText: {
-    fontSize: theme.fontSize.md,
-    textAlign: 'center',
-    marginVertical: theme.spacing.md,
-  },
-  retryButton: {
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    borderRadius: theme.borderRadius.md,
-  },
-  retryButtonText: {
-    color: '#FFFFFF',
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-  },
-});
