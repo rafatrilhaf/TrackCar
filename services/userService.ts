@@ -28,7 +28,7 @@ export interface UserProfile {
 // ⚠️ IMPORTANTE: Substitua pelo IP da sua máquina onde está rodando o servidor Java
 const BASE_URL = Platform.OS === 'android' 
   ? 'http://10.0.2.2:8080'  // Emulador Android
-  : 'http://192.168.1.185:8080'; // iOS Simulator ou dispositivo físico
+  : 'http://trackcar.loca.lt'; // iOS Simulator ou dispositivo físico
 
 /**
  * Verifica se o usuário ainda está autenticado
